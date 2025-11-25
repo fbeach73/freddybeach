@@ -17,6 +17,7 @@ const companyLinks = [
 const legalLinks = [
   { title: "Privacy Policy", href: "/privacy" },
   { title: "Terms of Service", href: "/terms" },
+  { title: "Refund Policy", href: "/refund" },
 ];
 
 export function SiteFooter() {

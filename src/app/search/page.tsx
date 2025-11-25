@@ -1,25 +1,65 @@
-import { Search } from "lucide-react";
-import { PageHeader } from "@/components/shared/page-header";
-import { EmptyState } from "@/components/shared/empty-state";
+import { Suspense } from "react";
+import type { Metadata } from "next";
+import { SearchClient } from "./search-client";
+import { businesses } from "@/lib/data/businesses";
+import { categories } from "@/lib/data/categories";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export const metadata: Metadata = {
+  title: "Search Businesses | FreddyBeach.com",
+  description:
+    "Search and discover local businesses in Fredericton, New Brunswick. Find restaurants, cafes, retail shops, professional services, and more.",
+  openGraph: {
+    title: "Search Businesses | FreddyBeach.com",
+    description:
+      "Search and discover local businesses in Fredericton, New Brunswick. Find restaurants, cafes, retail shops, professional services, and more.",
+  },
+};
+
+function SearchLoading() {
+  return (
+    <div className="space-y-6">
+      {/* Search Bar Skeleton */}
+      <Skeleton className="h-14 w-full" />
+
+      {/* Results Header Skeleton */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="mt-2 h-4 w-32" />
+        </div>
+        <div className="flex gap-3">
+          <Skeleton className="h-10 w-24 lg:hidden" />
+          <Skeleton className="h-10 w-40" />
+        </div>
+      </div>
+
+      {/* Content Skeleton */}
+      <div className="flex gap-8">
+        {/* Sidebar Skeleton */}
+        <div className="hidden w-64 shrink-0 lg:block">
+          <Skeleton className="h-96 w-full rounded-lg" />
+        </div>
+
+        {/* Grid Skeleton */}
+        <div className="flex-1">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-[4/5] w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function SearchPage() {
   return (
-    <main className="flex-1 container mx-auto px-4 py-8">
-      <PageHeader
-        title="Search Businesses"
-        description="Find local businesses in Fredericton"
-      />
-      <div className="mt-8">
-        <EmptyState
-          icon={Search}
-          title="Search Coming Soon"
-          description="Full search functionality is being built. Check back soon to search for local businesses, services, and more."
-          action={{
-            label: "Browse Categories",
-            href: "/",
-          }}
-        />
-      </div>
+    <main className="container mx-auto px-4 py-8">
+      <Suspense fallback={<SearchLoading />}>
+        <SearchClient businesses={businesses} categories={categories} />
+      </Suspense>
     </main>
   );
 }

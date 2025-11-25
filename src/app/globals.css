@@ -181,3 +181,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Legal content prose styling */
+.legal-content {
+  @apply text-foreground leading-relaxed;
+}
+
+.legal-content p {
+  @apply mb-4 text-muted-foreground;
+}
+
+.legal-content ul {
+  @apply mb-4 ml-6 list-disc space-y-2;
+}
+
+.legal-content ol {
+  @apply mb-4 ml-6 list-decimal space-y-2;
+}
+
+.legal-content li {
+  @apply text-muted-foreground;
+}
+
+.legal-content strong {
+  @apply font-semibold text-foreground;
+}
+
+.legal-content a {
+  @apply text-primary underline underline-offset-4 hover:text-primary/80;
+}

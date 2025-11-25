@@ -158,29 +158,29 @@ Build a comprehensive user dashboard with sidebar navigation, business managemen
 
 ### 5.1 Create My Businesses Page
 **File:** `src/app/dashboard/my-businesses/page.tsx`
-- [ ] Create page.tsx with metadata
-- [ ] Import mock claimed businesses data
+- [x] Create page.tsx with metadata
+- [x] Import mock claimed businesses data
 
 ### 5.2 Page Header
-- [ ] PageHeader: "My Businesses"
-- [ ] Count badge showing number of businesses
-- [ ] "Claim New Business" button (links to homepage)
+- [x] PageHeader: "My Businesses"
+- [x] Count badge showing number of businesses
+- [x] "Claim New Business" button (links to homepage)
 
 ### 5.3 Business Cards Grid
-- [ ] If businesses exist: Grid of ClaimedBusinessCard components
-- [ ] Full-width cards with more detail than dashboard preview
-- [ ] Show all metrics and actions
+- [x] If businesses exist: Grid of ClaimedBusinessCard components
+- [x] Full-width cards with more detail than dashboard preview
+- [x] Show all metrics and actions
 
 ### 5.4 Empty State
-- [ ] If no businesses: Large empty state
-- [ ] Illustration
-- [ ] "No businesses claimed yet" message
-- [ ] "Browse Directory" CTA
+- [x] If no businesses: Large empty state
+- [x] Illustration
+- [x] "No businesses claimed yet" message
+- [x] "Browse Directory" CTA
 
 ### 5.5 Add Business CTA
-- [ ] Card at bottom: "Claim Another Business"
-- [ ] Brief description
-- [ ] CTA button
+- [x] Card at bottom: "Claim Another Business"
+- [x] Brief description
+- [x] CTA button
 
 ---
 
@@ -188,29 +188,29 @@ Build a comprehensive user dashboard with sidebar navigation, business managemen
 
 ### 6.1 Create AI Tools Page
 **File:** `src/app/dashboard/ai-tools/page.tsx`
-- [ ] Create page.tsx with metadata
-- [ ] Import aiTools data and mock usage data
+- [x] Create page.tsx with metadata
+- [x] Import aiTools data and mock usage data
 
 ### 6.2 Page Header
-- [ ] PageHeader: "AI Tools"
-- [ ] User tier badge
-- [ ] Usage summary: "77/100 generations remaining"
+- [x] PageHeader: "AI Tools"
+- [x] User tier badge
+- [x] Usage summary: "77/100 generations remaining"
 
 ### 6.3 Free Tools Section
-- [ ] SectionHeader: "Free Tools"
-- [ ] Grid of DashboardToolCard for free tier tools
-- [ ] 2-3 columns responsive grid
+- [x] SectionHeader: "Free Tools"
+- [x] Grid of DashboardToolCard for free tier tools
+- [x] 2-3 columns responsive grid
 
 ### 6.4 Premium Tools Section
-- [ ] SectionHeader: "Premium Tools"
-- [ ] Grid of DashboardToolCard for enhanced/featured tools
-- [ ] Show lock state for unavailable tools
-- [ ] "Unlock with Enhanced" CTAs
+- [x] SectionHeader: "Premium Tools"
+- [x] Grid of DashboardToolCard for enhanced/featured tools
+- [x] Show lock state for unavailable tools
+- [x] "Unlock with Enhanced" CTAs
 
 ### 6.5 Usage Summary Card
-- [ ] Total generations used this month
-- [ ] Progress bar showing usage vs limit
-- [ ] Upgrade prompt if nearing limit
+- [x] Total generations used this month
+- [x] Progress bar showing usage vs limit
+- [x] Upgrade prompt if nearing limit
 
 ---
 

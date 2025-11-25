@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MapPin, Sparkles, Users, Search } from "lucide-react";
+import { MapPin, Sparkles, Users, Search, Calendar } from "lucide-react";
 import { UserProfile } from "@/components/auth/user-profile";
 import { ModeToggle } from "./ui/mode-toggle";
 import { MobileNav } from "./layout/mobile-nav";
@@ -24,6 +24,11 @@ const navItems = [
     title: "Success Stories",
     href: "/success-stories",
     icon: Users,
+  },
+  {
+    title: "Consultation",
+    href: "/consultation",
+    icon: Calendar,
   },
 ];
 

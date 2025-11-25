@@ -141,3 +141,28 @@ export interface SearchResult {
   totalCount: number;
   filters: SearchFilters;
 }
+
+// Case Study Types
+export interface CaseStudyResult {
+  metric: string;
+  value: string;
+  description?: string;
+}
+
+export interface CaseStudy {
+  id: string;
+  businessName: string;
+  businessSlug: string;
+  category: string;
+  categorySlug: string;
+  heroImage: string;
+  ownerName: string;
+  ownerTitle: string;
+  ownerImage?: string;
+  challenge: string[];
+  solution: string[];
+  toolsUsed: string[]; // AI tool IDs
+  results: CaseStudyResult[];
+  testimonial: string;
+  isFeatured: boolean;
+}

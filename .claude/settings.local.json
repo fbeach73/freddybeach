@@ -20,7 +20,9 @@
       "Bash(npx eslint:*)",
       "Bash(npm run lint:*)",
       "mcp__playwright__browser_resize",
-      "mcp__playwright__browser_snapshot"
+      "mcp__playwright__browser_snapshot",
+      "Bash(tree:*)",
+      "SlashCommand(/create-feature Batch 3 - Dashboard: Build a comprehensive user dashboard for FreddyBeach Directory with persistent collapsible sidebar navigation (keep site header above). Sidebar nav items: Overview (home), My Businesses (building), AI Tools (sparkles), Analytics (chart), Billing (credit card), Settings (gear). Mobile uses sheet drawer. Dashboard pages: 1) Overview (/dashboard) with welcome message, 2x2 stats cards (businesses claimed, AI tools used, hours saved, current plan), claimed businesses section with cards or empty state, AI tools quick access, upgrade upsell card, consultation CTA. 2) My Businesses (/dashboard/my-businesses) with business management cards showing metrics (views, clicks) and quick actions, empty state if none. 3) AI Tools (/dashboard/ai-tools) with tool grid showing Free/Premium badges, usage stats per tool, organized by tier. 4) Individual AI Tool pages (/dashboard/ai-tools/[slug]) with interactive interface, mock responses, usage counter, copy/regenerate buttons. 5-7) Analytics, Billing, Settings as Coming Soon placeholders. Use shadcn sidebar component, mock user data, simulate signed-in user.)"
     ],
     "additionalDirectories": []
   },

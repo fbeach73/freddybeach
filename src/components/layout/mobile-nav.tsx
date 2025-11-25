@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, MapPin, Sparkles, Users, Search, ChevronRight } from "lucide-react";
+import { Menu, MapPin, Sparkles, Users, Search, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -40,6 +40,12 @@ const mainNavItems = [
     href: "/success-stories",
     icon: Users,
     description: "See how local businesses are growing",
+  },
+  {
+    title: "Consultation",
+    href: "/consultation",
+    icon: Calendar,
+    description: "Book a free AI audit for your business",
   },
 ];
 

@@ -9,13 +9,16 @@ import type { Business } from "@/lib/types";
 
 interface BusinessCardProps {
   business: Business;
+  /** Optional override for category slug. Defaults to business.categorySlug */
+  categorySlug?: string;
 }
 
-export function BusinessCard({ business }: BusinessCardProps) {
+export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
   const showTierBadge = business.tier === "enhanced" || business.tier === "featured";
+  const category = categorySlug || business.categorySlug;
 
   return (
-    <Link href={`/business/${business.slug}`}>
+    <Link href={`/${category}/${business.slug}`}>
       <Card className="group h-full overflow-hidden transition-shadow hover:shadow-md">
         <div className="relative aspect-video overflow-hidden">
           <Image

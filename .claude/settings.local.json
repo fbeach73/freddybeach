@@ -19,7 +19,8 @@
       "Bash(mkdir:*)",
       "Bash(npx eslint:*)",
       "Bash(npm run lint:*)",
-      "mcp__playwright__browser_resize"
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_snapshot"
     ],
     "additionalDirectories": []
   },

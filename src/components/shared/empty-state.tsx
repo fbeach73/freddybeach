@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { LucideIcon, Search, Building2, FileQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -106,7 +107,7 @@ export function NoBusinesses({ categoryName }: { categoryName?: string }) {
           : "There are no businesses listed yet."}
       </p>
       <Button className="mt-4" asChild>
-        <a href="/consultation">Add Your Business</a>
+        <Link href="/consultation">Add Your Business</Link>
       </Button>
     </div>
   );

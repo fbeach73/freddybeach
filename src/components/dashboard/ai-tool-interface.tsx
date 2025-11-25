@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Copy, RefreshCw, Lock, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -189,7 +190,7 @@ export function AIToolInterface({ tool, userTier = "free" }: AIToolInterfaceProp
                   unlimited content.
                 </p>
                 <Button className="mt-4" asChild>
-                  <a href="/ai-tools#pricing">Upgrade Now</a>
+                  <Link href="/ai-tools#pricing">Upgrade Now</Link>
                 </Button>
               </div>
             </div>

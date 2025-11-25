@@ -15,11 +15,13 @@
       "WebSearch",
       "Bash(git commit:*)",
       "Bash(pnpm dlx:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run lint:*)",
+      "mcp__playwright__browser_resize"
     ],
-    "additionalDirectories": [
-      "C:\\c\\Projects\\nextjs-better-auth-postgresql-starter-kit"
-    ]
+    "additionalDirectories": []
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [

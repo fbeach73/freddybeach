@@ -1,0 +1,143 @@
+// FreddyBeach.com - Business Directory Types
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string; // Lucide icon name
+  description: string;
+  businessCount: number;
+}
+
+export type DayOfWeek =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
+
+export interface BusinessHours {
+  day: DayOfWeek;
+  open: string; // "09:00"
+  close: string; // "17:00"
+  closed: boolean;
+}
+
+export interface Business {
+  id: string;
+  name: string;
+  slug: string;
+  categoryId: string;
+  categorySlug: string;
+  description: string;
+  shortDescription: string;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  phone: string;
+  email: string;
+  website?: string;
+  rating: number; // 1-5
+  reviewCount: number;
+  hours: BusinessHours[];
+  images: string[]; // URLs
+  heroImage: string;
+  isClaimed: boolean;
+  isVerified: boolean;
+  isFeatured: boolean;
+  tier: "free" | "enhanced" | "featured";
+  createdAt: Date;
+}
+
+export interface Testimonial {
+  id: string;
+  businessId?: string;
+  businessName: string;
+  businessCategory: string;
+  personName: string;
+  personTitle: string;
+  personImage: string;
+  quote: string;
+  challenge: string;
+  solution: string;
+  results: string[];
+  isFeatured: boolean;
+}
+
+export interface AITool {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  shortDescription: string;
+  icon: string; // Lucide icon name
+  tier: "free" | "enhanced" | "featured";
+  usageCount: number;
+  exampleInput: string;
+  exampleOutput: string;
+  features: string[];
+}
+
+export interface ConsultationPackage {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  priceLabel: string;
+  description: string;
+  timeline: string;
+  features: string[];
+  outcomes: string[];
+  isPopular: boolean;
+}
+
+export interface PricingTier {
+  id: string;
+  name: string;
+  price: number;
+  priceLabel: string;
+  period: string;
+  description: string;
+  features: string[];
+  ctaText: string;
+  isPopular: boolean;
+}
+
+// User Dashboard Types
+export interface ClaimedBusiness {
+  businessId: string;
+  claimedAt: Date;
+  tier: "free" | "enhanced" | "featured";
+  status: "pending" | "verified" | "rejected";
+}
+
+export interface ToolUsage {
+  toolId: string;
+  usageCount: number;
+  lastUsed: Date;
+}
+
+export interface UserDashboardData {
+  claimedBusinesses: ClaimedBusiness[];
+  toolUsage: ToolUsage[];
+  totalTimeSaved: number; // in minutes
+  currentTier: "free" | "enhanced" | "featured";
+}
+
+// Search Types
+export interface SearchFilters {
+  query?: string;
+  category?: string;
+  rating?: number;
+  openNow?: boolean;
+  tier?: "free" | "enhanced" | "featured";
+}
+
+export interface SearchResult {
+  businesses: Business[];
+  totalCount: number;
+  filters: SearchFilters;
+}

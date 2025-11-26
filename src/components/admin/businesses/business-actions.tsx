@@ -1,0 +1,161 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { MoreHorizontal, Eye, EyeOff, Trash2, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import type { business } from "@/lib/schema";
+import type { InferSelectModel } from "drizzle-orm";
+
+type Business = InferSelectModel<typeof business>;
+
+interface BusinessActionsProps {
+  business: Business;
+}
+
+export function BusinessActions({ business }: BusinessActionsProps) {
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const handleStatusToggle = async () => {
+    const newStatus = business.status === "published" ? "draft" : "published";
+
+    try {
+      const response = await fetch(`/api/admin/businesses/${business.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update status");
+      }
+
+      toast.success(
+        newStatus === "published"
+          ? "Business published successfully"
+          : "Business unpublished"
+      );
+      router.refresh();
+    } catch {
+      toast.error("Failed to update business status");
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch(`/api/admin/businesses/${business.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete business");
+      }
+
+      toast.success("Business deleted successfully");
+      setShowDeleteDialog(false);
+      router.refresh();
+    } catch {
+      toast.error("Failed to delete business");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+
+          {business.googlePlaceId && (
+            <DropdownMenuItem asChild>
+              <a
+                href={`https://www.google.com/maps/place/?q=place_id:${business.googlePlaceId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink className="mr-2 h-4 w-4" />
+                View on Google Maps
+              </a>
+            </DropdownMenuItem>
+          )}
+
+          <DropdownMenuItem onClick={handleStatusToggle}>
+            {business.status === "published" ? (
+              <>
+                <EyeOff className="mr-2 h-4 w-4" />
+                Unpublish
+              </>
+            ) : (
+              <>
+                <Eye className="mr-2 h-4 w-4" />
+                Publish
+              </>
+            )}
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            className="text-destructive focus:text-destructive"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Business</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{business.name}&quot;? This action cannot
+              be undone and will also delete all associated images.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

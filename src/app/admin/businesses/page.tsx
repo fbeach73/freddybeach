@@ -1,5 +1,4 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -9,200 +8,202 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, CheckCircle2, Star, Building2, Eye } from "lucide-react";
-import Link from "next/link";
-import { businesses } from "@/lib/data";
+import { Building2, Star, ImageIcon } from "lucide-react";
+import Image from "next/image";
+import { db } from "@/lib/db";
+import { business } from "@/lib/schema";
+import { desc, eq, sql } from "drizzle-orm";
+import { getCategoryById } from "@/lib/data/categories";
+import { BusinessActions } from "@/components/admin/businesses/business-actions";
+import { StatusFilter } from "@/components/admin/businesses/status-filter";
 
-function getStatusBadges(business: (typeof businesses)[0]) {
-  const badges = [];
-
-  if (business.isVerified) {
-    badges.push(
-      <Badge key="verified" variant="default" className="bg-green-600">
-        <CheckCircle2 className="mr-1 h-3 w-3" />
-        Verified
-      </Badge>
-    );
-  }
-
-  if (business.isFeatured) {
-    badges.push(
-      <Badge key="featured" variant="default" className="bg-amber-600">
-        <Star className="mr-1 h-3 w-3" />
-        Featured
-      </Badge>
-    );
-  }
-
-  if (business.isClaimed) {
-    badges.push(
-      <Badge key="claimed" variant="outline">
-        Claimed
-      </Badge>
-    );
-  }
-
-  return badges;
+interface PageProps {
+  searchParams: Promise<{ status?: string }>;
 }
 
-function getTierBadge(tier: string) {
-  switch (tier) {
-    case "featured":
-      return <Badge className="bg-amber-600">Featured</Badge>;
-    case "enhanced":
-      return <Badge variant="default">Enhanced</Badge>;
-    default:
-      return <Badge variant="secondary">Free</Badge>;
-  }
-}
+export default async function BusinessesPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const statusFilter = params.status || "all";
 
-export default function BusinessesPage() {
-  const verifiedCount = businesses.filter((b) => b.isVerified).length;
-  const featuredCount = businesses.filter((b) => b.isFeatured).length;
-  const claimedCount = businesses.filter((b) => b.isClaimed).length;
+  // Build query based on status filter
+  const whereClause = statusFilter !== "all"
+    ? eq(business.status, statusFilter as "draft" | "published")
+    : undefined;
+
+  // Fetch businesses from database
+  const businesses = await db
+    .select()
+    .from(business)
+    .where(whereClause)
+    .orderBy(desc(business.createdAt));
+
+  // Get counts for stats
+  const [counts] = await db
+    .select({
+      total: sql<number>`count(*)::int`,
+      draft: sql<number>`count(*) filter (where ${business.status} = 'draft')::int`,
+      published: sql<number>`count(*) filter (where ${business.status} = 'published')::int`,
+      withImages: sql<number>`count(*) filter (where ${business.imageUrl} is not null)::int`,
+    })
+    .from(business);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Business Management</h1>
         <p className="text-muted-foreground">
-          View all businesses, verify listings, and manage featured status.
+          View all businesses, manage status, and review imported listings.
         </p>
       </div>
 
+      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Businesses</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{businesses.length}</div>
+            <div className="text-2xl font-bold">{counts?.total || 0}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Verified</CardTitle>
+            <CardTitle className="text-sm font-medium">Published</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{verifiedCount}</div>
+            <div className="text-2xl font-bold text-green-600">{counts?.published || 0}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Featured</CardTitle>
+            <CardTitle className="text-sm font-medium">Drafts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">{featuredCount}</div>
+            <div className="text-2xl font-bold text-amber-600">{counts?.draft || 0}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Claimed</CardTitle>
+            <CardTitle className="text-sm font-medium">With Images</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{claimedCount}</div>
+            <div className="text-2xl font-bold text-blue-600">{counts?.withImages || 0}</div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Business List */}
       <Card>
         <CardHeader>
-          <CardTitle>All Businesses</CardTitle>
-          <CardDescription>
-            Manage business listings, verification status, and featured placement.
-          </CardDescription>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle>All Businesses</CardTitle>
+              <CardDescription>
+                Manage business listings imported from Google Places.
+              </CardDescription>
+            </div>
+            <StatusFilter currentStatus={statusFilter} />
+          </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Business</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Tier</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {businesses.map((business) => (
-                <TableRow key={business.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Building2 className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <Link
-                          href={`/${business.categorySlug}/${business.slug}`}
-                          className="font-medium hover:underline"
-                        >
-                          {business.name}
-                        </Link>
-                        <p className="text-sm text-muted-foreground truncate max-w-[200px]">
-                          {business.address}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="capitalize">
-                    {business.categorySlug.replace("-", " ")}
-                  </TableCell>
-                  <TableCell>{getTierBadge(business.tier)}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {getStatusBadges(business)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                      <span>{business.rating.toFixed(1)}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <Link href={`/${business.categorySlug}/${business.slug}`}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View public page
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>Edit business</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          {business.isVerified ? "Remove verification" : "Mark as verified"}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          {business.isFeatured ? "Remove from featured" : "Add to featured"}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          Delete business
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          {businesses.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Building2 className="h-12 w-12 text-muted-foreground/50" />
+              <h3 className="mt-4 text-lg font-semibold">No businesses found</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {statusFilter !== "all"
+                  ? `No ${statusFilter} businesses yet. Try a different filter.`
+                  : "Import businesses from Google Places to get started."}
+              </p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Business</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>Images</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {businesses.map((biz) => {
+                  const category = biz.categoryId ? getCategoryById(biz.categoryId) : null;
+                  return (
+                    <TableRow key={biz.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
+                            {biz.imageUrl ? (
+                              <Image
+                                src={biz.imageUrl}
+                                alt={biz.name}
+                                fill
+                                className="object-cover"
+                                sizes="40px"
+                                unoptimized={biz.imageUrl.startsWith("/api")}
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                                <Building2 className="h-5 w-5" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium truncate max-w-[200px]">{biz.name}</p>
+                            <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                              {biz.address}
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {category ? (
+                          <Badge variant="outline">{category.name}</Badge>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={biz.status === "published" ? "default" : "secondary"}
+                          className={biz.status === "published" ? "bg-green-600" : ""}
+                        >
+                          {biz.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {biz.rating ? (
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                            <span>{biz.rating.toFixed(1)}</span>
+                            {biz.reviewCount && (
+                              <span className="text-muted-foreground text-xs">
+                                ({biz.reviewCount})
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                          <span>{biz.images?.length || 0}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <BusinessActions business={biz} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

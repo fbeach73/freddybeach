@@ -6,6 +6,7 @@ import { business, type GooglePlaceData } from "@/lib/schema";
 import { inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import type { FormattedPlace } from "@/lib/services/google-places";
+import { uploadBusinessPhotos } from "@/lib/services/blob-storage";
 
 export interface PlaceToImport {
   placeData: FormattedPlace;
@@ -174,6 +175,19 @@ export async function POST(request: Request) {
       const id = nanoid();
 
       try {
+        // Upload photos to blob storage (max 5 photos per business)
+        let blobPhotoUrls: string[] = [];
+        const photoNames = placeData.rawData.photos?.map((p) => p.name) || [];
+
+        if (photoNames.length > 0) {
+          try {
+            blobPhotoUrls = await uploadBusinessPhotos(photoNames, id, 5);
+          } catch (photoError) {
+            console.warn(`Failed to upload photos for ${placeData.name}:`, photoError);
+            // Continue without photos - not a fatal error
+          }
+        }
+
         // Prepare Google Place data for storage
         const googlePlaceData: GooglePlaceData = {
           displayName: { text: placeData.name },
@@ -211,8 +225,8 @@ export async function POST(request: Request) {
           hours: placeData.hours.length > 0 ? placeData.hours : null,
           rating: placeData.rating || null,
           reviewCount: placeData.reviewCount || null,
-          imageUrl: placeData.photoUrl || null,
-          images: placeData.photos.length > 0 ? placeData.photos : null,
+          imageUrl: blobPhotoUrls[0] || null, // Primary photo from blob storage
+          images: blobPhotoUrls.length > 0 ? blobPhotoUrls : null, // All photos from blob storage
         });
 
         importedBusinesses.push({

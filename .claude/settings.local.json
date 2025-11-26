@@ -18,7 +18,8 @@
       "Bash(pnpm run db:migrate:*)",
       "Bash(pnpm add:*)",
       "Bash(tree:*)",
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": [],

@@ -59,6 +59,7 @@ export function PlaceResultCard({
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 64px, 80px"
+                unoptimized // Required for proxy API routes
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-muted-foreground">

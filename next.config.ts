@@ -7,6 +7,18 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "picsum.photos",
       },
+      {
+        // Vercel Blob storage
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+      },
+    ],
+    // Allow local API routes with query strings (for Google Places photo proxy)
+    localPatterns: [
+      {
+        pathname: "/api/**",
+        search: "",
+      },
     ],
   },
 };

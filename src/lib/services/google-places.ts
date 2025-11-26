@@ -217,6 +217,8 @@ const DETAILS_FIELDS = [
 
 /**
  * Build a photo URL from the Google Places photo resource name
+ * Uses a proxy endpoint for admin import since Google Places API photos
+ * require server-side authentication and don't work with direct browser requests.
  * https://developers.google.com/maps/documentation/places/web-service/place-photos
  */
 export function buildPhotoUrl(
@@ -224,8 +226,8 @@ export function buildPhotoUrl(
   maxWidth: number = 400,
   maxHeight: number = 300
 ): string {
-  const apiKey = getApiKey();
-  return `${GOOGLE_PLACES_API_BASE}/${photoName}/media?key=${apiKey}&maxWidthPx=${maxWidth}&maxHeightPx=${maxHeight}`;
+  // Use the proxy endpoint which handles authentication server-side
+  return `/api/admin/google-places/photo?name=${encodeURIComponent(photoName)}&maxWidth=${maxWidth}&maxHeight=${maxHeight}`;
 }
 
 /**

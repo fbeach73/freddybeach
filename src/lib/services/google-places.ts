@@ -333,6 +333,15 @@ export interface SearchPlacesOptions {
   maxResults?: number; // default 20, max 20
 }
 
+export interface BulkSearchOptions {
+  query: string;
+  type?: PlaceType;
+  radius?: number;
+  minRating?: number;
+  minReviews?: number;
+  maxResults?: number;
+}
+
 export interface SearchPlacesResult {
   places: FormattedPlace[];
   nextPageToken?: string;
@@ -432,4 +441,77 @@ export async function getPlaceDetails(
   const data = (await response.json()) as GooglePlaceDetailsResponse;
 
   return formatPlace(data);
+}
+
+/**
+ * Search for popular places with quality filtering
+ * Uses rankPreference: POPULARITY and filters by rating/reviews
+ * https://developers.google.com/maps/documentation/places/web-service/text-search
+ */
+export async function searchPlacesByPopularity(
+  options: BulkSearchOptions
+): Promise<SearchPlacesResult> {
+  const apiKey = getApiKey();
+  const {
+    query,
+    type,
+    radius = 15000, // 15km default for bulk import
+    minRating = 4.0,
+    minReviews = 10,
+    maxResults = 20,
+  } = options;
+
+  const url = `${GOOGLE_PLACES_API_BASE}/places:searchText`;
+
+  const requestBody: Record<string, unknown> = {
+    textQuery: `${query} Fredericton NB`,
+    locationBias: {
+      circle: {
+        center: FREDERICTON_CENTER,
+        radius,
+      },
+    },
+    rankPreference: "POPULARITY",
+    maxResultCount: Math.min(maxResults, 20),
+    languageCode: "en",
+    regionCode: "CA",
+  };
+
+  // Include specific type if provided
+  if (type) {
+    requestBody.includedType = type;
+  }
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": apiKey,
+      "X-Goog-FieldMask": SEARCH_FIELDS,
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Google Places API error: ${response.status} - ${errorText}`
+    );
+  }
+
+  const data = (await response.json()) as GooglePlacesSearchResponse;
+
+  // Format places and filter by quality criteria
+  const allPlaces = (data.places ?? []).map(formatPlace);
+
+  const filteredPlaces = allPlaces.filter((place) => {
+    const hasMinRating = place.rating !== undefined && place.rating >= minRating;
+    const hasMinReviews = place.reviewCount !== undefined && place.reviewCount >= minReviews;
+    return hasMinRating && hasMinReviews;
+  });
+
+  return {
+    places: filteredPlaces,
+    nextPageToken: undefined, // Bulk import doesn't use pagination
+  };
 }

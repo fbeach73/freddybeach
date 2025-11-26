@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Eye, EyeOff, Trash2, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { MoreHorizontal, Eye, EyeOff, Trash2, ExternalLink, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,6 +26,7 @@ import {
 import { toast } from "sonner";
 import type { business } from "@/lib/schema";
 import type { InferSelectModel } from "drizzle-orm";
+import { getCategoryById } from "@/lib/data/categories";
 
 type Business = InferSelectModel<typeof business>;
 
@@ -36,6 +38,10 @@ export function BusinessActions({ business }: BusinessActionsProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // Get the category to build the public listing URL
+  const category = business.categoryId ? getCategoryById(business.categoryId) : null;
+  const publicListingUrl = category ? `/${category.slug}/${business.slug}` : null;
 
   const handleStatusToggle = async () => {
     const newStatus = business.status === "published" ? "draft" : "published";
@@ -95,6 +101,22 @@ export function BusinessActions({ business }: BusinessActionsProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
+
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/businesses/${business.id}/edit`}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit Listing
+            </Link>
+          </DropdownMenuItem>
+
+          {publicListingUrl && (
+            <DropdownMenuItem asChild>
+              <Link href={publicListingUrl} target="_blank">
+                <Eye className="mr-2 h-4 w-4" />
+                View Listing
+              </Link>
+            </DropdownMenuItem>
+          )}
 
           {business.googlePlaceId && (
             <DropdownMenuItem asChild>

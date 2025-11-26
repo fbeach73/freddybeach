@@ -158,6 +158,9 @@ export const business = pgTable(
     // Images
     imageUrl: text("image_url"),
     images: jsonb("images").$type<string[]>(),
+    // Ownership - set when a business is claimed
+    ownerId: text("owner_id").references(() => user.id, { onDelete: "set null" }),
+    claimedAt: timestamp("claimed_at"),
     // Timestamps
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -174,5 +177,7 @@ export const business = pgTable(
     index("business_google_place_id_idx").on(table.googlePlaceId),
     // Index on slug for URL lookups
     index("business_slug_idx").on(table.slug),
+    // Index on owner for fetching user's claimed businesses
+    index("business_owner_idx").on(table.ownerId),
   ]
 );

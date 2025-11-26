@@ -8,8 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { ClaimedBusinessCard } from "@/components/dashboard/claimed-business-card";
-import { getMockClaimedBusinesses } from "@/lib/data/user-dashboard";
+import { OwnedBusinessCard } from "@/components/dashboard/owned-business-card";
+import { db } from "@/lib/db";
+import { business } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 
 export const metadata = {
   title: "My Businesses | FreddyBeach Directory",
@@ -26,8 +28,13 @@ export default async function MyBusinessesPage() {
     redirect("/");
   }
 
-  const claimedBusinesses = getMockClaimedBusinesses();
-  const businessCount = claimedBusinesses.length;
+  // Fetch businesses owned by this user
+  const ownedBusinesses = await db
+    .select()
+    .from(business)
+    .where(eq(business.ownerId, session.user.id));
+
+  const businessCount = ownedBusinesses.length;
 
   return (
     <div className="space-y-8">
@@ -48,10 +55,10 @@ export default async function MyBusinessesPage() {
       </PageHeader>
 
       {/* Business Cards Grid or Empty State */}
-      {claimedBusinesses.length > 0 ? (
+      {ownedBusinesses.length > 0 ? (
         <div className="space-y-4">
-          {claimedBusinesses.map((business) => (
-            <ClaimedBusinessCard key={business.id} business={business} />
+          {ownedBusinesses.map((biz) => (
+            <OwnedBusinessCard key={biz.id} business={biz} />
           ))}
         </div>
       ) : (
@@ -67,7 +74,7 @@ export default async function MyBusinessesPage() {
       )}
 
       {/* Claim Another Business CTA */}
-      {claimedBusinesses.length > 0 && (
+      {ownedBusinesses.length > 0 && (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
             <div className="rounded-full bg-primary/10 p-3">

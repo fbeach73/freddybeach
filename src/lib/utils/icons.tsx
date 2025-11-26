@@ -14,6 +14,19 @@ import {
   MessageSquareText,
   Share2,
   HelpCircle,
+  // Home services icons
+  Wrench,
+  Zap,
+  Thermometer,
+  HardHat,
+  TreeDeciduous,
+  Bug,
+  // New category icons
+  Bed,
+  Wine,
+  PawPrint,
+  Building2,
+  MoreHorizontal,
 } from "lucide-react";
 
 /**
@@ -34,6 +47,19 @@ const iconMap: Record<string, LucideIcon> = {
   MessageSquareText,
   Share2,
   HelpCircle,
+  // Home services icons
+  Wrench,
+  Zap,
+  Thermometer,
+  HardHat,
+  TreeDeciduous,
+  Bug,
+  // New category icons
+  Bed,
+  Wine,
+  PawPrint,
+  Building2,
+  MoreHorizontal,
 };
 
 /**

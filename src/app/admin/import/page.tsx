@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { Download } from "lucide-react";
+import { Download, Search, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SearchForm } from "@/components/admin/import/search-form";
 import { ResultsList } from "@/components/admin/import/results-list";
 import { ImportConfirmationDialog } from "@/components/admin/import/import-confirmation-dialog";
+import { BulkImportTab } from "@/components/admin/import/bulk-import-tab";
 import type { PlaceType, FormattedPlace } from "@/lib/services/google-places";
 import type { SearchResponse } from "@/app/api/admin/google-places/search/route";
 import type { ImportSummary } from "@/app/api/admin/google-places/import/route";
@@ -267,54 +269,76 @@ export default function ImportPage() {
         </p>
       </div>
 
-      {/* Two-column layout on desktop */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[350px_1fr]">
-        {/* Search Form */}
-        <div className="lg:sticky lg:top-6 lg:self-start">
-          <Card>
-            <CardHeader className="pb-3 sm:pb-6">
-              <CardTitle className="text-base sm:text-lg">Search Google Places</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">
-                Search for businesses in the Fredericton area
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <SearchForm onSearch={handleSearch} isLoading={isSearching} />
-            </CardContent>
-          </Card>
-        </div>
+      {/* Tabs for Manual Search vs Bulk Import */}
+      <Tabs defaultValue="search" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 sm:w-[400px]">
+          <TabsTrigger value="search" className="flex items-center gap-2">
+            <Search className="h-4 w-4" />
+            Manual Search
+          </TabsTrigger>
+          <TabsTrigger value="bulk" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Bulk Import
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Results */}
-        <div>
-          <Card>
-            <CardHeader className="pb-3 sm:pb-6">
-              <CardTitle className="text-base sm:text-lg">Search Results</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">
-                Select businesses to import and assign categories
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <ResultsList
-                places={places}
-                selectedPlaces={selectedPlaces}
-                categoryAssignments={categoryAssignments}
-                importedPlaceIds={importedPlaceIds}
-                onToggleSelect={handleToggleSelect}
-                onCategoryChange={handleCategoryChange}
-                onSelectAll={handleSelectAll}
-                onDeselectAll={handleDeselectAll}
-                onImport={handleImportClick}
-                onLoadMore={handleLoadMore}
-                hasMoreResults={!!nextPageToken}
-                isLoading={isSearching}
-                isLoadingMore={isLoadingMore}
-                isImporting={isImporting}
-                hasSearched={hasSearched}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+        {/* Manual Search Tab */}
+        <TabsContent value="search" className="mt-4 sm:mt-6">
+          {/* Two-column layout on desktop */}
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-[350px_1fr]">
+            {/* Search Form */}
+            <div className="lg:sticky lg:top-6 lg:self-start">
+              <Card>
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="text-base sm:text-lg">Search Google Places</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">
+                    Search for businesses in the Fredericton area
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <SearchForm onSearch={handleSearch} isLoading={isSearching} />
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Results */}
+            <div>
+              <Card>
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="text-base sm:text-lg">Search Results</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">
+                    Select businesses to import and assign categories
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ResultsList
+                    places={places}
+                    selectedPlaces={selectedPlaces}
+                    categoryAssignments={categoryAssignments}
+                    importedPlaceIds={importedPlaceIds}
+                    onToggleSelect={handleToggleSelect}
+                    onCategoryChange={handleCategoryChange}
+                    onSelectAll={handleSelectAll}
+                    onDeselectAll={handleDeselectAll}
+                    onImport={handleImportClick}
+                    onLoadMore={handleLoadMore}
+                    hasMoreResults={!!nextPageToken}
+                    isLoading={isSearching}
+                    isLoadingMore={isLoadingMore}
+                    isImporting={isImporting}
+                    hasSearched={hasSearched}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Bulk Import Tab */}
+        <TabsContent value="bulk" className="mt-4 sm:mt-6">
+          <BulkImportTab />
+        </TabsContent>
+      </Tabs>
 
       {/* Import Confirmation Dialog */}
       <ImportConfirmationDialog

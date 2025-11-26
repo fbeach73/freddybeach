@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getBusinessBySlug, businesses } from "@/lib/data/businesses";
+import { getBusinessBySlugFromDb } from "@/lib/data/businesses-db";
 import { getCategoryBySlug } from "@/lib/data/categories";
 import {
   BusinessBreadcrumb,
@@ -13,6 +13,9 @@ import {
   ContactOwnerButton,
 } from "@/components/business";
 
+// Dynamic rendering - fetch fresh data from database
+export const dynamic = "force-dynamic";
+
 interface BusinessPageProps {
   params: Promise<{
     category: string;
@@ -20,16 +23,9 @@ interface BusinessPageProps {
   }>;
 }
 
-export async function generateStaticParams() {
-  return businesses.map((business) => ({
-    category: business.categorySlug,
-    slug: business.slug,
-  }));
-}
-
 export async function generateMetadata({ params }: BusinessPageProps) {
   const { category, slug } = await params;
-  const business = getBusinessBySlug(slug);
+  const business = await getBusinessBySlugFromDb(slug);
 
   if (!business || business.categorySlug !== category) {
     return {
@@ -46,7 +42,7 @@ export async function generateMetadata({ params }: BusinessPageProps) {
 export default async function BusinessPage({ params }: BusinessPageProps) {
   const { category, slug } = await params;
 
-  const business = getBusinessBySlug(slug);
+  const business = await getBusinessBySlugFromDb(slug);
   const categoryData = getCategoryBySlug(category);
 
   // Return 404 if business doesn't exist or category mismatch

@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import { categories, getCategoryBySlug } from "@/lib/data/categories";
-import { getBusinessesByCategory } from "@/lib/data/businesses";
+import { getBusinessesByCategoryFromDb } from "@/lib/data/businesses-db";
 import { CategoryPageClient } from "./category-page-client";
+
+// Dynamic rendering - fetch fresh data from database
+export const dynamic = "force-dynamic";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -39,7 +42,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const businesses = getBusinessesByCategory(categorySlug);
+  // Fetch published businesses from database
+  const businesses = await getBusinessesByCategoryFromDb(category.id);
 
   return (
     <main className="container mx-auto px-4 py-8">

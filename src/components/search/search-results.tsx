@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { BusinessCard } from "@/components/home/business-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,7 +13,7 @@ interface SearchResultsProps {
   className?: string;
 }
 
-export function SearchResults({
+export const SearchResults = memo(function SearchResults({
   businesses,
   isLoading = false,
   className,
@@ -44,7 +45,7 @@ export function SearchResults({
       ))}
     </div>
   );
-}
+});
 
 function BusinessCardSkeleton() {
   return (

@@ -1,7 +1,9 @@
 import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { nextCookies } from "better-auth/next-js"
+import { admin as adminPlugin } from "better-auth/plugins"
 import { db } from "./db"
+import { ac, admin, client, user } from "./auth/permissions"
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -13,7 +15,14 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-  // nextCookies plugin handles cookie setting in server actions/components
-  // MUST be last in plugins array
-  plugins: [nextCookies()],
+  plugins: [
+    adminPlugin({
+      ac,
+      roles: { admin, client, user },
+      defaultRole: "user",
+    }),
+    // nextCookies plugin handles cookie setting in server actions/components
+    // MUST be last in plugins array
+    nextCookies(),
+  ],
 })

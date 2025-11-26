@@ -15,6 +15,27 @@
       "when": 1764033927536,
       "tag": "0001_modern_luckman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764129075624,
+      "tag": "0002_lush_ogun",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764132534415,
+      "tag": "0003_cheerful_norman_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1764135109781,
+      "tag": "0004_optimal_tony_stark",
+      "breakpoints": true
     }
   ]
 }

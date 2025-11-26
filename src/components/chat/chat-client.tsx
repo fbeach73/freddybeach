@@ -105,23 +105,60 @@ type TextPart = { type?: string; text?: string };
 type MaybePartsMessage = {
   display?: ReactNode;
   parts?: TextPart[];
-  content?: TextPart[];
+  content?: TextPart[] | string;
 };
 
-function renderMessageContent(message: MaybePartsMessage): ReactNode {
+/**
+ * Type guard to check if a message has the expected structure
+ */
+function isValidMessage(message: unknown): message is MaybePartsMessage {
+  if (typeof message !== "object" || message === null) {
+    return false;
+  }
+  return true;
+}
+
+function renderMessageContent(message: unknown): ReactNode {
+  // Validate message structure
+  if (!isValidMessage(message)) {
+    return null;
+  }
+
+  // Handle display property
   if (message.display) return message.display;
-  const parts = Array.isArray(message.parts)
-    ? message.parts
-    : Array.isArray(message.content)
-    ? message.content
-    : [];
-  return parts.map((p, idx) =>
-    p?.type === "text" && p.text ? (
-      <ReactMarkdown key={idx} components={markdownComponents}>
-        {p.text}
+
+  // Handle parts array
+  if (Array.isArray(message.parts)) {
+    return message.parts.map((p, idx) =>
+      p?.type === "text" && p.text ? (
+        <ReactMarkdown key={idx} components={markdownComponents}>
+          {p.text}
+        </ReactMarkdown>
+      ) : null
+    );
+  }
+
+  // Handle content as array
+  if (Array.isArray(message.content)) {
+    return message.content.map((p, idx) =>
+      p?.type === "text" && p.text ? (
+        <ReactMarkdown key={idx} components={markdownComponents}>
+          {p.text}
+        </ReactMarkdown>
+      ) : null
+    );
+  }
+
+  // Handle content as string (common format)
+  if (typeof message.content === "string") {
+    return (
+      <ReactMarkdown components={markdownComponents}>
+        {message.content}
       </ReactMarkdown>
-    ) : null
-  );
+    );
+  }
+
+  return null;
 }
 
 interface ChatClientProps {
@@ -162,7 +199,7 @@ export function ChatClient({ user }: ChatClientProps) {
               <div className="text-sm font-medium mb-1">
                 {message.role === "user" ? "You" : "AI"}
               </div>
-              <div>{renderMessageContent(message as MaybePartsMessage)}</div>
+              <div>{renderMessageContent(message)}</div>
             </div>
           ))}
         </div>

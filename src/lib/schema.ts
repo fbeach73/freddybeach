@@ -1,4 +1,55 @@
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  index,
+  pgEnum,
+  real,
+  jsonb,
+  integer,
+} from "drizzle-orm/pg-core";
+
+// User role enum
+export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
+
+// Business status enum
+export const businessStatusEnum = pgEnum("business_status", [
+  "draft",
+  "published",
+  "archived",
+]);
+
+// Type for business hours
+export interface BusinessHours {
+  day: number; // 0-6 (Sunday-Saturday)
+  open: string; // "09:00"
+  close: string; // "17:00"
+}
+
+// Type for Google Place data (raw API response)
+export interface GooglePlaceData {
+  displayName?: { text: string; languageCode?: string };
+  formattedAddress?: string;
+  types?: string[];
+  primaryType?: string;
+  photos?: Array<{ name: string; widthPx?: number; heightPx?: number }>;
+  regularOpeningHours?: {
+    openNow?: boolean;
+    weekdayDescriptions?: string[];
+    periods?: Array<{
+      open: { day: number; hour: number; minute: number };
+      close?: { day: number; hour: number; minute: number };
+    }>;
+  };
+  rating?: number;
+  userRatingCount?: number;
+  priceLevel?: string;
+  websiteUri?: string;
+  nationalPhoneNumber?: string;
+  internationalPhoneNumber?: string;
+  [key: string]: unknown;
+}
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -6,6 +57,10 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  role: userRoleEnum("role").default("user").notNull(),
+  banned: boolean("banned").default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -66,3 +121,58 @@ export const verification = pgTable("verification", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
+
+// Businesses table for directory listings
+export const business = pgTable(
+  "business",
+  {
+    id: text("id").primaryKey(),
+    // Core business info
+    name: text("name").notNull(),
+    slug: text("slug").notNull().unique(),
+    description: text("description"),
+    // Category (references the 10 FreddyBeach categories)
+    categoryId: text("category_id"),
+    // Contact info
+    phone: text("phone"),
+    email: text("email"),
+    website: text("website"),
+    // Address
+    address: text("address"),
+    city: text("city").default("Fredericton"),
+    province: text("province").default("NB"),
+    postalCode: text("postal_code"),
+    // Location coordinates
+    latitude: real("latitude"),
+    longitude: real("longitude"),
+    // Status
+    status: businessStatusEnum("status").default("draft").notNull(),
+    // Google Places integration
+    googlePlaceId: text("google_place_id").unique(),
+    googlePlaceData: jsonb("google_place_data").$type<GooglePlaceData>(),
+    // Business hours (stored as JSON array)
+    hours: jsonb("hours").$type<BusinessHours[]>(),
+    // Ratings
+    rating: real("rating"),
+    reviewCount: integer("review_count"),
+    // Images
+    imageUrl: text("image_url"),
+    images: jsonb("images").$type<string[]>(),
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Index on status for filtering published businesses
+    index("business_status_idx").on(table.status),
+    // Index on category for filtering by category
+    index("business_category_idx").on(table.categoryId),
+    // Index on google_place_id for duplicate detection
+    index("business_google_place_id_idx").on(table.googlePlaceId),
+    // Index on slug for URL lookups
+    index("business_slug_idx").on(table.slug),
+  ]
+);

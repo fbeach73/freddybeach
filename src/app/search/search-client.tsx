@@ -271,26 +271,35 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
     return sortedBusinesses.slice(startIndex, startIndex + PAGE_SIZE);
   }, [sortedBusinesses, currentPage]);
 
-  // Handlers
-  const handleCategoryChange = (newCategories: string[]) => {
-    setFilters((prev) => ({ ...prev, categories: newCategories }));
-    updateURL({ category: newCategories, page: 1 });
-    setCurrentPage(1);
-  };
+  // Handlers - wrapped in useCallback for performance
+  const handleCategoryChange = useCallback(
+    (newCategories: string[]) => {
+      setFilters((prev) => ({ ...prev, categories: newCategories }));
+      updateURL({ category: newCategories, page: 1 });
+      setCurrentPage(1);
+    },
+    [updateURL]
+  );
 
-  const handleRatingChange = (rating: number | null) => {
-    setFilters((prev) => ({ ...prev, minRating: rating }));
-    updateURL({ rating, page: 1 });
-    setCurrentPage(1);
-  };
+  const handleRatingChange = useCallback(
+    (rating: number | null) => {
+      setFilters((prev) => ({ ...prev, minRating: rating }));
+      updateURL({ rating, page: 1 });
+      setCurrentPage(1);
+    },
+    [updateURL]
+  );
 
-  const handleOpenNowChange = (openNow: boolean) => {
-    setFilters((prev) => ({ ...prev, openNow }));
-    updateURL({ open: openNow, page: 1 });
-    setCurrentPage(1);
-  };
+  const handleOpenNowChange = useCallback(
+    (openNow: boolean) => {
+      setFilters((prev) => ({ ...prev, openNow }));
+      updateURL({ open: openNow, page: 1 });
+      setCurrentPage(1);
+    },
+    [updateURL]
+  );
 
-  const handleClearAllFilters = () => {
+  const handleClearAllFilters = useCallback(() => {
     setFilters({
       categories: [],
       minRating: null,
@@ -303,23 +312,29 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
       page: 1,
     });
     setCurrentPage(1);
-  };
+  }, [updateURL]);
 
-  const handleSortChange = (value: SortOption) => {
-    setSortBy(value);
-    updateURL({ sort: value, page: 1 });
-    setCurrentPage(1);
-  };
+  const handleSortChange = useCallback(
+    (value: SortOption) => {
+      setSortBy(value);
+      updateURL({ sort: value, page: 1 });
+      setCurrentPage(1);
+    },
+    [updateURL]
+  );
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    updateURL({ page });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+      updateURL({ page });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [updateURL]
+  );
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSuggestionClick = useCallback((suggestion: string) => {
     setSearchQuery(suggestion);
-  };
+  }, []);
 
   const activeFilterCount = getActiveFilterCount(filters);
   const hasResults = paginatedBusinesses.length > 0;

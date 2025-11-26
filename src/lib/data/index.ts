@@ -4,3 +4,6 @@ export * from "./businesses";
 export * from "./testimonials";
 export * from "./ai-tools";
 export * from "./packages";
+export * from "./booking-slots";
+export * from "./case-studies";
+export * from "./user-dashboard";

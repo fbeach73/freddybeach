@@ -12,7 +12,13 @@
       "mcp__playwright__browser_type",
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_resize",
-      "mcp__playwright__browser_close"
+      "mcp__playwright__browser_close",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: complete Batch 4 search and legal pages implementation\n\nSearch Functionality:\n- Add SearchBar component with clear button and autofocus\n- Add SearchFilters with category multi-select, rating buttons, and open now toggle\n- Add SearchResults grid with responsive columns and loading skeletons\n- Add SearchPagination with page numbers and navigation\n- Add NoResults component with suggestions and popular categories\n- Create SearchClient with full URL state management (query, filters, sort, pagination)\n- Update search page with two-column layout (filters sidebar | results grid)\n- Add mobile filters sheet for responsive design\n- Add new shadcn/ui components: checkbox, command, popover\n\nLegal Pages:\n- Create LegalLayout component with two-column desktop/single-column mobile\n- Create TableOfContents with sticky sidebar and IntersectionObserver highlighting\n- Create LegalSection component with proper anchoring and scroll margins\n- Add Privacy Policy page (/privacy) with 7 sections\n- Add Terms of Service page (/terms) with 9 sections\n- Add Refund Policy page (/refund) with 5 sections\n- Add legal content prose styles to globals.css\n\nNavigation & Polish:\n- Add Refund Policy link to site footer\n- Verify hero search form submits to /search?q=\n- All pages tested: search, filters, pagination, TOC navigation\n- Dark mode and responsive design verified\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(pnpm run db:generate:*)",
+      "Bash(pnpm run db:migrate:*)",
+      "Bash(pnpm add:*)",
+      "Bash(tree:*)",
+      "Bash(xargs ls:*)"
     ],
     "deny": [],
     "ask": [],

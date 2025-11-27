@@ -445,7 +445,7 @@ export async function getPlaceDetails(
 
 /**
  * Search for popular places with quality filtering
- * Uses rankPreference: POPULARITY and filters by rating/reviews
+ * Uses rankPreference: RELEVANCE and filters by rating/reviews
  * https://developers.google.com/maps/documentation/places/web-service/text-search
  */
 export async function searchPlacesByPopularity(
@@ -471,7 +471,7 @@ export async function searchPlacesByPopularity(
         radius,
       },
     },
-    rankPreference: "POPULARITY",
+    rankPreference: "RELEVANCE",
     maxResultCount: Math.min(maxResults, 20),
     languageCode: "en",
     regionCode: "CA",

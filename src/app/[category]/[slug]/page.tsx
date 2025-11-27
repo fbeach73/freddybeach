@@ -2,17 +2,23 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { getBusinessBySlugFromDb } from "@/lib/data/businesses-db";
 import { getCategoryBySlug } from "@/lib/data/categories";
+import {
+  getReviewsForBusiness,
+  getReviewStats,
+  hasUserReviewedBusiness,
+} from "@/lib/data/reviews";
 import { auth } from "@/lib/auth";
 import {
   BusinessBreadcrumb,
   BusinessHero,
   BusinessInfoCard,
   BusinessHoursTable,
-  BusinessMapPlaceholder,
+  BusinessMap,
   BusinessPhotoGallery,
   BusinessDescription,
   ClaimBusinessCta,
   ContactOwnerButton,
+  ReviewsSection,
 } from "@/components/business";
 
 // Dynamic rendering - fetch fresh data from database
@@ -55,7 +61,17 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
     notFound();
   }
 
+  // Fetch reviews data
+  const [reviews, reviewStats, userHasReviewed] = await Promise.all([
+    getReviewsForBusiness(business.id),
+    getReviewStats(business.id),
+    session?.user
+      ? hasUserReviewedBusiness(business.id, session.user.id)
+      : Promise.resolve(false),
+  ]);
+
   const isLoggedIn = !!session;
+  const fullAddress = `${business.address}, ${business.city}, ${business.province} ${business.postalCode}`;
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -73,7 +89,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        {/* Left Column - Info Card & Hours */}
+        {/* Left Column - Description, Photos, Reviews */}
         <div className="lg:col-span-2 space-y-8">
           {/* Description */}
           <BusinessDescription
@@ -88,13 +104,28 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
               businessName={business.name}
             />
           )}
+
+          {/* Reviews Section */}
+          <ReviewsSection
+            businessId={business.id}
+            businessName={business.name}
+            reviews={reviews}
+            averageRating={reviewStats.averageRating}
+            totalReviews={reviewStats.totalReviews}
+            userHasReviewed={userHasReviewed}
+          />
         </div>
 
         {/* Right Column - Contact Info, Map, Hours */}
         <div className="space-y-6">
           <BusinessInfoCard business={business} />
           <BusinessHoursTable hours={business.hours} />
-          <BusinessMapPlaceholder />
+          <BusinessMap
+            address={fullAddress}
+            name={business.name}
+            latitude={business.latitude}
+            longitude={business.longitude}
+          />
 
           {/* Claim CTA or Contact Button */}
           {business.isClaimed ? (

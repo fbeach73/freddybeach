@@ -1,7 +1,8 @@
 "use client";
 
-import { signIn, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { AuthDialog } from "./auth-dialog";
 
 export function SignInButton() {
   const { data: session, isPending } = useSession();
@@ -15,15 +16,8 @@ export function SignInButton() {
   }
 
   return (
-    <Button
-      onClick={async () => {
-        await signIn.social({
-          provider: "google",
-          callbackURL: "/auth/callback",
-        });
-      }}
-    >
-      Sign in
-    </Button>
+    <AuthDialog>
+      <Button>Sign In</Button>
+    </AuthDialog>
   );
 }

@@ -57,6 +57,13 @@
       "when": 1764214707815,
       "tag": "0007_peaceful_cobalt_man",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1764249463268,
+      "tag": "0008_outstanding_smasher",
+      "breakpoints": true
     }
   ]
 }

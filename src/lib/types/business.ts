@@ -42,6 +42,8 @@ export interface Business {
   phone: string;
   email: string;
   website?: string;
+  latitude?: number;
+  longitude?: number;
   rating: number; // 1-5
   reviewCount: number;
   hours: BusinessHours[];

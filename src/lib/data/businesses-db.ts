@@ -51,6 +51,8 @@ function toBusinessType(dbBusiness: typeof business.$inferSelect): Business {
     phone: dbBusiness.phone || "",
     email: dbBusiness.email || "",
     website: dbBusiness.website || undefined,
+    latitude: dbBusiness.latitude || undefined,
+    longitude: dbBusiness.longitude || undefined,
     rating: dbBusiness.rating || 0,
     reviewCount: dbBusiness.reviewCount || 0,
     hours: convertHours(dbBusiness.hours),

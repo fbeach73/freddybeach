@@ -1,8 +1,12 @@
 import { SectionHeader } from "@/components/shared/page-header";
 import { CategoryCard } from "@/components/home/category-card";
-import { categories } from "@/lib/data";
+import type { Category } from "@/lib/types";
 
-export function CategoryGrid() {
+interface CategoryGridProps {
+  categories: Category[];
+}
+
+export function CategoryGrid({ categories }: CategoryGridProps) {
   return (
     <section className="py-12">
       <SectionHeader

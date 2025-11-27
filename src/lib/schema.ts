@@ -205,6 +205,46 @@ export const business = pgTable(
   ]
 );
 
+// Reviews table - user reviews for businesses
+export const review = pgTable(
+  "review",
+  {
+    id: text("id").primaryKey(),
+    // Business being reviewed
+    businessId: text("business_id")
+      .notNull()
+      .references(() => business.id, { onDelete: "cascade" }),
+    // User who wrote the review
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    // Rating (1-5 stars)
+    rating: integer("rating").notNull(),
+    // Review text
+    title: text("title"),
+    content: text("content").notNull(),
+    // Owner response
+    ownerResponse: text("owner_response"),
+    ownerRespondedAt: timestamp("owner_responded_at"),
+    // Moderation
+    isApproved: boolean("is_approved").default(true).notNull(),
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Index for finding reviews by business
+    index("review_business_idx").on(table.businessId),
+    // Index for finding reviews by user
+    index("review_user_idx").on(table.userId),
+    // Composite unique index to prevent duplicate reviews
+    index("review_business_user_idx").on(table.businessId, table.userId),
+  ]
+);
+
 // Business claims table - tracks ownership claim requests
 export const claim = pgTable(
   "claim",

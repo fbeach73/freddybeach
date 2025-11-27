@@ -1,6 +1,6 @@
 import { Button } from "@react-email/components";
 import * as React from "react";
-import { BRAND } from "./email-layout";
+import { BRAND } from "./brand";
 
 interface EmailButtonProps {
   href: string;

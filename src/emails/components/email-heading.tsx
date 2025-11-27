@@ -1,6 +1,6 @@
 import { Heading } from "@react-email/components";
 import * as React from "react";
-import { BRAND } from "./email-layout";
+import { BRAND } from "./brand";
 
 type HeadingLevel = "h1" | "h2" | "h3";
 

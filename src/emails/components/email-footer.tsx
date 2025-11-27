@@ -1,6 +1,6 @@
 import { Section, Text, Link, Hr } from "@react-email/components";
 import * as React from "react";
-import { BRAND } from "./email-layout";
+import { BRAND } from "./brand";
 
 interface EmailFooterProps {
   showUnsubscribe?: boolean;

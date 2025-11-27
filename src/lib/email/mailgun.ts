@@ -1,20 +1,30 @@
 import Mailgun from "mailgun.js";
 import FormData from "form-data";
 
-// Initialize Mailgun client
-const mailgun = new Mailgun(FormData);
+// Lazily initialize Mailgun client to avoid errors during build
+let mg: ReturnType<InstanceType<typeof Mailgun>["client"]> | null = null;
 
-// Create Mailgun client instance
-const mg = mailgun.client({
-  username: "api",
-  key: process.env.MAILGUN_API_KEY || "",
-});
+function getMailgunClient() {
+  if (!mg) {
+    const mailgun = new Mailgun(FormData);
+    mg = mailgun.client({
+      username: "api",
+      key: process.env.MAILGUN_API_KEY || "",
+    });
+  }
+  return mg;
+}
 
-// Get the domain from environment variable
-const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN || "";
+// Get config values lazily to support runtime configuration
+function getMailgunDomain() {
+  return process.env.MAILGUN_DOMAIN || "";
+}
 
-// Get the from address
-const FROM_EMAIL = process.env.MAILGUN_FROM_EMAIL || `noreply@${MAILGUN_DOMAIN}`;
+function getFromEmail() {
+  const domain = getMailgunDomain();
+  return process.env.MAILGUN_FROM_EMAIL || `noreply@${domain}`;
+}
+
 const FROM_NAME = "FreddyBeach Directory";
 
 interface SendEmailParams {
@@ -28,15 +38,19 @@ interface SendEmailParams {
  * Send an email using Mailgun
  */
 export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
-  if (!process.env.MAILGUN_API_KEY || !MAILGUN_DOMAIN) {
+  const domain = getMailgunDomain();
+
+  if (!process.env.MAILGUN_API_KEY || !domain) {
     console.warn("Mailgun not configured - skipping email send");
     console.log(`Would send email to ${to}: ${subject}`);
     return null;
   }
 
   try {
-    const result = await mg.messages.create(MAILGUN_DOMAIN, {
-      from: `${FROM_NAME} <${FROM_EMAIL}>`,
+    const client = getMailgunClient();
+    const fromEmail = getFromEmail();
+    const result = await client.messages.create(domain, {
+      from: `${FROM_NAME} <${fromEmail}>`,
       to: [to],
       subject,
       html,

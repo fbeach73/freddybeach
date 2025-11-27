@@ -93,17 +93,32 @@ import {
   generateConsultationICS,
 } from "@/emails/consultation-booked";
 
-// Initialize Mailgun client
-const mailgun = new Mailgun(formData);
+// Lazily initialize Mailgun client to avoid errors during build
+let mg: ReturnType<InstanceType<typeof Mailgun>["client"]> | null = null;
 
-const mg = mailgun.client({
-  username: "api",
-  key: process.env.MAILGUN_API_KEY || "",
-});
+function getMailgunClient() {
+  if (!mg) {
+    const mailgun = new Mailgun(formData);
+    mg = mailgun.client({
+      username: "api",
+      key: process.env.MAILGUN_API_KEY || "",
+    });
+  }
+  return mg;
+}
 
-const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN || "";
-const EMAIL_FROM = process.env.EMAIL_FROM || "FreddyBeach <noreply@freddybeach.com>";
-const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
+// Get config values lazily to support runtime configuration
+function getMailgunDomain() {
+  return process.env.MAILGUN_DOMAIN || "";
+}
+
+function getEmailFrom() {
+  return process.env.EMAIL_FROM || "FreddyBeach <noreply@freddybeach.com>";
+}
+
+function isDevelopment() {
+  return process.env.NODE_ENV === "development";
+}
 
 export interface EmailAttachment {
   filename: string;
@@ -127,7 +142,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
   const { to, subject, html, text, attachments } = options;
 
   // Development mode - log instead of sending
-  if (IS_DEVELOPMENT) {
+  if (isDevelopment()) {
     console.log("========================================");
     console.log("[EMAIL] Development Mode - Not Sent");
     console.log("========================================");
@@ -143,11 +158,12 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
   }
 
   // Validate configuration
+  const domain = getMailgunDomain();
   if (!process.env.MAILGUN_API_KEY) {
     console.error("[EMAIL ERROR] MAILGUN_API_KEY is not configured");
     return false;
   }
-  if (!MAILGUN_DOMAIN) {
+  if (!domain) {
     console.error("[EMAIL ERROR] MAILGUN_DOMAIN is not configured");
     return false;
   }
@@ -162,7 +178,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
       text?: string;
       attachment?: Array<{ filename: string; data: Buffer | string; contentType?: string }>;
     } = {
-      from: EMAIL_FROM,
+      from: getEmailFrom(),
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
@@ -178,7 +194,8 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
       }));
     }
 
-    const result = await mg.messages.create(MAILGUN_DOMAIN, messageData);
+    const client = getMailgunClient();
+    const result = await client.messages.create(domain, messageData);
     console.log(`[EMAIL] Sent successfully: ${result.id}`);
     return true;
   } catch (error) {

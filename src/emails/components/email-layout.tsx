@@ -9,16 +9,7 @@ import {
 } from "@react-email/components";
 import * as React from "react";
 import { EmailFooter } from "./email-footer";
-
-// Brand colors from implementation plan
-const BRAND = {
-  primary: "#B85C38",
-  secondary: "#E8D5B7",
-  background: "#FAFAFA",
-  text: "#1A1A1A",
-  fontFamily:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-};
+import { BRAND } from "./brand";
 
 interface EmailLayoutProps {
   preview?: string;

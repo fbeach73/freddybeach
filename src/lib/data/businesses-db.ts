@@ -56,8 +56,8 @@ function toBusinessType(dbBusiness: typeof business.$inferSelect): Business {
     hours: convertHours(dbBusiness.hours),
     images: dbBusiness.images || [],
     heroImage: dbBusiness.imageUrl || dbBusiness.images?.[0] || "",
-    // Default values for fields not yet in database
-    isClaimed: false,
+    // Derived from ownerId - true if business has been claimed
+    isClaimed: dbBusiness.ownerId !== null,
     isVerified: false,
     isFeatured: false,
     tier: "free" as const,

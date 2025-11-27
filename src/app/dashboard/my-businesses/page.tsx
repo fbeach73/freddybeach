@@ -2,16 +2,17 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Building2, Plus, Search } from "lucide-react";
+import { Building2, Clock, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { OwnedBusinessCard } from "@/components/dashboard/owned-business-card";
 import { db } from "@/lib/db";
-import { business } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { business, claim } from "@/lib/schema";
+import { eq, and } from "drizzle-orm";
 
 export const metadata = {
   title: "My Businesses | FreddyBeach Directory",
@@ -34,6 +35,19 @@ export default async function MyBusinessesPage() {
     .from(business)
     .where(eq(business.ownerId, session.user.id));
 
+  // Fetch pending claims by this user (with business names)
+  const pendingClaims = await db
+    .select({
+      id: claim.id,
+      businessName: business.name,
+      createdAt: claim.createdAt,
+    })
+    .from(claim)
+    .innerJoin(business, eq(claim.businessId, business.id))
+    .where(
+      and(eq(claim.userId, session.user.id), eq(claim.status, "pending"))
+    );
+
   const businessCount = ownedBusinesses.length;
 
   return (
@@ -54,6 +68,40 @@ export default async function MyBusinessesPage() {
         </Button>
       </PageHeader>
 
+      {/* Pending Claims Alert */}
+      {pendingClaims.length > 0 && (
+        <Alert>
+          <Clock className="h-4 w-4" />
+          <AlertTitle>
+            {pendingClaims.length} Pending Claim
+            {pendingClaims.length > 1 ? "s" : ""}
+          </AlertTitle>
+          <AlertDescription>
+            <p className="mb-2">
+              Your claim request{pendingClaims.length > 1 ? "s are" : " is"}{" "}
+              being reviewed by our team. You&apos;ll be notified once a
+              decision is made.
+            </p>
+            <ul className="list-inside list-disc space-y-1">
+              {pendingClaims.map((pendingClaim) => (
+                <li key={pendingClaim.id}>
+                  <span className="font-medium">{pendingClaim.businessName}</span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    — submitted{" "}
+                    {pendingClaim.createdAt.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Business Cards Grid or Empty State */}
       {ownedBusinesses.length > 0 ? (
         <div className="space-y-4">
@@ -64,8 +112,16 @@ export default async function MyBusinessesPage() {
       ) : (
         <EmptyState
           icon={Building2}
-          title="No businesses claimed yet"
-          description="Start by browsing the directory and claiming your business listing. Once claimed, you can manage your business profile, respond to reviews, and access AI tools."
+          title={
+            pendingClaims.length > 0
+              ? "No approved businesses yet"
+              : "No businesses claimed yet"
+          }
+          description={
+            pendingClaims.length > 0
+              ? "Your claim requests are pending review. Once approved, your businesses will appear here and you'll be able to manage your listings."
+              : "Start by browsing the directory and claiming your business listing. Once claimed, you can manage your business profile, respond to reviews, and access AI tools."
+          }
           action={{
             label: "Browse Directory",
             href: "/",

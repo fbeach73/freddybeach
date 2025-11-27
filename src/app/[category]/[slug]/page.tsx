@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { getBusinessBySlugFromDb } from "@/lib/data/businesses-db";
 import { getCategoryBySlug } from "@/lib/data/categories";
+import { auth } from "@/lib/auth";
 import {
   BusinessBreadcrumb,
   BusinessHero,
@@ -42,13 +44,18 @@ export async function generateMetadata({ params }: BusinessPageProps) {
 export default async function BusinessPage({ params }: BusinessPageProps) {
   const { category, slug } = await params;
 
-  const business = await getBusinessBySlugFromDb(slug);
-  const categoryData = getCategoryBySlug(category);
+  const [business, categoryData, session] = await Promise.all([
+    getBusinessBySlugFromDb(slug),
+    Promise.resolve(getCategoryBySlug(category)),
+    auth.api.getSession({ headers: await headers() }),
+  ]);
 
   // Return 404 if business doesn't exist or category mismatch
   if (!business || !categoryData || business.categorySlug !== category) {
     notFound();
   }
+
+  const isLoggedIn = !!session;
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -93,7 +100,11 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
           {business.isClaimed ? (
             <ContactOwnerButton businessName={business.name} />
           ) : (
-            <ClaimBusinessCta businessName={business.name} />
+            <ClaimBusinessCta
+              businessId={business.id}
+              businessName={business.name}
+              isLoggedIn={isLoggedIn}
+            />
           )}
         </div>
       </div>

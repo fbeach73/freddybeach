@@ -11,13 +11,27 @@ import {
 } from "drizzle-orm/pg-core";
 
 // User role enum
-export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
+export const userRoleEnum = pgEnum("user_role", ["user", "client", "admin"]);
 
 // Business status enum
 export const businessStatusEnum = pgEnum("business_status", [
   "draft",
   "published",
   "archived",
+]);
+
+// Claim status enum
+export const claimStatusEnum = pgEnum("claim_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
+// Claim role enum (claimant's role at the business)
+export const claimRoleEnum = pgEnum("claim_role", [
+  "owner",
+  "manager",
+  "authorized_representative",
 ]);
 
 // Type for business hours
@@ -179,5 +193,46 @@ export const business = pgTable(
     index("business_slug_idx").on(table.slug),
     // Index on owner for fetching user's claimed businesses
     index("business_owner_idx").on(table.ownerId),
+  ]
+);
+
+// Business claims table - tracks ownership claim requests
+export const claim = pgTable(
+  "claim",
+  {
+    id: text("id").primaryKey(),
+    // Business being claimed
+    businessId: text("business_id")
+      .notNull()
+      .references(() => business.id, { onDelete: "cascade" }),
+    // User making the claim
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    // Claimant's role at the business
+    role: claimRoleEnum("role").notNull(),
+    // Contact phone for verification
+    phone: text("phone").notNull(),
+    // Description of connection to business
+    description: text("description").notNull(),
+    // Claim status
+    status: claimStatusEnum("status").default("pending").notNull(),
+    // Rejection reason (required when status = rejected)
+    rejectionReason: text("rejection_reason"),
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    // Review info
+    reviewedAt: timestamp("reviewed_at"),
+    reviewedBy: text("reviewed_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+  },
+  (table) => [
+    // Index for finding claims by status
+    index("claim_status_idx").on(table.status),
+    // Index for finding claims by business
+    index("claim_business_idx").on(table.businessId),
+    // Index for finding claims by user
+    index("claim_user_idx").on(table.userId),
   ]
 );

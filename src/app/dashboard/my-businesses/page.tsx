@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Building2, Clock, Plus, Search } from "lucide-react";
+import { Building2, Clock, Plus, Search, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,6 +46,26 @@ export default async function MyBusinessesPage() {
     .innerJoin(business, eq(claim.businessId, business.id))
     .where(
       and(eq(claim.userId, session.user.id), eq(claim.status, "pending"))
+    );
+
+  // Fetch recent rejected claims (last 30 days) to show user why claims were rejected
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const rejectedClaims = await db
+    .select({
+      id: claim.id,
+      businessName: business.name,
+      rejectionReason: claim.rejectionReason,
+      reviewedAt: claim.reviewedAt,
+    })
+    .from(claim)
+    .innerJoin(business, eq(claim.businessId, business.id))
+    .where(
+      and(
+        eq(claim.userId, session.user.id),
+        eq(claim.status, "rejected")
+      )
     );
 
   const businessCount = ownedBusinesses.length;
@@ -95,6 +115,47 @@ export default async function MyBusinessesPage() {
                       year: "numeric",
                     })}
                   </span>
+                </li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Rejected Claims Alert */}
+      {rejectedClaims.length > 0 && (
+        <Alert variant="destructive">
+          <XCircle className="h-4 w-4" />
+          <AlertTitle>
+            {rejectedClaims.length} Rejected Claim
+            {rejectedClaims.length > 1 ? "s" : ""}
+          </AlertTitle>
+          <AlertDescription>
+            <p className="mb-2">
+              The following claim{rejectedClaims.length > 1 ? "s were" : " was"}{" "}
+              not approved. You may submit a new claim with additional
+              verification information.
+            </p>
+            <ul className="space-y-3">
+              {rejectedClaims.map((rejectedClaim) => (
+                <li key={rejectedClaim.id} className="border-l-2 border-destructive/50 pl-3">
+                  <span className="font-medium">{rejectedClaim.businessName}</span>
+                  {rejectedClaim.reviewedAt && (
+                    <span className="text-muted-foreground text-sm">
+                      {" "}
+                      — rejected{" "}
+                      {rejectedClaim.reviewedAt.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  )}
+                  {rejectedClaim.rejectionReason && (
+                    <p className="text-sm mt-1 text-muted-foreground">
+                      Reason: {rejectedClaim.rejectionReason}
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>

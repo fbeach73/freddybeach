@@ -25,6 +25,7 @@ import {
 import { Building2, CheckCircle2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { CLAIM_ROLE_OPTIONS } from "@/lib/constants/claims";
 
 interface ClaimBusinessCtaProps {
   businessId: string;
@@ -32,12 +33,6 @@ interface ClaimBusinessCtaProps {
   isLoggedIn: boolean;
   className?: string;
 }
-
-const ROLE_OPTIONS = [
-  { value: "owner", label: "Owner" },
-  { value: "manager", label: "Manager" },
-  { value: "authorized_representative", label: "Authorized Representative" },
-] as const;
 
 export function ClaimBusinessCta({
   businessId,
@@ -86,8 +81,17 @@ export function ClaimBusinessCta({
 
     if (!phone.trim()) {
       newErrors.phone = "Phone number is required";
-    } else if (!/^[\d\s\-+()]+$/.test(phone.trim())) {
-      newErrors.phone = "Please enter a valid phone number";
+    } else {
+      // Remove all non-digit characters to check actual phone number
+      const digitsOnly = phone.replace(/\D/g, "");
+      // Must have at least 10 digits and only contain valid characters
+      if (!/^[\d\s\-+()]+$/.test(phone.trim())) {
+        newErrors.phone = "Please enter a valid phone number";
+      } else if (digitsOnly.length < 10) {
+        newErrors.phone = "Phone number must have at least 10 digits";
+      } else if (digitsOnly.length > 15) {
+        newErrors.phone = "Phone number is too long";
+      }
     }
 
     if (!description.trim()) {
@@ -179,7 +183,19 @@ export function ClaimBusinessCta({
           ))}
         </ul>
 
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog
+          open={open}
+          onOpenChange={(isOpen) => {
+            setOpen(isOpen);
+            // Reset form when dialog closes
+            if (!isOpen) {
+              setRole("");
+              setPhone("");
+              setDescription("");
+              setErrors({});
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="w-full" size="lg" onClick={handleButtonClick}>
               Claim This Business
@@ -205,7 +221,7 @@ export function ClaimBusinessCta({
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ROLE_OPTIONS.map((option) => (
+                    {CLAIM_ROLE_OPTIONS.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>

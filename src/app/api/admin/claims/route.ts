@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { claim, business, user } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 /**
  * GET /api/admin/claims
@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
         businessId: claim.businessId,
         businessName: business.name,
         businessSlug: business.slug,
+        businessCategoryId: business.categoryId,
         userId: claim.userId,
         userName: user.name,
         userEmail: user.email,
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
       query = query.where(eq(claim.status, statusFilter as "pending" | "approved" | "rejected"));
     }
 
-    const claims = await query.orderBy(claim.createdAt);
+    const claims = await query.orderBy(desc(claim.createdAt));
 
     return NextResponse.json({ claims });
   } catch (error) {

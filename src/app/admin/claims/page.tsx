@@ -5,6 +5,16 @@ import { db } from "@/lib/db";
 import { claim, business, user } from "@/lib/schema";
 import { eq, desc } from "drizzle-orm";
 import { ClaimsPageClient } from "@/components/admin/claims/claims-page-client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Business Claims | Admin",
+  description: "Review and manage business claim requests",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function ClaimsPage() {
   const session = await auth.api.getSession({ headers: await headers() });

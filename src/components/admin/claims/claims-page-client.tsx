@@ -44,6 +44,8 @@ import { Label } from "@/components/ui/label";
 import { Check, X, Clock, Building2, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { getCategoryById } from "@/lib/data/categories";
+import { getClaimRoleLabel } from "@/lib/constants/claims";
+import { formatDate } from "@/lib/utils/format";
 
 // Claim type matching the database query result
 interface Claim {
@@ -97,21 +99,9 @@ function getStatusBadge(status: string) {
   }
 }
 
-function getRoleLabel(role: string) {
-  switch (role) {
-    case "owner":
-      return "Owner";
-    case "manager":
-      return "Manager";
-    case "authorized_representative":
-      return "Authorized Representative";
-    default:
-      return role;
-  }
-}
-
-function formatDate(date: Date) {
-  return new Date(date).toLocaleDateString("en-US", {
+// formatDate helper for consistent date formatting in this component
+function formatClaimDate(date: Date) {
+  return formatDate(new Date(date), {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -332,7 +322,7 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
                                 </span>
                               )}
                               <Badge variant="secondary" className="ml-2">
-                                {getRoleLabel(claim.role)}
+                                {getClaimRoleLabel(claim.role)}
                               </Badge>
                             </div>
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -359,7 +349,7 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
                               &quot;{claim.description}&quot;
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              Submitted {formatDate(claim.createdAt)}
+                              Submitted {formatClaimDate(claim.createdAt)}
                             </p>
                           </div>
                         </div>
@@ -441,11 +431,11 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell>{getRoleLabel(claim.role)}</TableCell>
-                          <TableCell>{formatDate(claim.createdAt)}</TableCell>
+                          <TableCell>{getClaimRoleLabel(claim.role)}</TableCell>
+                          <TableCell>{formatClaimDate(claim.createdAt)}</TableCell>
                           <TableCell>
                             {claim.reviewedAt
-                              ? formatDate(claim.reviewedAt)
+                              ? formatClaimDate(claim.reviewedAt)
                               : "-"}
                           </TableCell>
                         </TableRow>
@@ -509,13 +499,13 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell>{getRoleLabel(claim.role)}</TableCell>
+                          <TableCell>{getClaimRoleLabel(claim.role)}</TableCell>
                           <TableCell className="max-w-xs truncate">
                             {claim.rejectionReason || "-"}
                           </TableCell>
                           <TableCell>
                             {claim.reviewedAt
-                              ? formatDate(claim.reviewedAt)
+                              ? formatClaimDate(claim.reviewedAt)
                               : "-"}
                           </TableCell>
                         </TableRow>
@@ -577,9 +567,9 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell>{getRoleLabel(claim.role)}</TableCell>
+                          <TableCell>{getClaimRoleLabel(claim.role)}</TableCell>
                           <TableCell>{getStatusBadge(claim.status)}</TableCell>
-                          <TableCell>{formatDate(claim.createdAt)}</TableCell>
+                          <TableCell>{formatClaimDate(claim.createdAt)}</TableCell>
                         </TableRow>
                       );
                     })}

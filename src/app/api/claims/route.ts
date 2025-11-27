@@ -3,11 +3,9 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { claim, business } from "@/lib/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { nanoid } from "nanoid";
-
-const VALID_ROLES = ["owner", "manager", "authorized_representative"] as const;
-type ClaimRole = (typeof VALID_ROLES)[number];
+import { CLAIM_ROLES, isValidClaimRole, type ClaimRole } from "@/lib/constants/claims";
 
 /**
  * POST /api/claims
@@ -33,9 +31,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate role
-    if (!VALID_ROLES.includes(role as ClaimRole)) {
+    if (!isValidClaimRole(role)) {
       return NextResponse.json(
-        { error: "Invalid role. Must be one of: owner, manager, authorized_representative" },
+        { error: `Invalid role. Must be one of: ${CLAIM_ROLES.join(", ")}` },
         { status: 400 }
       );
     }
@@ -142,7 +140,7 @@ export async function GET() {
       .from(claim)
       .innerJoin(business, eq(claim.businessId, business.id))
       .where(eq(claim.userId, session.user.id))
-      .orderBy(claim.createdAt);
+      .orderBy(desc(claim.createdAt));
 
     return NextResponse.json({ claims: userClaims });
   } catch (error) {

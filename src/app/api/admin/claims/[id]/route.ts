@@ -4,6 +4,13 @@ import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { claim, business, user } from "@/lib/schema";
 import { eq } from "drizzle-orm";
+import {
+  sendEmail,
+  getClaimApprovedEmailHtml,
+  getClaimApprovedEmailSubject,
+  getClaimRejectedEmailHtml,
+  getClaimRejectedEmailSubject,
+} from "@/lib/email";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -58,19 +65,22 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Claim not found" }, { status: 404 });
     }
 
-    // Ensure claim is still pending
-    if (existingClaim.status !== "pending") {
-      return NextResponse.json(
-        { error: "Claim has already been reviewed" },
-        { status: 400 }
-      );
-    }
-
     const now = new Date();
 
     if (action === "approve") {
       // Approve the claim - use transaction for atomicity
-      await db.transaction(async (tx) => {
+      // Status check is inside transaction to prevent race conditions
+      const result = await db.transaction(async (tx) => {
+        // Re-fetch claim inside transaction to ensure it's still pending
+        const [currentClaim] = await tx
+          .select({ status: claim.status })
+          .from(claim)
+          .where(eq(claim.id, id));
+
+        if (!currentClaim || currentClaim.status !== "pending") {
+          return { error: "Claim has already been reviewed", alreadyProcessed: true };
+        }
+
         // Update claim status
         await tx
           .update(claim)
@@ -97,10 +107,33 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             .set({ role: "client" })
             .where(eq(user.id, existingClaim.userId));
         }
+
+        return { success: true };
       });
 
-      // TODO: Send approval email notification to user
-      // Will be implemented via Mailgun in separate branch
+      if ("alreadyProcessed" in result) {
+        return NextResponse.json(
+          { error: result.error },
+          { status: 400 }
+        );
+      }
+
+      // Send approval email notification to user
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      try {
+        await sendEmail({
+          to: existingClaim.userEmail,
+          subject: getClaimApprovedEmailSubject(existingClaim.businessName),
+          html: getClaimApprovedEmailHtml({
+            userName: existingClaim.userName || "there",
+            businessName: existingClaim.businessName,
+            dashboardUrl: `${appUrl}/dashboard/my-businesses`,
+          }),
+        });
+      } catch (emailError) {
+        // Log but don't fail the request if email fails
+        console.error("Failed to send approval email:", emailError);
+      }
 
       return NextResponse.json({
         success: true,
@@ -120,18 +153,53 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         );
       }
 
-      await db
-        .update(claim)
-        .set({
-          status: "rejected",
-          rejectionReason: rejectionReason.trim(),
-          reviewedAt: now,
-          reviewedBy: session.user.id,
-        })
-        .where(eq(claim.id, id));
+      // Use transaction with status check to prevent race conditions
+      const result = await db.transaction(async (tx) => {
+        // Re-fetch claim inside transaction to ensure it's still pending
+        const [currentClaim] = await tx
+          .select({ status: claim.status })
+          .from(claim)
+          .where(eq(claim.id, id));
 
-      // TODO: Send rejection email notification to user with reason
-      // Will be implemented via Mailgun in separate branch
+        if (!currentClaim || currentClaim.status !== "pending") {
+          return { error: "Claim has already been reviewed", alreadyProcessed: true };
+        }
+
+        await tx
+          .update(claim)
+          .set({
+            status: "rejected",
+            rejectionReason: rejectionReason.trim(),
+            reviewedAt: now,
+            reviewedBy: session.user.id,
+          })
+          .where(eq(claim.id, id));
+
+        return { success: true };
+      });
+
+      if ("alreadyProcessed" in result) {
+        return NextResponse.json(
+          { error: result.error },
+          { status: 400 }
+        );
+      }
+
+      // Send rejection email notification to user with reason
+      try {
+        await sendEmail({
+          to: existingClaim.userEmail,
+          subject: getClaimRejectedEmailSubject(existingClaim.businessName),
+          html: getClaimRejectedEmailHtml({
+            userName: existingClaim.userName || "there",
+            businessName: existingClaim.businessName,
+            rejectionReason: rejectionReason.trim(),
+          }),
+        });
+      } catch (emailError) {
+        // Log but don't fail the request if email fails
+        console.error("Failed to send rejection email:", emailError);
+      }
 
       return NextResponse.json({
         success: true,

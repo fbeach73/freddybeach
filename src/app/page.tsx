@@ -5,7 +5,7 @@ import { AIToolsTeaser } from "@/components/home/ai-tools-teaser";
 import { TestimonialSection } from "@/components/home/testimonial-section";
 import { SEOContent } from "@/components/home/seo-content";
 import { getFeaturedBusinessesFromDb } from "@/lib/data/businesses-db";
-import { getCategoriesWithCounts } from "@/lib/data/categories";
+import { getCategoriesWithCounts } from "@/lib/data/categories-db";
 
 // Revalidate homepage every 60 seconds to pick up changes
 export const revalidate = 60;

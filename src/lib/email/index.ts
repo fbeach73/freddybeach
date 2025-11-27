@@ -7,3 +7,7 @@ export {
   getClaimRejectedEmailHtml,
   getClaimRejectedEmailSubject,
 } from "./templates/claim-rejected";
+export {
+  getClaimSubmittedEmailHtml,
+  getClaimSubmittedEmailSubject,
+} from "./templates/claim-submitted";

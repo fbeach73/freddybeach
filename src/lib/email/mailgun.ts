@@ -22,7 +22,7 @@ function getMailgunDomain() {
 
 function getFromEmail() {
   const domain = getMailgunDomain();
-  return process.env.MAILGUN_FROM_EMAIL || `noreply@${domain}`;
+  return process.env.EMAIL_FROM || `noreply@${domain}`;
 }
 
 const FROM_NAME = "FreddyBeach Directory";

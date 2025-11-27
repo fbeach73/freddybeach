@@ -6,6 +6,11 @@ import { claim, business } from "@/lib/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { CLAIM_ROLES, isValidClaimRole, type ClaimRole } from "@/lib/constants/claims";
+import {
+  sendEmail,
+  getClaimSubmittedEmailHtml,
+  getClaimSubmittedEmailSubject,
+} from "@/lib/email";
 
 /**
  * POST /api/claims
@@ -92,8 +97,20 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    // TODO: Send email notification to admin about new claim
-    // Will be implemented via Mailgun in separate branch
+    // Send confirmation email to user
+    try {
+      await sendEmail({
+        to: session.user.email,
+        subject: getClaimSubmittedEmailSubject(existingBusiness.name),
+        html: getClaimSubmittedEmailHtml({
+          userName: session.user.name || "there",
+          businessName: existingBusiness.name,
+        }),
+      });
+    } catch (emailError) {
+      // Log but don't fail the request if email fails
+      console.error("Failed to send claim submitted email:", emailError);
+    }
 
     return NextResponse.json({
       success: true,

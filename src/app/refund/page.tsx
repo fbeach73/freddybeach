@@ -147,8 +147,8 @@ export default function RefundPage() {
         <ul>
           <li>
             <strong>Email:</strong> Send your request to{" "}
-            <a href="mailto:billing@freddybeach.directory">
-              billing@freddybeach.directory
+            <a href="mailto:billing@freddybeach.com">
+              billing@freddybeach.com
             </a>
           </li>
           <li>
@@ -249,8 +249,8 @@ export default function RefundPage() {
         <ul>
           <li>
             <strong>Billing Email:</strong>{" "}
-            <a href="mailto:billing@freddybeach.directory">
-              billing@freddybeach.directory
+            <a href="mailto:billing@freddybeach.com">
+              billing@freddybeach.com
             </a>
           </li>
           <li>
@@ -268,8 +268,8 @@ export default function RefundPage() {
         </ul>
         <p>
           For general support inquiries, please email{" "}
-          <a href="mailto:hello@freddybeach.directory">
-            hello@freddybeach.directory
+          <a href="mailto:hello@freddybeach.com">
+            hello@freddybeach.com
           </a>
           . For privacy-related concerns, see our{" "}
           <Link href="/privacy" className="underline hover:text-primary">

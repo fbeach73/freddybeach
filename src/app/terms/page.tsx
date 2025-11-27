@@ -376,14 +376,14 @@ export default function TermsPage() {
         <ul>
           <li>
             <strong>General Inquiries:</strong>{" "}
-            <a href="mailto:hello@freddybeach.directory">
-              hello@freddybeach.directory
+            <a href="mailto:hello@freddybeach.com">
+              hello@freddybeach.com
             </a>
           </li>
           <li>
             <strong>Legal Matters:</strong>{" "}
-            <a href="mailto:legal@freddybeach.directory">
-              legal@freddybeach.directory
+            <a href="mailto:legal@freddybeach.com">
+              legal@freddybeach.com
             </a>
           </li>
           <li>
@@ -397,8 +397,8 @@ export default function TermsPage() {
             Privacy Policy
           </Link>{" "}
           or contact{" "}
-          <a href="mailto:privacy@freddybeach.directory">
-            privacy@freddybeach.directory
+          <a href="mailto:privacy@freddybeach.com">
+            privacy@freddybeach.com
           </a>
           .
         </p>

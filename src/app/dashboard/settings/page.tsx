@@ -79,7 +79,7 @@ export default async function SettingsPage() {
               </p>
             </div>
             <Button variant="outline" asChild>
-              <Link href="mailto:support@freddybeach.directory">
+              <Link href="mailto:support@freddybeach.com">
                 <Mail className="mr-2 h-4 w-4" />
                 Contact Support
               </Link>

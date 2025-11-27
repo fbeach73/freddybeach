@@ -207,8 +207,8 @@ export default function PrivacyPage() {
         <ul>
           <li>
             <strong>Email:</strong>{" "}
-            <a href="mailto:privacy@freddybeach.directory">
-              privacy@freddybeach.directory
+            <a href="mailto:privacy@freddybeach.com">
+              privacy@freddybeach.com
             </a>
           </li>
           <li>

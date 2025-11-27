@@ -9,7 +9,7 @@ export function getClaimRejectedEmailHtml({
   userName,
   businessName,
   rejectionReason,
-  supportEmail = "support@freddybeach.directory",
+  supportEmail = "support@freddybeach.com",
 }: ClaimRejectedEmailData): string {
   return `
 <!DOCTYPE html>

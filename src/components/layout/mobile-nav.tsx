@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, MapPin, Sparkles, Users, Search, ChevronRight, Calendar } from "lucide-react";
+import { Menu, MapPin, Sparkles, Users, Search, ChevronDown, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,8 +13,16 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { categories } from "@/lib/data";
+
+// Top 6 categories by popularity (can be adjusted based on analytics)
+const TOP_CATEGORIES_COUNT = 6;
 
 const mainNavItems = [
   {
@@ -51,7 +59,12 @@ const mainNavItems = [
 
 export function MobileNav() {
   const [open, setOpen] = React.useState(false);
+  const [moreOpen, setMoreOpen] = React.useState(false);
   const pathname = usePathname();
+
+  // Split categories into top 6 and remaining
+  const topCategories = categories.slice(0, TOP_CATEGORIES_COUNT);
+  const moreCategories = categories.slice(TOP_CATEGORIES_COUNT);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -89,8 +102,9 @@ export function MobileNav() {
                         {item.title}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {categories.slice(0, 6).map((category) => (
+                    {/* Top 6 categories - single column */}
+                    <div className="flex flex-col gap-1">
+                      {topCategories.map((category) => (
                         <Link
                           key={category.slug}
                           href={`/${category.slug}`}
@@ -104,14 +118,45 @@ export function MobileNav() {
                         </Link>
                       ))}
                     </div>
-                    <Link
-                      href="/#categories"
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-1 text-sm text-primary hover:underline"
-                    >
-                      View all categories
-                      <ChevronRight className="h-3 w-3" />
-                    </Link>
+                    {/* More categories - collapsible */}
+                    {moreCategories.length > 0 && (
+                      <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>
+                        <CollapsibleTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-between px-3 py-2 text-sm font-normal text-muted-foreground hover:text-foreground"
+                          >
+                            More Categories
+                            <ChevronDown
+                              className={cn(
+                                "h-4 w-4 transition-transform",
+                                moreOpen && "rotate-180"
+                              )}
+                            />
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="max-h-48 overflow-y-auto rounded-lg border bg-muted/30">
+                            <div className="flex flex-col gap-1 p-2">
+                              {moreCategories.map((category) => (
+                                <Link
+                                  key={category.slug}
+                                  href={`/${category.slug}`}
+                                  onClick={() => setOpen(false)}
+                                  className={cn(
+                                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent",
+                                    pathname === `/${category.slug}` && "bg-accent"
+                                  )}
+                                >
+                                  {category.name}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    )}
                   </React.Fragment>
                 );
               }

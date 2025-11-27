@@ -13,11 +13,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { categories } from "@/lib/data/categories";
-import type { business, BusinessHours } from "@/lib/schema";
+import type { business, BusinessHours, BusinessBadge } from "@/lib/schema";
 import type { InferSelectModel } from "drizzle-orm";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Star, Sparkles } from "lucide-react";
+
+const AVAILABLE_BADGES: { value: BusinessBadge; label: string; description: string }[] = [
+  { value: "new", label: "New", description: "Recently added business" },
+  { value: "featured", label: "Featured", description: "Highlighted listing" },
+  { value: "favourite", label: "Favourite", description: "Community favourite" },
+  { value: "popular", label: "Popular", description: "High traffic listing" },
+  { value: "verified", label: "Verified", description: "Verified business info" },
+  { value: "top-rated", label: "Top Rated", description: "Excellent reviews" },
+];
 
 type Business = InferSelectModel<typeof business>;
 
@@ -54,6 +65,19 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses" }:
   const [hours, setHours] = useState<BusinessHours[]>(
     business.hours || DAYS.map((_, i) => ({ day: i, open: "09:00", close: "17:00" }))
   );
+  const [isFeatured, setIsFeatured] = useState(business.isFeatured);
+  const [displayOrder, setDisplayOrder] = useState(business.displayOrder);
+  const [badges, setBadges] = useState<BusinessBadge[]>(
+    (business.badges as BusinessBadge[]) || []
+  );
+
+  const toggleBadge = (badge: BusinessBadge) => {
+    setBadges((prev) =>
+      prev.includes(badge)
+        ? prev.filter((b) => b !== badge)
+        : [...prev, badge]
+    );
+  };
 
   const handleHoursChange = (
     dayIndex: number,
@@ -91,6 +115,9 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses" }:
           postalCode,
           categoryId,
           hours,
+          isFeatured,
+          displayOrder,
+          badges,
         }),
       });
 
@@ -148,6 +175,85 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses" }:
             rows={4}
             placeholder="Describe the business..."
           />
+        </div>
+      </div>
+
+      {/* Featured & Badges */}
+      <div className="space-y-4">
+        <h3 className="flex items-center gap-2 text-lg font-medium">
+          <Sparkles className="h-5 w-5 text-yellow-500" />
+          Featured & Badges
+        </h3>
+
+        {/* Featured Toggle */}
+        <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-yellow-500" />
+              <Label htmlFor="featured" className="font-medium">
+                Featured Business
+              </Label>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Show this business in the featured carousel on the homepage
+            </p>
+          </div>
+          <Switch
+            id="featured"
+            checked={isFeatured}
+            onCheckedChange={setIsFeatured}
+          />
+        </div>
+
+        {/* Display Order */}
+        {isFeatured && (
+          <div className="space-y-2">
+            <Label htmlFor="displayOrder">Display Order</Label>
+            <Input
+              id="displayOrder"
+              type="number"
+              value={displayOrder}
+              onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
+              min={0}
+              className="w-32"
+            />
+            <p className="text-xs text-muted-foreground">
+              Lower numbers appear first (0 = highest priority)
+            </p>
+          </div>
+        )}
+
+        {/* Badges */}
+        <div className="space-y-3">
+          <Label>Badges</Label>
+          <p className="text-sm text-muted-foreground">
+            Select badges to display on this business listing
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {AVAILABLE_BADGES.map((badge) => (
+              <div
+                key={badge.value}
+                className="flex items-start space-x-3 rounded-lg border p-3"
+              >
+                <Checkbox
+                  id={`badge-${badge.value}`}
+                  checked={badges.includes(badge.value)}
+                  onCheckedChange={() => toggleBadge(badge.value)}
+                />
+                <div className="space-y-1">
+                  <label
+                    htmlFor={`badge-${badge.value}`}
+                    className="text-sm font-medium leading-none cursor-pointer"
+                  >
+                    {badge.label}
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    {badge.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

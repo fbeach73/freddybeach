@@ -12,10 +12,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/shared/page-header";
 import { BusinessCard } from "@/components/home/business-card";
-import { getFeaturedBusinesses } from "@/lib/data";
+import type { Business } from "@/lib/types";
 
-export function FeaturedBusinessesCarousel() {
-  const featuredBusinesses = getFeaturedBusinesses();
+interface FeaturedBusinessesCarouselProps {
+  businesses: Business[];
+}
+
+export function FeaturedBusinessesCarousel({ businesses }: FeaturedBusinessesCarouselProps) {
+  if (businesses.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-12">
@@ -40,7 +46,7 @@ export function FeaturedBusinessesCarousel() {
           className="w-full"
         >
           <CarouselContent>
-            {featuredBusinesses.map((business) => (
+            {businesses.map((business) => (
               <CarouselItem
                 key={business.id}
                 className="basis-full sm:basis-1/2 lg:basis-1/3"

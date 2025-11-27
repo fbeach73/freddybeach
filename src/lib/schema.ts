@@ -136,6 +136,9 @@ export const verification = pgTable("verification", {
     .notNull(),
 });
 
+// Badge type for business listings
+export type BusinessBadge = "new" | "featured" | "favourite" | "popular" | "verified" | "top-rated";
+
 // Businesses table for directory listings
 export const business = pgTable(
   "business",
@@ -161,6 +164,10 @@ export const business = pgTable(
     longitude: real("longitude"),
     // Status
     status: businessStatusEnum("status").default("draft").notNull(),
+    // Featured & display settings
+    isFeatured: boolean("is_featured").default(false).notNull(),
+    displayOrder: integer("display_order").default(0).notNull(),
+    badges: jsonb("badges").$type<BusinessBadge[]>().default([]),
     // Google Places integration
     googlePlaceId: text("google_place_id").unique(),
     googlePlaceData: jsonb("google_place_data").$type<GooglePlaceData>(),
@@ -193,6 +200,8 @@ export const business = pgTable(
     index("business_slug_idx").on(table.slug),
     // Index on owner for fetching user's claimed businesses
     index("business_owner_idx").on(table.ownerId),
+    // Index on isFeatured for homepage featured section
+    index("business_featured_idx").on(table.isFeatured),
   ]
 );
 

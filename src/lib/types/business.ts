@@ -25,6 +25,8 @@ export interface BusinessHours {
   closed: boolean;
 }
 
+export type BusinessBadge = "new" | "featured" | "favourite" | "popular" | "verified" | "top-rated";
+
 export interface Business {
   id: string;
   name: string;
@@ -48,6 +50,8 @@ export interface Business {
   isClaimed: boolean;
   isVerified: boolean;
   isFeatured: boolean;
+  badges?: BusinessBadge[];
+  displayOrder?: number;
   tier: "free" | "enhanced" | "featured";
   createdAt: Date;
 }

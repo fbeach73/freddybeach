@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
-import { business, type BusinessHours } from "@/lib/schema";
+import { business, type BusinessHours, type BusinessBadge } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { deleteBusinessPhotos } from "@/lib/services/blob-storage";
 
@@ -113,6 +113,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       postalCode: string;
       hours: BusinessHours[];
       categoryId: string;
+      isFeatured: boolean;
+      displayOrder: number;
+      badges: BusinessBadge[];
     }> = {};
 
     if (body.name !== undefined) updateData.name = body.name;
@@ -126,6 +129,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (body.postalCode !== undefined) updateData.postalCode = body.postalCode;
     if (body.hours !== undefined) updateData.hours = body.hours;
     if (body.categoryId !== undefined) updateData.categoryId = body.categoryId;
+
+    // Admin-only fields: isFeatured, displayOrder, badges
+    if (session.user.role === "admin") {
+      if (body.isFeatured !== undefined) updateData.isFeatured = body.isFeatured;
+      if (body.displayOrder !== undefined) updateData.displayOrder = body.displayOrder;
+      if (body.badges !== undefined) updateData.badges = body.badges;
+    }
 
     // Update the business
     const [updatedBusiness] = await db

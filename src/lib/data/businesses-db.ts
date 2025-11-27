@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
 import { business } from "@/lib/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, asc } from "drizzle-orm";
 import { getCategoryById } from "./categories";
-import type { Business, BusinessHours, DayOfWeek } from "@/lib/types";
+import type { Business, BusinessHours, DayOfWeek, BusinessBadge } from "@/lib/types";
 
 /**
  * Convert database business hours (day as number 0-6) to the Business type format
@@ -59,7 +59,9 @@ function toBusinessType(dbBusiness: typeof business.$inferSelect): Business {
     // Derived from ownerId - true if business has been claimed
     isClaimed: dbBusiness.ownerId !== null,
     isVerified: false,
-    isFeatured: false,
+    isFeatured: dbBusiness.isFeatured,
+    badges: (dbBusiness.badges as BusinessBadge[]) || [],
+    displayOrder: dbBusiness.displayOrder,
     tier: "free" as const,
     createdAt: dbBusiness.createdAt,
   };
@@ -116,5 +118,24 @@ export async function getBusinessBySlugFromDb(slug: string): Promise<Business | 
  */
 export async function getAllBusinesses(): Promise<Business[]> {
   const results = await db.select().from(business);
+  return results.map(toBusinessType);
+}
+
+/**
+ * Get featured businesses for the homepage carousel
+ * Returns published businesses with isFeatured=true, ordered by displayOrder
+ */
+export async function getFeaturedBusinessesFromDb(): Promise<Business[]> {
+  const results = await db
+    .select()
+    .from(business)
+    .where(
+      and(
+        eq(business.status, "published"),
+        eq(business.isFeatured, true)
+      )
+    )
+    .orderBy(asc(business.displayOrder));
+
   return results.map(toBusinessType);
 }

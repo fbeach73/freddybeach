@@ -1,20 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Building2, Star, ImageIcon } from "lucide-react";
-import Image from "next/image";
+import { Building2 } from "lucide-react";
 import { db } from "@/lib/db";
 import { business } from "@/lib/schema";
 import { desc, eq, sql } from "drizzle-orm";
-import { getCategoryById } from "@/lib/data/categories";
-import { BusinessActions } from "@/components/admin/businesses/business-actions";
+import { BusinessListClient } from "@/components/admin/businesses/business-list-client";
 import { StatusFilter } from "@/components/admin/businesses/status-filter";
 
 interface PageProps {
@@ -126,98 +115,7 @@ export default async function BusinessesPage({ searchParams }: PageProps) {
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Business</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead>Images</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {businesses.map((biz) => {
-                  const category = biz.categoryId ? getCategoryById(biz.categoryId) : null;
-                  return (
-                    <TableRow key={biz.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
-                            {biz.imageUrl ? (
-                              <Image
-                                src={biz.imageUrl}
-                                alt={biz.name}
-                                fill
-                                className="object-cover"
-                                sizes="40px"
-                                unoptimized={biz.imageUrl.startsWith("/api")}
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                                <Building2 className="h-5 w-5" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-medium truncate max-w-[200px]">{biz.name}</p>
-                            <p className="text-sm text-muted-foreground truncate max-w-[200px]">
-                              {biz.address}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {category ? (
-                          <Badge variant="outline">{category.name}</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={biz.status === "published" ? "default" : "secondary"}
-                          className={
-                            biz.status === "published"
-                              ? "bg-green-600"
-                              : biz.status === "pending_review"
-                              ? "bg-orange-500 text-white"
-                              : ""
-                          }
-                        >
-                          {biz.status === "pending_review" ? "Pending Review" : biz.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {biz.rating ? (
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                            <span>{biz.rating.toFixed(1)}</span>
-                            {biz.reviewCount && (
-                              <span className="text-muted-foreground text-xs">
-                                ({biz.reviewCount})
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                          <span>{biz.images?.length || 0}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <BusinessActions business={biz} />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <BusinessListClient businesses={businesses} />
           )}
         </CardContent>
       </Card>

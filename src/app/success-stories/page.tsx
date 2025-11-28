@@ -43,7 +43,7 @@ export default function SuccessStoriesPage() {
   const caseStudies = getCaseStudies();
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <SectionHero
         title="Real Results from Real Fredericton Businesses"
@@ -104,6 +104,6 @@ export default function SuccessStoriesPage() {
           { label: "Local Support", value: "Always", icon: "users" },
         ]}
       />
-    </main>
+    </div>
   );
 }

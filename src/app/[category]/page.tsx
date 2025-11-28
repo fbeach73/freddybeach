@@ -46,11 +46,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const businesses = await getBusinessesByCategoryFromDb(category.id);
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
       <CategoryPageClient
         category={category}
         businesses={businesses}
       />
-    </main>
+    </div>
   );
 }

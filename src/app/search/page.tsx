@@ -62,10 +62,10 @@ export default async function SearchPage() {
   const businesses = await getPublishedBusinesses();
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
       <Suspense fallback={<SearchLoading />}>
         <SearchClient businesses={businesses} categories={categories} />
       </Suspense>
-    </main>
+    </div>
   );
 }

@@ -18,13 +18,13 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="flex-1 container mx-auto px-4 pb-8">
+    <div className="flex-1 container mx-auto px-4 pb-8">
       <HeroSection />
       <FeaturedBusinessesWrapper businesses={featuredBusinesses} />
       <CategoryGrid categories={categoriesWithCounts} />
       <AIToolsTeaser />
       <TestimonialSection />
       <SEOContent />
-    </main>
+    </div>
   );
 }

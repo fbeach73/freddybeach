@@ -48,7 +48,7 @@ const testimonial = {
 
 export default function ConsultationPage() {
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <SectionHero
         title="Custom AI Solutions for Your Business"
@@ -152,6 +152,6 @@ export default function ConsultationPage() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

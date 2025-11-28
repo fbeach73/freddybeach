@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function AIToolsPage() {
   return (
-    <main className="flex-1">
+    <div className="flex-1">
       {/* Hero Section */}
       <SectionHero
         title="AI Tools That Work While You Run Your Business"
@@ -51,6 +51,6 @@ export default function AIToolsPage() {
 
       {/* Interactive Demos & All Tools - Client Component */}
       <AIToolsShowcase />
-    </main>
+    </div>
   );
 }

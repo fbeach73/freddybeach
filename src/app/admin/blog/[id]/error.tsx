@@ -1,0 +1,53 @@
+"use client";
+
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle, RefreshCw, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
+interface ErrorProps {
+  error: Error & { digest?: string };
+  reset: () => void;
+}
+
+export default function EditPostError({ error, reset }: ErrorProps) {
+  useEffect(() => {
+    console.error("Edit Post Error:", error);
+  }, [error]);
+
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <Card className="max-w-md w-full">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 rounded-full bg-destructive/10 p-3 w-fit">
+            <AlertTriangle className="h-6 w-6 text-destructive" />
+          </div>
+          <CardTitle>Failed to load post</CardTitle>
+          <CardDescription>
+            We couldn&apos;t load this blog post for editing.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {process.env.NODE_ENV === "development" && (
+            <div className="rounded-md bg-muted p-3 text-sm">
+              <code className="text-destructive break-all">{error.message}</code>
+            </div>
+          )}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button onClick={reset} className="flex-1">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try Again
+            </Button>
+            <Button asChild variant="outline" className="flex-1">
+              <Link href="/admin/blog">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Posts
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

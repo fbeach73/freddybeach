@@ -10,6 +10,9 @@ import {
   ArrowLeft,
   Shield,
   Download,
+  FileText,
+  PenSquare,
+  Sparkles,
 } from "lucide-react";
 import {
   Sidebar,
@@ -50,6 +53,21 @@ const navItems = [
     label: "Import Businesses",
     icon: Download,
     href: "/admin/import",
+  },
+  {
+    label: "Blog Posts",
+    icon: FileText,
+    href: "/admin/blog",
+  },
+  {
+    label: "New Post",
+    icon: PenSquare,
+    href: "/admin/blog/new",
+  },
+  {
+    label: "Blog Optimizer",
+    icon: Sparkles,
+    href: "/admin/blog-optimizer",
   },
 ];
 

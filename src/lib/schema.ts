@@ -28,6 +28,13 @@ export const claimStatusEnum = pgEnum("claim_status", [
   "rejected",
 ]);
 
+// Blog post status enum
+export const blogPostStatusEnum = pgEnum("blog_post_status", [
+  "draft",
+  "published",
+  "archived",
+]);
+
 // Claim role enum (claimant's role at the business)
 export const claimRoleEnum = pgEnum("claim_role", [
   "owner",
@@ -286,5 +293,79 @@ export const claim = pgTable(
     index("claim_business_idx").on(table.businessId),
     // Index for finding claims by user
     index("claim_user_idx").on(table.userId),
+  ]
+);
+
+// Blog posts table - stores draft posts in database
+export const blogPost = pgTable(
+  "blog_post",
+  {
+    id: text("id").primaryKey(),
+    // Core content
+    title: text("title").notNull(),
+    slug: text("slug").notNull().unique(),
+    content: text("content").notNull(), // HTML content from editor
+    excerpt: text("excerpt"), // SEO meta description
+    // Category (reuses directory categories)
+    categoryId: text("category_id"),
+    // Featured image
+    featuredImageUrl: text("featured_image_url"),
+    featuredImageAlt: text("featured_image_alt"),
+    // SEO fields
+    metaTitle: text("meta_title"),
+    metaDescription: text("meta_description"),
+    // Author (for now, hardcoded but stored for flexibility)
+    authorName: text("author_name").default("FreddyBeach Team").notNull(),
+    authorImage: text("author_image"),
+    // Status
+    status: blogPostStatusEnum("status").default("draft").notNull(),
+    // Optional: Featured businesses to show in sidebar
+    featuredBusinessSlugs: jsonb("featured_business_slugs").$type<string[]>(),
+    // Timestamps
+    publishedAt: timestamp("published_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Index on status for filtering
+    index("blog_post_status_idx").on(table.status),
+    // Index on slug for URL lookups
+    index("blog_post_slug_idx").on(table.slug),
+    // Index on category for filtering
+    index("blog_post_category_idx").on(table.categoryId),
+    // Index on published date for sorting
+    index("blog_post_published_at_idx").on(table.publishedAt),
+  ]
+);
+
+// Blog images table - tracks uploaded images for the media library
+export const blogImage = pgTable(
+  "blog_image",
+  {
+    id: text("id").primaryKey(),
+    // File info
+    url: text("url").notNull(),
+    filename: text("filename").notNull(),
+    altText: text("alt_text").notNull(), // Required for accessibility/SEO
+    // Optional: link to a specific blog post
+    blogPostId: text("blog_post_id").references(() => blogPost.id, {
+      onDelete: "set null",
+    }),
+    // File metadata
+    fileSize: integer("file_size"), // bytes
+    mimeType: text("mime_type"),
+    width: integer("width"),
+    height: integer("height"),
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    // Index on blog post for finding images by post
+    index("blog_image_post_idx").on(table.blogPostId),
+    // Index on created date for sorting
+    index("blog_image_created_idx").on(table.createdAt),
   ]
 );

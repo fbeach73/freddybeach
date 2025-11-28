@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { business } from "@/lib/schema";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, inArray } from "drizzle-orm";
 import { getCategoryById } from "./categories";
 import type { Business, BusinessHours, DayOfWeek, BusinessBadge } from "@/lib/types";
 
@@ -138,6 +138,28 @@ export async function getFeaturedBusinessesFromDb(): Promise<Business[]> {
       )
     )
     .orderBy(asc(business.displayOrder));
+
+  return results.map(toBusinessType);
+}
+
+/**
+ * Get multiple published businesses by their slugs
+ * Useful for fetching featured businesses in blog posts
+ */
+export async function getBusinessesBySlugs(slugs: string[]): Promise<Business[]> {
+  if (slugs.length === 0) {
+    return [];
+  }
+
+  const results = await db
+    .select()
+    .from(business)
+    .where(
+      and(
+        eq(business.status, "published"),
+        inArray(business.slug, slugs)
+      )
+    );
 
   return results.map(toBusinessType);
 }

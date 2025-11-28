@@ -71,6 +71,13 @@
       "when": 1764295009904,
       "tag": "0009_new_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1764301353111,
+      "tag": "0010_tearful_pandemic",
+      "breakpoints": true
     }
   ]
 }

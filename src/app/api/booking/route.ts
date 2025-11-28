@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { sendBookingNotificationToAdmin } from "@/lib/services/email";
+import {
+  sendBookingNotificationToAdmin,
+  sendBookingConfirmationToUser,
+} from "@/lib/services/email";
 import { consultationPackages } from "@/lib/data/packages";
 import { formatDate, formatTime } from "@/lib/data/booking-slots";
 
@@ -56,8 +59,18 @@ export async function POST(request: NextRequest) {
     // Format the selected date/time
     const selectedDateTime = `${formatDate(data.selectedDate)} at ${formatTime(data.selectedTime)}`;
 
+    // Parse the selected date and time into Date objects for calendar
+    // Date format is YYYY-MM-DD, time format is HH:MM
+    const [year, month, day] = data.selectedDate.split("-").map(Number);
+    const [hours, minutes] = data.selectedTime.split(":").map(Number);
+
+    // Create consultation date (Atlantic Time is UTC-4 or UTC-3 depending on DST)
+    // We'll use UTC and add 4 hours to approximate Atlantic Time
+    const consultationDate = new Date(Date.UTC(year, month - 1, day, hours + 4, minutes));
+    const consultationEndDate = new Date(consultationDate.getTime() + 60 * 60 * 1000); // 1 hour later
+
     // Send notification email to admin
-    const emailSent = await sendBookingNotificationToAdmin({
+    const adminEmailSent = await sendBookingNotificationToAdmin({
       adminEmail: ADMIN_EMAIL,
       customerName: data.name,
       customerEmail: data.email,
@@ -67,10 +80,23 @@ export async function POST(request: NextRequest) {
       selectedDateTime,
     });
 
-    if (!emailSent) {
+    if (!adminEmailSent) {
       console.error("[BOOKING] Failed to send admin notification email");
-      // Still return success to the user - we don't want to fail the form
-      // submission just because email failed. Log it for monitoring.
+    }
+
+    // Send confirmation email to user
+    const userEmailSent = await sendBookingConfirmationToUser({
+      email: data.email,
+      userName: data.name,
+      businessName: data.businessName,
+      selectedDateTime,
+      preferredPackage: packageName,
+      consultationDate,
+      consultationEndDate,
+    });
+
+    if (!userEmailSent) {
+      console.error("[BOOKING] Failed to send user confirmation email");
     }
 
     return NextResponse.json({

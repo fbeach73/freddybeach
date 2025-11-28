@@ -93,6 +93,10 @@ import {
   generateConsultationICS,
 } from "@/emails/consultation-booked";
 import { BookingNotificationAdmin } from "@/emails/booking-notification-admin";
+import {
+  BookingConfirmationUser,
+  generateGoogleCalendarUrl,
+} from "@/emails/booking-confirmation-user";
 
 // Lazily initialize Mailgun client to avoid errors during build
 let mg: ReturnType<InstanceType<typeof Mailgun>["client"]> | null = null;
@@ -750,6 +754,72 @@ Reply to this email or contact ${data.customerEmail} to follow up.
   return sendEmail({
     to: data.adminEmail,
     subject: `New Booking Request: ${data.customerName} from ${data.businessName}`,
+    html,
+    text,
+  });
+}
+
+export interface BookingConfirmationUserData {
+  email: string;
+  userName: string;
+  businessName: string;
+  selectedDateTime: string;
+  preferredPackage: string;
+  consultationDate: Date;
+  consultationEndDate: Date;
+}
+
+/**
+ * Send a confirmation email to the user when they submit a booking request
+ */
+export async function sendBookingConfirmationToUser(
+  data: BookingConfirmationUserData
+): Promise<boolean> {
+  // Generate Google Calendar URL
+  const googleCalendarUrl = generateGoogleCalendarUrl({
+    title: "FreddyBeach Consultation",
+    startDate: data.consultationDate,
+    endDate: data.consultationEndDate,
+    description: `Consultation with FreddyBeach for ${data.businessName}.\n\nPackage: ${data.preferredPackage}\n\nWe'll send you a calendar invite with the video meeting link once your booking is confirmed.`,
+  });
+
+  const html = await render(
+    BookingConfirmationUser({
+      userName: data.userName,
+      businessName: data.businessName,
+      selectedDateTime: data.selectedDateTime,
+      preferredPackage: data.preferredPackage,
+      googleCalendarUrl,
+    })
+  );
+
+  const text = `Hi ${data.userName.split(" ")[0]},
+
+Thank you for your consultation request! We've received your booking and will be in touch within 24 hours to confirm.
+
+YOUR REQUEST DETAILS
+--------------------
+Requested Time: ${data.selectedDateTime} (Atlantic Time)
+Package: ${data.preferredPackage}
+Business: ${data.businessName}
+
+ADD TO YOUR CALENDAR
+--------------------
+Google Calendar: ${googleCalendarUrl}
+
+WHAT HAPPENS NEXT
+-----------------
+1. We'll review your request and confirm your consultation time
+2. You'll receive a calendar invite with the video meeting link
+3. We'll come prepared with insights tailored to your business
+
+If you have any questions, feel free to reach out to kyle@freddybeach.com.
+
+— Kyle & The FreddyBeach Team`;
+
+  return sendEmail({
+    to: data.email,
+    subject: `Your consultation request for ${data.selectedDateTime}`,
     html,
     text,
   });

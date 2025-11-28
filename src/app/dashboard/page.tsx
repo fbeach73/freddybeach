@@ -1,26 +1,23 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { UserProfile } from "@/components/auth/user-profile";
-import { Lock, ArrowRight, Building2 } from "lucide-react";
+import { Lock, ArrowRight, Building2, Plus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 import { SectionHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { TierBadge } from "@/components/shared/tier-badge";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
-import { ClaimedBusinessCard } from "@/components/dashboard/claimed-business-card";
+import { OwnedBusinessCard } from "@/components/dashboard/owned-business-card";
 import { DashboardToolCard } from "@/components/dashboard/dashboard-tool-card";
 import { UpgradeCTACard } from "@/components/dashboard/upgrade-cta-card";
 import { ConsultationCTACard } from "@/components/dashboard/consultation-cta-card";
+import { Badge } from "@/components/ui/badge";
 
-import {
-  getMockUser,
-  getMockStats,
-  getMockClaimedBusinesses,
-  getMockToolUsage,
-} from "@/lib/data/user-dashboard";
 import { aiTools } from "@/lib/data/ai-tools";
+import { db } from "@/lib/db";
+import { business, claim } from "@/lib/schema";
+import { eq, and, count } from "drizzle-orm";
 
 export default async function DashboardPage() {
   // Server-side session validation
@@ -46,11 +43,28 @@ export default async function DashboardPage() {
     );
   }
 
-  // Get mock data
-  const user = getMockUser();
-  const stats = getMockStats();
-  const claimedBusinesses = getMockClaimedBusinesses();
-  const toolUsage = getMockToolUsage();
+  // Fetch real data from database
+  const ownedBusinesses = await db
+    .select()
+    .from(business)
+    .where(eq(business.ownerId, session.user.id));
+
+  // Fetch pending claims count for this user
+  const pendingClaimsResult = await db
+    .select({ count: count() })
+    .from(claim)
+    .where(
+      and(eq(claim.userId, session.user.id), eq(claim.status, "pending"))
+    );
+  const pendingClaimsCount = pendingClaimsResult[0]?.count || 0;
+
+  // Build real stats
+  const stats = {
+    businessesClaimed: ownedBusinesses.length,
+    aiToolsUsed: 0, // TODO: Track actual AI tool usage when implemented
+    hoursSaved: 0, // TODO: Calculate based on AI tool usage
+    currentPlan: "Free", // TODO: Get from subscription system when implemented
+  };
 
   // Get current date for welcome message
   const today = new Date();
@@ -61,13 +75,12 @@ export default async function DashboardPage() {
     day: "numeric",
   });
 
-  // Map tool usage to get usage counts by tool id
-  const toolUsageMap = new Map(
-    toolUsage.map((t) => [t.toolId, t.usageCount])
-  );
-
   // Get featured/recent tools (first 4)
   const featuredTools = aiTools.slice(0, 4);
+
+  // User role for display
+  const isAdmin = session.user.role === "admin";
+  const isClient = session.user.role === "client";
 
   return (
     <div className="space-y-8">
@@ -76,11 +89,13 @@ export default async function DashboardPage() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-              Welcome back, {session.user.name || user.name}!
+              Welcome back, {session.user.name}!
             </h1>
             <p className="text-muted-foreground">{formattedDate}</p>
           </div>
-          <TierBadge tier={user.tier} size="lg" />
+          <Badge variant={isAdmin ? "destructive" : "secondary"} className="w-fit">
+            {isAdmin ? "Admin" : isClient ? "Business Owner" : "Member"}
+          </Badge>
         </div>
       </section>
 
@@ -94,7 +109,7 @@ export default async function DashboardPage() {
         <SectionHeader
           title="My Businesses"
           action={
-            claimedBusinesses.length > 0 ? (
+            ownedBusinesses.length > 0 ? (
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/dashboard/my-businesses">
                   View All
@@ -104,20 +119,32 @@ export default async function DashboardPage() {
             ) : null
           }
         />
-        {claimedBusinesses.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            {claimedBusinesses.slice(0, 2).map((business) => (
-              <ClaimedBusinessCard key={business.id} business={business} />
+        {ownedBusinesses.length > 0 ? (
+          <div className="space-y-4">
+            {ownedBusinesses.slice(0, 2).map((biz) => (
+              <OwnedBusinessCard key={biz.id} business={biz} />
             ))}
           </div>
         ) : (
           <EmptyState
             icon={Building2}
-            title="No businesses claimed yet"
-            description="Claim your business listing to manage your presence on FreddyBeach and unlock powerful AI tools."
+            title={
+              pendingClaimsCount > 0
+                ? "No approved businesses yet"
+                : "No businesses yet"
+            }
+            description={
+              pendingClaimsCount > 0
+                ? `You have ${pendingClaimsCount} pending claim${pendingClaimsCount > 1 ? "s" : ""} being reviewed. Once approved, your business will appear here.`
+                : "Claim an existing business from the directory, or create a new listing if your business isn't on Google yet."
+            }
             action={{
               label: "Browse Directory",
               href: "/",
+            }}
+            secondaryAction={{
+              label: "Create New Listing",
+              href: "/dashboard/my-businesses/new",
             }}
           />
         )}
@@ -141,15 +168,15 @@ export default async function DashboardPage() {
             <DashboardToolCard
               key={tool.id}
               tool={tool}
-              usageCount={toolUsageMap.get(tool.id) || 0}
-              userTier={user.tier}
+              usageCount={0}
+              userTier="free"
             />
           ))}
         </div>
       </section>
 
-      {/* CTA Cards Section */}
-      {user.tier === "free" && (
+      {/* CTA Cards Section - show for non-admin users */}
+      {!isAdmin && (
         <section className="grid gap-4 md:grid-cols-2">
           <UpgradeCTACard />
           <ConsultationCTACard />

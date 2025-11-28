@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MoreHorizontal, Eye, EyeOff, Trash2, ExternalLink, Pencil } from "lucide-react";
+import { MoreHorizontal, Eye, EyeOff, Trash2, ExternalLink, Pencil, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -65,6 +65,44 @@ export function BusinessActions({ business }: BusinessActionsProps) {
       router.refresh();
     } catch {
       toast.error("Failed to update business status");
+    }
+  };
+
+  const handleApprove = async () => {
+    try {
+      const response = await fetch(`/api/admin/businesses/${business.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "published" }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to approve business");
+      }
+
+      toast.success("Business approved and published");
+      router.refresh();
+    } catch {
+      toast.error("Failed to approve business");
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      const response = await fetch(`/api/admin/businesses/${business.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "draft" }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to reject business");
+      }
+
+      toast.success("Business rejected and moved to drafts");
+      router.refresh();
+    } catch {
+      toast.error("Failed to reject business");
     }
   };
 
@@ -131,19 +169,38 @@ export function BusinessActions({ business }: BusinessActionsProps) {
             </DropdownMenuItem>
           )}
 
-          <DropdownMenuItem onClick={handleStatusToggle}>
-            {business.status === "published" ? (
-              <>
-                <EyeOff className="mr-2 h-4 w-4" />
-                Unpublish
-              </>
-            ) : (
-              <>
-                <Eye className="mr-2 h-4 w-4" />
-                Publish
-              </>
-            )}
-          </DropdownMenuItem>
+          {business.status === "pending_review" ? (
+            <>
+              <DropdownMenuItem
+                onClick={handleApprove}
+                className="text-green-600 focus:text-green-600"
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Approve & Publish
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleReject}
+                className="text-orange-600 focus:text-orange-600"
+              >
+                <XCircle className="mr-2 h-4 w-4" />
+                Reject
+              </DropdownMenuItem>
+            </>
+          ) : (
+            <DropdownMenuItem onClick={handleStatusToggle}>
+              {business.status === "published" ? (
+                <>
+                  <EyeOff className="mr-2 h-4 w-4" />
+                  Unpublish
+                </>
+              ) : (
+                <>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Publish
+                </>
+              )}
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuSeparator />
 

@@ -64,6 +64,13 @@
       "when": 1764249463268,
       "tag": "0008_outstanding_smasher",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1764295009904,
+      "tag": "0009_new_gateway",
+      "breakpoints": true
     }
   ]
 }

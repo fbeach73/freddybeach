@@ -34,6 +34,7 @@ export function StatusFilter({ currentStatus }: StatusFilterProps) {
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="all">All Status</SelectItem>
+        <SelectItem value="pending_review">Pending Review</SelectItem>
         <SelectItem value="draft">Draft</SelectItem>
         <SelectItem value="published">Published</SelectItem>
       </SelectContent>

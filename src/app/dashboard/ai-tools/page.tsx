@@ -4,18 +4,12 @@ import Link from "next/link";
 import { Lock, Sparkles, Zap } from "lucide-react";
 import { UserProfile } from "@/components/auth/user-profile";
 import { PageHeader, SectionHeader } from "@/components/shared/page-header";
-import { TierBadge } from "@/components/shared/tier-badge";
 import { DashboardToolCard } from "@/components/dashboard/dashboard-tool-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-import {
-  getMockUser,
-  getMockToolUsage,
-  getTotalToolUsage,
-} from "@/lib/data/user-dashboard";
 import { aiTools, getFreeTools, getPremiumTools } from "@/lib/data/ai-tools";
 
 export const metadata = {
@@ -47,10 +41,9 @@ export default async function AIToolsPage() {
     );
   }
 
-  // Get mock data
-  const user = getMockUser();
-  const toolUsage = getMockToolUsage();
-  const totalUsage = getTotalToolUsage();
+  // TODO: Track actual tool usage when implemented
+  const totalUsage = 0;
+  const userTier = "free" as const; // TODO: Get from subscription system
 
   // Usage limits based on tier
   const usageLimits = {
@@ -59,7 +52,7 @@ export default async function AIToolsPage() {
     featured: 2000,
   };
 
-  const usageLimit = usageLimits[user.tier];
+  const usageLimit = usageLimits[userTier];
   const usageRemaining = usageLimit - totalUsage;
   const usagePercentage = (totalUsage / usageLimit) * 100;
   const isNearingLimit = usagePercentage >= 80;
@@ -67,11 +60,6 @@ export default async function AIToolsPage() {
   // Get tools by tier
   const freeTools = getFreeTools();
   const premiumTools = getPremiumTools();
-
-  // Map tool usage to get usage counts by tool id
-  const toolUsageMap = new Map(
-    toolUsage.map((t) => [t.toolId, t.usageCount])
-  );
 
   return (
     <div className="space-y-8">
@@ -83,7 +71,6 @@ export default async function AIToolsPage() {
             description="Powerful AI-powered tools to grow your business"
           />
           <div className="flex items-center gap-3">
-            <TierBadge tier={user.tier} size="lg" />
             <Badge variant="secondary" className="text-sm">
               <Zap className="mr-1.5 h-3.5 w-3.5" />
               {usageRemaining}/{usageLimit} remaining
@@ -113,7 +100,7 @@ export default async function AIToolsPage() {
               </div>
               <Progress value={usagePercentage} className="h-2" />
             </div>
-            {isNearingLimit && user.tier === "free" && (
+            {isNearingLimit && userTier === "free" && (
               <div className="flex items-center justify-between rounded-lg bg-amber-500/10 p-3 text-sm">
                 <p className="text-amber-700 dark:text-amber-400">
                   You&apos;re nearing your monthly limit. Upgrade for more generations.
@@ -143,8 +130,8 @@ export default async function AIToolsPage() {
             <DashboardToolCard
               key={tool.id}
               tool={tool}
-              usageCount={toolUsageMap.get(tool.id) || 0}
-              userTier={user.tier}
+              usageCount={0}
+              userTier={userTier}
             />
           ))}
         </div>
@@ -155,7 +142,7 @@ export default async function AIToolsPage() {
         <SectionHeader
           title="Premium Tools"
           description={
-            user.tier === "free"
+            userTier === "free"
               ? "Unlock these tools by upgrading your plan"
               : "Advanced tools for your business"
           }
@@ -165,14 +152,14 @@ export default async function AIToolsPage() {
             <DashboardToolCard
               key={tool.id}
               tool={tool}
-              usageCount={toolUsageMap.get(tool.id) || 0}
-              userTier={user.tier}
+              usageCount={0}
+              userTier={userTier}
             />
           ))}
         </div>
 
         {/* Unlock CTA for free users */}
-        {user.tier === "free" && (
+        {userTier === "free" && (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:text-left">
               <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">

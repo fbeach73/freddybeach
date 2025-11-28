@@ -11,3 +11,7 @@ export {
   getClaimSubmittedEmailHtml,
   getClaimSubmittedEmailSubject,
 } from "./templates/claim-submitted";
+export {
+  getBusinessSubmissionAdminEmailHtml,
+  getBusinessSubmissionAdminEmailSubject,
+} from "./templates/business-submission-admin";

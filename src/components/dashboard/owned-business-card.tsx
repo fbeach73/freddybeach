@@ -24,6 +24,10 @@ export function OwnedBusinessCard({ business }: OwnedBusinessCardProps) {
       label: "Published",
       className: "bg-green-500/10 text-green-600 dark:text-green-400",
     },
+    pending_review: {
+      label: "Pending Review",
+      className: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    },
     draft: {
       label: "Draft",
       className: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",

@@ -7,18 +7,15 @@ import {
   Calendar,
   Check,
   ArrowRight,
-  Receipt,
-  Wallet,
 } from "lucide-react";
 import { UserProfile } from "@/components/auth/user-profile";
 import { PageHeader, SectionHeader } from "@/components/shared/page-header";
-import { TierBadge } from "@/components/shared/tier-badge";
 import { UpgradeCTACard } from "@/components/dashboard/upgrade-cta-card";
 import { ComingSoon } from "@/components/dashboard/coming-soon";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
-import { getMockUser } from "@/lib/data/user-dashboard";
 import { getTierById, pricingTiers } from "@/lib/data/packages";
 
 export const metadata = {
@@ -50,15 +47,18 @@ export default async function BillingPage() {
     );
   }
 
-  // Get mock user and their tier details
-  const user = getMockUser();
-  const currentTier = getTierById(user.tier);
-  const isFreeTier = user.tier === "free";
+  // TODO: Get tier from subscription system when implemented
+  const userTier = "free" as const;
+  const currentTier = getTierById(userTier);
+  const isFreeTier = userTier === "free";
 
-  // Mock billing info
+  // Get member since date from session
+  const memberSince = session.user.createdAt ? new Date(session.user.createdAt) : new Date();
+
+  // Billing info (will come from payment system later)
   const billingInfo = {
-    nextBillingDate: isFreeTier ? null : new Date("2025-06-15"),
-    memberSince: user.joinedAt,
+    nextBillingDate: null as Date | null, // TODO: Get from subscription
+    memberSince,
   };
 
   return (
@@ -80,7 +80,9 @@ export default async function BillingPage() {
               {/* Plan Details */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <TierBadge tier={user.tier} size="lg" />
+                  <Badge variant="secondary" className="text-sm">
+                    {currentTier?.name || "Free"}
+                  </Badge>
                   <span className="text-2xl font-bold">
                     {currentTier?.priceLabel || "Free"}
                     {!isFreeTier && (

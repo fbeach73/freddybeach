@@ -9,6 +9,7 @@ import {
   BarChart3,
   CreditCard,
   Settings,
+  Shield,
 } from "lucide-react";
 import {
   Sidebar,
@@ -23,8 +24,8 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getMockUser } from "@/lib/data/user-dashboard";
-import { TierBadge } from "@/components/shared/tier-badge";
+import { Badge } from "@/components/ui/badge";
+import { useSession } from "@/lib/auth-client";
 
 const navItems = [
   {
@@ -61,7 +62,8 @@ const navItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
-  const user = getMockUser();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const isActive = (href: string) => {
     if (href === "/dashboard") {
@@ -69,6 +71,20 @@ export function DashboardSidebar() {
     }
     return pathname.startsWith(href);
   };
+
+  // Get user initials for avatar fallback
+  const getInitials = (name: string | undefined) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Check if user is admin
+  const isAdmin = user?.role === "admin";
 
   return (
     <Sidebar collapsible="icon">
@@ -101,6 +117,21 @@ export function DashboardSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              {/* Admin Panel link for admin users */}
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith("/admin")}
+                    tooltip="Admin Panel"
+                  >
+                    <Link href="/admin">
+                      <Shield className="h-4 w-4" />
+                      <span>Admin Panel</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -109,17 +140,23 @@ export function DashboardSidebar() {
       <SidebarFooter className="border-t border-sidebar-border">
         <div className="flex items-center gap-3 px-2 py-2">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.image} alt={user.name} />
-            <AvatarFallback>
-              {user.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
+            <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
+            <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-medium truncate">{user.name}</span>
-            <TierBadge tier={user.tier} size="sm" />
+            <span className="text-sm font-medium truncate">
+              {user?.name || "Loading..."}
+            </span>
+            {isAdmin ? (
+              <Badge variant="destructive" className="text-xs px-1.5 py-0.5 w-fit">
+                <Shield className="h-3 w-3 mr-1" />
+                Admin
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5 w-fit">
+                {user?.role === "client" ? "Business Owner" : "Member"}
+              </Badge>
+            )}
           </div>
         </div>
       </SidebarFooter>

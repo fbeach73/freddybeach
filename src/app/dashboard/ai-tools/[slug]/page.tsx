@@ -18,7 +18,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AIToolInterface } from "@/components/dashboard/ai-tool-interface";
 import { aiTools, getToolBySlug } from "@/lib/data/ai-tools";
-import { getMockUser, getMockToolUsage, getTotalToolUsage } from "@/lib/data/user-dashboard";
 
 // Map icon names to Lucide components
 const iconMap: Record<string, LucideIcon> = {
@@ -92,14 +91,10 @@ export default async function AIToolPage({
     );
   }
 
-  // Get mock data
-  const user = getMockUser();
-  const toolUsage = getMockToolUsage();
-  const totalUsage = getTotalToolUsage();
-
-  // Find usage for this specific tool
-  const thisToolUsage = toolUsage.find((t) => t.toolId === tool.id);
-  const usageCount = thisToolUsage?.usageCount || 0;
+  // TODO: Track actual tool usage when implemented
+  const usageCount = 0;
+  const totalUsage = 0;
+  const userTier = "free" as const; // TODO: Get from subscription system
 
   // Usage limits based on tier
   const usageLimits = {
@@ -108,11 +103,11 @@ export default async function AIToolPage({
     featured: 2000,
   };
 
-  const usageLimit = usageLimits[user.tier];
+  const usageLimit = usageLimits[userTier];
   const usageRemaining = usageLimit - totalUsage;
 
   // Check if user has access to this tool
-  const isLocked = tool.tier !== "free" && user.tier === "free";
+  const isLocked = tool.tier !== "free" && userTier === "free";
 
   // Get icon component
   const Icon = iconMap[tool.icon] || MessageSquareText;
@@ -151,7 +146,7 @@ export default async function AIToolPage({
           {/* Usage Stats */}
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="text-sm">
-              Used {usageCount} {usageCount === 1 ? "time" : "times"}
+              Used {usageCount} {usageCount as number === 1 ? "time" : "times"}
             </Badge>
             <Badge variant="outline" className="text-sm">
               <Zap className="mr-1.5 h-3.5 w-3.5" />
@@ -165,7 +160,7 @@ export default async function AIToolPage({
       {isLocked ? (
         <PremiumToolGate tool={tool} />
       ) : (
-        <AIToolInterface tool={tool} userTier={user.tier} />
+        <AIToolInterface tool={tool} userTier={userTier} />
       )}
     </div>
   );

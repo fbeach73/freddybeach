@@ -10,7 +10,7 @@ interface RouteParams {
 }
 
 interface StatusUpdateBody {
-  status: "draft" | "published";
+  status: "draft" | "pending_review" | "published" | "archived";
 }
 
 /**
@@ -33,9 +33,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const body = (await request.json()) as StatusUpdateBody;
 
-    if (!body.status || !["draft", "published"].includes(body.status)) {
+    const validStatuses = ["draft", "pending_review", "published", "archived"];
+    if (!body.status || !validStatuses.includes(body.status)) {
       return NextResponse.json(
-        { error: "Invalid status. Must be 'draft' or 'published'" },
+        { error: "Invalid status. Must be 'draft', 'pending_review', 'published', or 'archived'" },
         { status: 400 }
       );
     }

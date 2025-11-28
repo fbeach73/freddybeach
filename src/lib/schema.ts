@@ -16,6 +16,7 @@ export const userRoleEnum = pgEnum("user_role", ["user", "client", "admin"]);
 // Business status enum
 export const businessStatusEnum = pgEnum("business_status", [
   "draft",
+  "pending_review",
   "published",
   "archived",
 ]);
@@ -182,6 +183,8 @@ export const business = pgTable(
     // Ownership - set when a business is claimed
     ownerId: text("owner_id").references(() => user.id, { onDelete: "set null" }),
     claimedAt: timestamp("claimed_at"),
+    // Submission tracking - set when a user submits a new business for review
+    submittedById: text("submitted_by_id").references(() => user.id, { onDelete: "set null" }),
     // Timestamps
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")

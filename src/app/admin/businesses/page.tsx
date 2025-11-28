@@ -27,7 +27,7 @@ export default async function BusinessesPage({ searchParams }: PageProps) {
 
   // Build query based on status filter
   const whereClause = statusFilter !== "all"
-    ? eq(business.status, statusFilter as "draft" | "published")
+    ? eq(business.status, statusFilter as "draft" | "pending_review" | "published" | "archived")
     : undefined;
 
   // Fetch businesses from database
@@ -41,6 +41,7 @@ export default async function BusinessesPage({ searchParams }: PageProps) {
   const [counts] = await db
     .select({
       total: sql<number>`count(*)::int`,
+      pendingReview: sql<number>`count(*) filter (where ${business.status} = 'pending_review')::int`,
       draft: sql<number>`count(*) filter (where ${business.status} = 'draft')::int`,
       published: sql<number>`count(*) filter (where ${business.status} = 'published')::int`,
       withImages: sql<number>`count(*) filter (where ${business.imageUrl} is not null)::int`,
@@ -57,13 +58,21 @@ export default async function BusinessesPage({ searchParams }: PageProps) {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Businesses</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{counts?.total || 0}</div>
+          </CardContent>
+        </Card>
+        <Card className={counts?.pendingReview ? "border-orange-500 bg-orange-50 dark:bg-orange-950/20" : ""}>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{counts?.pendingReview || 0}</div>
           </CardContent>
         </Card>
         <Card>
@@ -169,9 +178,15 @@ export default async function BusinessesPage({ searchParams }: PageProps) {
                       <TableCell>
                         <Badge
                           variant={biz.status === "published" ? "default" : "secondary"}
-                          className={biz.status === "published" ? "bg-green-600" : ""}
+                          className={
+                            biz.status === "published"
+                              ? "bg-green-600"
+                              : biz.status === "pending_review"
+                              ? "bg-orange-500 text-white"
+                              : ""
+                          }
                         >
-                          {biz.status}
+                          {biz.status === "pending_review" ? "Pending Review" : biz.status}
                         </Badge>
                       </TableCell>
                       <TableCell>

@@ -12,6 +12,11 @@ interface EmptyStateProps {
     onClick?: () => void;
     href?: string;
   };
+  secondaryAction?: {
+    label: string;
+    onClick?: () => void;
+    href?: string;
+  };
   className?: string;
 }
 
@@ -20,6 +25,7 @@ export function EmptyState({
   title,
   description,
   action,
+  secondaryAction,
   className,
 }: EmptyStateProps) {
   return (
@@ -38,18 +44,34 @@ export function EmptyState({
           {description}
         </p>
       )}
-      {action && (
-        <Button
-          className="mt-4"
-          onClick={action.onClick}
-          asChild={!!action.href}
-        >
-          {action.href ? (
-            <a href={action.href}>{action.label}</a>
-          ) : (
-            action.label
+      {(action || secondaryAction) && (
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          {action && (
+            <Button
+              onClick={action.onClick}
+              asChild={!!action.href}
+            >
+              {action.href ? (
+                <Link href={action.href}>{action.label}</Link>
+              ) : (
+                action.label
+              )}
+            </Button>
           )}
-        </Button>
+          {secondaryAction && (
+            <Button
+              variant="outline"
+              onClick={secondaryAction.onClick}
+              asChild={!!secondaryAction.href}
+            >
+              {secondaryAction.href ? (
+                <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
+              ) : (
+                secondaryAction.label
+              )}
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

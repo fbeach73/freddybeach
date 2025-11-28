@@ -24,7 +24,7 @@ export function FeaturedBusinessesCarousel({ businesses }: FeaturedBusinessesCar
   }
 
   return (
-    <section className="py-12">
+    <section className="py-16">
       <SectionHeader
         title="Featured Businesses"
         description="Discover top-rated local businesses in Fredericton"
@@ -37,7 +37,7 @@ export function FeaturedBusinessesCarousel({ businesses }: FeaturedBusinessesCar
           </Button>
         }
       />
-      <div className="mt-6">
+      <div className="mt-8">
         <Carousel
           opts={{
             align: "start",

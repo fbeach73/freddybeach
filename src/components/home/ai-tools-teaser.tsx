@@ -9,7 +9,7 @@ export function AIToolsTeaser() {
   const freeTools = getFreeTools().slice(0, 2);
 
   return (
-    <section className="py-12">
+    <section className="py-16">
       <SectionHeader
         title="Free AI Tools for Local Businesses"
         description="Boost your productivity with our AI-powered business tools"
@@ -22,7 +22,7 @@ export function AIToolsTeaser() {
           </Button>
         }
       />
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
+      <div className="mt-8 grid gap-6 md:grid-cols-2">
         {freeTools.map((tool) => (
           <AIToolCard key={tool.id} tool={tool} />
         ))}

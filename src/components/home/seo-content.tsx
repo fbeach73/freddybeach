@@ -1,11 +1,11 @@
 export function SEOContent() {
   return (
-    <section className="py-12">
+    <section className="py-16">
       <div className="prose prose-neutral dark:prose-invert max-w-none">
         <h2 className="text-xl font-semibold tracking-tight">
           Supporting Fredericton&apos;s Local Economy
         </h2>
-        <div className="mt-4 space-y-4 text-muted-foreground">
+        <div className="mt-6 space-y-4 text-muted-foreground">
           <p>
             Fredericton, New Brunswick&apos;s capital city, is home to a vibrant
             community of local businesses that make our city unique. From the

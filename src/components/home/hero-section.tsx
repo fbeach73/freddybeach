@@ -18,7 +18,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="py-12 md:py-20">
+    <section className="py-16 md:py-24">
       <div className="mx-auto max-w-3xl text-center">
         <Badge variant="secondary" className="mb-4">
           Fredericton&apos;s Local Business Directory

@@ -1,41 +1,89 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Building2, ClipboardCheck, TrendingUp } from "lucide-react";
+import { Users, Building2, ClipboardCheck, Clock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { db } from "@/lib/db";
+import { user, business, claim } from "@/lib/schema";
+import { sql, eq, desc } from "drizzle-orm";
+import { formatDistanceToNow } from "date-fns";
 
-// Mock stats - replace with real data later
-const stats = [
-  {
-    title: "Total Users",
-    value: "156",
-    description: "+12 this week",
-    icon: Users,
-    href: "/admin/users",
-  },
-  {
-    title: "Pending Claims",
-    value: "8",
-    description: "Awaiting approval",
-    icon: ClipboardCheck,
-    href: "/admin/claims",
-  },
-  {
-    title: "Total Businesses",
-    value: "20",
-    description: "15 verified",
-    icon: Building2,
-    href: "/admin/businesses",
-  },
-  {
-    title: "Active Clients",
-    value: "12",
-    description: "Paying customers",
-    icon: TrendingUp,
-    href: "/admin/users",
-  },
-];
+export default async function AdminPage() {
+  // Fetch real stats from database
+  const [{ userCount }] = await db
+    .select({ userCount: sql<number>`count(*)::int` })
+    .from(user);
 
-export default function AdminPage() {
+  const [{ pendingClaimCount }] = await db
+    .select({ pendingClaimCount: sql<number>`count(*)::int` })
+    .from(claim)
+    .where(eq(claim.status, "pending"));
+
+  const [businessCounts] = await db
+    .select({
+      total: sql<number>`count(*)::int`,
+      published: sql<number>`count(*) filter (where ${business.status} = 'published')::int`,
+      pendingReview: sql<number>`count(*) filter (where ${business.status} = 'pending_review')::int`,
+    })
+    .from(business);
+
+  // Fetch recent pending claims with business and user info
+  const recentClaims = await db
+    .select({
+      id: claim.id,
+      businessName: business.name,
+      userEmail: user.email,
+      createdAt: claim.createdAt,
+    })
+    .from(claim)
+    .innerJoin(business, eq(claim.businessId, business.id))
+    .innerJoin(user, eq(claim.userId, user.id))
+    .where(eq(claim.status, "pending"))
+    .orderBy(desc(claim.createdAt))
+    .limit(3);
+
+  // Fetch recent users
+  const recentUsers = await db
+    .select({
+      id: user.id,
+      name: user.name,
+      role: user.role,
+      createdAt: user.createdAt,
+    })
+    .from(user)
+    .orderBy(desc(user.createdAt))
+    .limit(3);
+
+  const stats = [
+    {
+      title: "Total Users",
+      value: userCount.toString(),
+      description: "Registered accounts",
+      icon: Users,
+      href: "/admin/users",
+    },
+    {
+      title: "Pending Claims",
+      value: pendingClaimCount.toString(),
+      description: "Awaiting approval",
+      icon: ClipboardCheck,
+      href: "/admin/claims",
+    },
+    {
+      title: "Total Businesses",
+      value: businessCounts?.total.toString() || "0",
+      description: `${businessCounts?.published || 0} published`,
+      icon: Building2,
+      href: "/admin/businesses",
+    },
+    {
+      title: "Pending Review",
+      value: businessCounts?.pendingReview.toString() || "0",
+      description: "New submissions",
+      icon: Clock,
+      href: "/admin/businesses?status=pending_review",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -70,30 +118,25 @@ export default function AdminPage() {
             <CardDescription>Pending business claim requests</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Read&apos;s Beans Coffee</p>
-                  <p className="text-sm text-muted-foreground">
-                    Claimed by john@example.com
-                  </p>
-                </div>
-                <Button size="sm" variant="outline" asChild>
-                  <Link href="/admin/claims">Review</Link>
-                </Button>
+            {recentClaims.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">No pending claims</p>
+            ) : (
+              <div className="space-y-4">
+                {recentClaims.map((claimItem) => (
+                  <div key={claimItem.id} className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{claimItem.businessName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Claimed by {claimItem.userEmail}
+                      </p>
+                    </div>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link href={`/admin/claims`}>Review</Link>
+                    </Button>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Sweet Willow Bakery</p>
-                  <p className="text-sm text-muted-foreground">
-                    Claimed by jane@example.com
-                  </p>
-                </div>
-                <Button size="sm" variant="outline" asChild>
-                  <Link href="/admin/claims">Review</Link>
-                </Button>
-              </div>
-            </div>
+            )}
             <Button variant="link" className="px-0 mt-4" asChild>
               <Link href="/admin/claims">View all claims</Link>
             </Button>
@@ -106,22 +149,23 @@ export default function AdminPage() {
             <CardDescription>Latest user registrations</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Sarah Mitchell</p>
-                  <p className="text-sm text-muted-foreground">client</p>
-                </div>
-                <span className="text-xs text-muted-foreground">2 days ago</span>
+            {recentUsers.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">No users yet</p>
+            ) : (
+              <div className="space-y-4">
+                {recentUsers.map((userItem) => (
+                  <div key={userItem.id} className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{userItem.name}</p>
+                      <p className="text-sm text-muted-foreground">{userItem.role}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(userItem.createdAt, { addSuffix: true })}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">John Smith</p>
-                  <p className="text-sm text-muted-foreground">user</p>
-                </div>
-                <span className="text-xs text-muted-foreground">5 days ago</span>
-              </div>
-            </div>
+            )}
             <Button variant="link" className="px-0 mt-4" asChild>
               <Link href="/admin/users">View all users</Link>
             </Button>

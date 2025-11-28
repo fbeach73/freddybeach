@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,34 +10,33 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   getAvailableSlots,
   formatTime,
   formatDate,
   type DaySlots,
 } from "@/lib/data/booking-slots";
 import { cn } from "@/lib/utils";
-import { Calendar, Check, Clock } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 
 interface BookingCalendarProps {
-  onSlotSelected?: (date: string, time: string) => void;
+  onSlotSelected?: (date: string | null, time: string | null) => void;
+  selectedDate?: string | null;
+  selectedTime?: string | null;
   className?: string;
 }
 
 export function BookingCalendar({
   onSlotSelected,
+  selectedDate: controlledDate,
+  selectedTime: controlledTime,
   className,
 }: BookingCalendarProps) {
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  // Support both controlled and uncontrolled modes
+  const [internalDate, setInternalDate] = useState<string | null>(null);
+  const [internalTime, setInternalTime] = useState<string | null>(null);
+
+  const selectedDate = controlledDate !== undefined ? controlledDate : internalDate;
+  const selectedTime = controlledTime !== undefined ? controlledTime : internalTime;
 
   const availableSlots: DaySlots[] = getAvailableSlots();
 
@@ -46,25 +45,16 @@ export function BookingCalendar({
     : [];
 
   const handleDateSelect = (date: string) => {
-    setSelectedDate(date);
-    setSelectedTime(null);
+    setInternalDate(date);
+    setInternalTime(null);
+    onSlotSelected?.(date, null);
   };
 
   const handleTimeSelect = (time: string) => {
-    setSelectedTime(time);
-  };
-
-  const handleBooking = () => {
-    if (selectedDate && selectedTime) {
-      onSlotSelected?.(selectedDate, selectedTime);
-      setShowSuccessDialog(true);
+    setInternalTime(time);
+    if (selectedDate) {
+      onSlotSelected?.(selectedDate, time);
     }
-  };
-
-  const handleDialogClose = () => {
-    setShowSuccessDialog(false);
-    setSelectedDate(null);
-    setSelectedTime(null);
   };
 
   return (
@@ -158,46 +148,22 @@ export function BookingCalendar({
             </div>
           )}
 
-          {/* Book Button */}
+          {/* Selection Summary */}
           {selectedDate && selectedTime && (
-            <div className="border-t pt-4">
-              <div className="mb-4 rounded-lg bg-muted p-3">
-                <p className="text-sm font-medium">Your Selection</p>
-                <p className="text-muted-foreground">
-                  {formatDate(selectedDate)} at {formatTime(selectedTime)}
-                </p>
-              </div>
-              <Button onClick={handleBooking} className="w-full" size="lg">
-                Book This Time
-              </Button>
+            <div className="rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950">
+              <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                Selected: {formatDate(selectedDate)} at {formatTime(selectedTime)}
+              </p>
+              <p className="mt-1 text-xs text-green-600 dark:text-green-400">
+                Fill out the form to complete your booking
+              </p>
             </div>
           )}
         </CardContent>
       </Card>
-
-      {/* Success Dialog */}
-      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-              <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
-            </div>
-            <DialogTitle className="text-center">Booking Confirmed!</DialogTitle>
-            <DialogDescription className="text-center">
-              Your consultation has been scheduled for{" "}
-              <strong>
-                {selectedDate && formatDate(selectedDate)} at{" "}
-                {selectedTime && formatTime(selectedTime)}
-              </strong>
-              . You&apos;ll receive a confirmation email shortly with details on how
-              to prepare for your session.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="sm:justify-center">
-            <Button onClick={handleDialogClose}>Done</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
+
+// Export formatting helpers for use in other components
+export { formatDate, formatTime };

@@ -92,6 +92,7 @@ import {
   ConsultationBookedEmail,
   generateConsultationICS,
 } from "@/emails/consultation-booked";
+import { BookingNotificationAdmin } from "@/emails/booking-notification-admin";
 
 // Lazily initialize Mailgun client to avoid errors during build
 let mg: ReturnType<InstanceType<typeof Mailgun>["client"]> | null = null;
@@ -675,5 +676,81 @@ export async function sendConsultationBookedEmail(
         contentType: "text/calendar",
       },
     ],
+  });
+}
+
+// =============================================================================
+// Booking Notification Email Helpers
+// =============================================================================
+
+export interface BookingNotificationAdminData {
+  adminEmail: string;
+  customerName: string;
+  customerEmail: string;
+  businessName: string;
+  preferredPackage: string;
+  challenge: string;
+  selectedDateTime?: string;
+}
+
+/**
+ * Send a notification email to admin when a new booking request is submitted
+ */
+export async function sendBookingNotificationToAdmin(
+  data: BookingNotificationAdminData
+): Promise<boolean> {
+  const submittedAt = new Date().toLocaleString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+
+  const html = await render(
+    BookingNotificationAdmin({
+      customerName: data.customerName,
+      customerEmail: data.customerEmail,
+      businessName: data.businessName,
+      preferredPackage: data.preferredPackage,
+      challenge: data.challenge,
+      submittedAt,
+      selectedDateTime: data.selectedDateTime,
+    })
+  );
+
+  const dateTimeText = data.selectedDateTime
+    ? `\nRequested Time: ${data.selectedDateTime}`
+    : "";
+
+  const text = `New Consultation Request
+
+A new consultation request has been submitted through the website.
+
+CUSTOMER INFORMATION
+--------------------
+Name: ${data.customerName}
+Email: ${data.customerEmail}
+Business: ${data.businessName}
+Package: ${data.preferredPackage}${dateTimeText}
+
+CHALLENGE DESCRIPTION
+--------------------
+${data.challenge}
+
+--------------------
+Submitted on ${submittedAt}
+
+Reply to this email or contact ${data.customerEmail} to follow up.
+
+— FreddyBeach Booking System`;
+
+  return sendEmail({
+    to: data.adminEmail,
+    subject: `New Booking Request: ${data.customerName} from ${data.businessName}`,
+    html,
+    text,
   });
 }

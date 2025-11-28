@@ -1,6 +1,5 @@
-import { BookingCalendar } from "@/components/marketing/booking-calendar";
+import { BookingSection } from "@/components/marketing/booking-section";
 import { ConsultationCard } from "@/components/marketing/consultation-card";
-import { ContactForm } from "@/components/marketing/contact-form";
 import { SectionHero } from "@/components/marketing/section-hero";
 import { TrustSignals } from "@/components/marketing/trust-signals";
 import { consultationPackages } from "@/lib/data/packages";
@@ -105,10 +104,7 @@ export default function ConsultationPage() {
           </div>
 
           {/* Two-column layout: BookingCalendar | ContactForm */}
-          <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-2">
-            <BookingCalendar />
-            <ContactForm />
-          </div>
+          <BookingSection />
         </div>
       </section>
 

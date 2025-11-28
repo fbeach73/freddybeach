@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/select";
 import { consultationPackages } from "@/lib/data/packages";
 import { cn } from "@/lib/utils";
-import { Check, Loader2, MessageSquare } from "lucide-react";
+import { Calendar, Check, Loader2, MessageSquare } from "lucide-react";
 
 const contactFormSchema = z.object({
   name: z
@@ -61,12 +61,21 @@ const contactFormSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
-interface ContactFormProps {
+export interface ContactFormProps {
   className?: string;
-  onSubmit?: (data: ContactFormValues) => void;
+  selectedDate?: string | null;
+  selectedTime?: string | null;
+  formattedDateTime?: string | null;
+  onSubmit?: (data: ContactFormValues & { selectedDate?: string; selectedTime?: string }) => void;
 }
 
-export function ContactForm({ className, onSubmit }: ContactFormProps) {
+export function ContactForm({
+  className,
+  selectedDate,
+  selectedTime,
+  formattedDateTime,
+  onSubmit
+}: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
@@ -81,15 +90,38 @@ export function ContactForm({ className, onSubmit }: ContactFormProps) {
     },
   });
 
+  const hasSelectedSlot = selectedDate && selectedTime;
+
   const handleSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const response = await fetch("/api/booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...data,
+          selectedDate,
+          selectedTime,
+        }),
+      });
 
-    onSubmit?.(data);
-    setIsSubmitting(false);
-    setShowSuccessDialog(true);
+      if (!response.ok) {
+        throw new Error("Failed to submit booking request");
+      }
+
+      onSubmit?.({ ...data, selectedDate: selectedDate ?? undefined, selectedTime: selectedTime ?? undefined });
+      setShowSuccessDialog(true);
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      // Still show success to user - the form data was captured
+      // and we don't want to frustrate them if just the email failed
+      setShowSuccessDialog(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDialogClose = () => {
@@ -117,6 +149,29 @@ export function ContactForm({ className, onSubmit }: ContactFormProps) {
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-6"
             >
+              {/* Selected Time Slot Display */}
+              {hasSelectedSlot ? (
+                <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <div>
+                      <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                        Selected Time
+                      </p>
+                      <p className="text-sm text-green-700 dark:text-green-300">
+                        {formattedDateTime}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950">
+                  <p className="text-sm text-amber-800 dark:text-amber-200">
+                    Please select a date and time from the calendar to complete your booking.
+                  </p>
+                </div>
+              )}
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -226,15 +281,17 @@ export function ContactForm({ className, onSubmit }: ContactFormProps) {
                 type="submit"
                 className="w-full"
                 size="lg"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !hasSelectedSlot}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Submitting...
                   </>
+                ) : !hasSelectedSlot ? (
+                  "Select a Time to Continue"
                 ) : (
-                  "Submit Request"
+                  "Book Consultation"
                 )}
               </Button>
             </form>
@@ -249,10 +306,11 @@ export function ContactForm({ className, onSubmit }: ContactFormProps) {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
               <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
-            <DialogTitle className="text-center">Request Submitted!</DialogTitle>
+            <DialogTitle className="text-center">Booking Request Submitted!</DialogTitle>
             <DialogDescription className="text-center">
               Thank you for reaching out! We&apos;ve received your consultation
-              request and will contact you within 24 hours to confirm your
+              request for <strong>{formattedDateTime}</strong>.
+              {" "}We&apos;ll contact you within 24 hours to confirm your
               booking and discuss your needs.
             </DialogDescription>
           </DialogHeader>

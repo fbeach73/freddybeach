@@ -30,7 +30,7 @@ export function FeaturedBusinessesCarousel({ businesses }: FeaturedBusinessesCar
         description="Discover top-rated local businesses in Fredericton"
         action={
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/search" className="flex items-center gap-1">
+            <Link href="/search?featured=true" className="flex items-center gap-1">
               View all
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -41,22 +41,22 @@ export function FeaturedBusinessesCarousel({ businesses }: FeaturedBusinessesCar
         <Carousel
           opts={{
             align: "start",
-            loop: true,
+            loop: businesses.length > 3,
           }}
           className="w-full"
         >
-          <CarouselContent>
+          <CarouselContent className="-ml-4">
             {businesses.map((business) => (
               <CarouselItem
                 key={business.id}
-                className="basis-full sm:basis-1/2 lg:basis-1/3"
+                className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
               >
                 <BusinessCard business={business} />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex" />
-          <CarouselNext className="hidden sm:flex" />
+          <CarouselPrevious className="hidden sm:flex left-0 -translate-x-1/2" />
+          <CarouselNext className="hidden sm:flex right-0 translate-x-1/2" />
         </Carousel>
       </div>
     </section>

@@ -67,6 +67,7 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
     ? parseFloat(searchParams.get("rating")!)
     : null;
   const initialOpenNow = searchParams.get("open") === "true";
+  const initialFeatured = searchParams.get("featured") === "true";
   const initialSort = (searchParams.get("sort") as SortOption) || "relevance";
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
 
@@ -77,6 +78,7 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
     categories: initialCategories,
     minRating: initialRating,
     openNow: initialOpenNow,
+    featured: initialFeatured,
   });
   const [sortBy, setSortBy] = useState<SortOption>(initialSort);
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -100,6 +102,7 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
       category?: string[];
       rating?: number | null;
       open?: boolean;
+      featured?: boolean;
       sort?: SortOption;
       page?: number;
     }) => {
@@ -138,6 +141,15 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
           url.searchParams.set("open", "true");
         } else {
           url.searchParams.delete("open");
+        }
+      }
+
+      // Featured
+      if (params.featured !== undefined) {
+        if (params.featured) {
+          url.searchParams.set("featured", "true");
+        } else {
+          url.searchParams.delete("featured");
         }
       }
 
@@ -230,6 +242,13 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
         }
       }
 
+      // Filter by featured
+      if (filters.featured) {
+        if (!business.isFeatured) {
+          return false;
+        }
+      }
+
       return true;
     });
   }, [businesses, debouncedQuery, filters, isBusinessOpen]);
@@ -310,16 +329,27 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
     [updateURL]
   );
 
+  const handleFeaturedChange = useCallback(
+    (featured: boolean) => {
+      setFilters((prev) => ({ ...prev, featured }));
+      updateURL({ featured, page: 1 });
+      setCurrentPage(1);
+    },
+    [updateURL]
+  );
+
   const handleClearAllFilters = useCallback(() => {
     setFilters({
       categories: [],
       minRating: null,
       openNow: false,
+      featured: false,
     });
     updateURL({
       category: [],
       rating: null,
       open: false,
+      featured: false,
       page: 1,
     });
     setCurrentPage(1);
@@ -425,6 +455,7 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
               onCategoryChange={handleCategoryChange}
               onRatingChange={handleRatingChange}
               onOpenNowChange={handleOpenNowChange}
+              onFeaturedChange={handleFeaturedChange}
               onClearAll={handleClearAllFilters}
             />
           </div>
@@ -467,6 +498,7 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
               onCategoryChange={handleCategoryChange}
               onRatingChange={handleRatingChange}
               onOpenNowChange={handleOpenNowChange}
+              onFeaturedChange={handleFeaturedChange}
               onClearAll={handleClearAllFilters}
             />
           </div>

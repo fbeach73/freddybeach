@@ -26,6 +26,7 @@ export interface FilterState {
   categories: string[];
   minRating: number | null;
   openNow: boolean;
+  featured: boolean;
 }
 
 interface SearchFiltersProps {
@@ -34,6 +35,7 @@ interface SearchFiltersProps {
   onCategoryChange: (categories: string[]) => void;
   onRatingChange: (rating: number | null) => void;
   onOpenNowChange: (openNow: boolean) => void;
+  onFeaturedChange: (featured: boolean) => void;
   onClearAll: () => void;
   className?: string;
 }
@@ -51,13 +53,15 @@ export function SearchFilters({
   onCategoryChange,
   onRatingChange,
   onOpenNowChange,
+  onFeaturedChange,
   onClearAll,
   className,
 }: SearchFiltersProps) {
   const hasActiveFilters =
     filters.categories.length > 0 ||
     filters.minRating !== null ||
-    filters.openNow;
+    filters.openNow ||
+    filters.featured;
 
   const handleCategoryToggle = (categorySlug: string) => {
     if (filters.categories.includes(categorySlug)) {
@@ -190,6 +194,18 @@ export function SearchFilters({
         />
       </div>
 
+      {/* Featured Toggle */}
+      <div className="flex items-center justify-between">
+        <Label htmlFor="featured" className="text-sm font-medium">
+          Featured Only
+        </Label>
+        <Switch
+          id="featured"
+          checked={filters.featured}
+          onCheckedChange={onFeaturedChange}
+        />
+      </div>
+
       {/* Clear All Button */}
       {hasActiveFilters && (
         <Button
@@ -210,5 +226,6 @@ export function getActiveFilterCount(filters: FilterState): number {
   if (filters.categories.length > 0) count++;
   if (filters.minRating !== null) count++;
   if (filters.openNow) count++;
+  if (filters.featured) count++;
   return count;
 }

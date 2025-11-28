@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { SearchClient } from "./search-client";
-import { businesses } from "@/lib/data/businesses";
+import { getPublishedBusinesses } from "@/lib/data/businesses-db";
 import { categories } from "@/lib/data/categories";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -15,6 +15,9 @@ export const metadata: Metadata = {
       "Search and discover local businesses in Fredericton, New Brunswick. Find restaurants, cafes, retail shops, professional services, and more.",
   },
 };
+
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
 function SearchLoading() {
   return (
@@ -45,7 +48,7 @@ function SearchLoading() {
         <div className="flex-1">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-[4/5] w-full rounded-lg" />
+              <Skeleton key={`skeleton-${i}`} className="aspect-[4/5] w-full rounded-lg" />
             ))}
           </div>
         </div>
@@ -54,7 +57,10 @@ function SearchLoading() {
   );
 }
 
-export default function SearchPage() {
+export default async function SearchPage() {
+  // Fetch real businesses from database
+  const businesses = await getPublishedBusinesses();
+
   return (
     <main className="container mx-auto px-4 py-8">
       <Suspense fallback={<SearchLoading />}>

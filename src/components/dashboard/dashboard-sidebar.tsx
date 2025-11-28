@@ -26,6 +26,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "@/lib/auth-client";
+import { getInitials } from "@/lib/utils/format";
 
 const navItems = [
   {
@@ -70,17 +71,6 @@ export function DashboardSidebar() {
       return pathname === "/dashboard";
     }
     return pathname.startsWith(href);
-  };
-
-  // Get user initials for avatar fallback
-  const getInitials = (name: string | undefined) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   // Check if user is admin
@@ -141,7 +131,7 @@ export function DashboardSidebar() {
         <div className="flex items-center gap-3 px-2 py-2">
           <Avatar className="h-8 w-8">
             <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
-            <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
+            <AvatarFallback>{user?.name ? getInitials(user.name) : "U"}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-medium truncate">

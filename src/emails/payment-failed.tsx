@@ -3,6 +3,7 @@ import * as React from "react";
 import { EmailLayout, BRAND } from "./components/email-layout";
 import { EmailHeading } from "./components/email-heading";
 import { EmailButton } from "./components/email-button";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface PaymentFailedEmailProps {
   userName: string;
@@ -24,12 +25,6 @@ export function PaymentFailedEmail({
   updatePaymentUrl = "https://freddybeach.com/dashboard/billing",
 }: PaymentFailedEmailProps) {
   const firstName = userName.split(" ")[0];
-
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-CA", {
-      style: "currency",
-      currency: "CAD",
-    }).format(amount);
 
   return (
     <EmailLayout preview="Action required: Your payment failed">
@@ -60,7 +55,7 @@ export function PaymentFailedEmail({
           </Column>
           <Column style={styles.detailValueColumn}>
             <Text style={styles.detailValue}>
-              {formatCurrency(billingAmount)}
+              {formatCurrency(billingAmount, { showCents: true })}
             </Text>
           </Column>
         </Row>

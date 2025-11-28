@@ -1,4 +1,4 @@
-// MDX Compilation Utilities
+// MDX Compilation Utilities (Server-only - uses database)
 
 import { compileMDX } from "next-mdx-remote/rsc";
 import rehypeSlug from "rehype-slug";
@@ -7,6 +7,10 @@ import remarkGfm from "remark-gfm";
 import type { BlogFrontmatter, TOCItem } from "@/types/blog";
 import { autoLinkContent, buildBusinessIndex } from "./auto-link";
 import { mdxComponents } from "@/components/blog/mdx-components";
+import { slugify, stripHtml, generateExcerpt } from "./utils";
+
+// Re-export client-safe utilities for backwards compatibility
+export { slugify, stripHtml, generateExcerpt };
 
 // MDX compilation options
 const mdxOptions = {
@@ -95,44 +99,4 @@ export function extractTableOfContents(content: string): TOCItem[] {
   }
 
   return tocItems;
-}
-
-/**
- * Simple slugify function for heading IDs
- */
-export function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim();
-}
-
-/**
- * Strip HTML tags from content (for plain text extraction)
- */
-export function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, "");
-}
-
-/**
- * Generate an excerpt from content if not provided
- */
-export function generateExcerpt(content: string, maxLength: number = 160): string {
-  const plainText = stripHtml(content);
-
-  if (plainText.length <= maxLength) {
-    return plainText;
-  }
-
-  // Find the last space before maxLength to avoid cutting words
-  const truncated = plainText.substring(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(" ");
-
-  if (lastSpace > maxLength - 30) {
-    return truncated.substring(0, lastSpace) + "...";
-  }
-
-  return truncated + "...";
 }

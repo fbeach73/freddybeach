@@ -3,6 +3,7 @@ import * as React from "react";
 import { EmailLayout, BRAND } from "./components/email-layout";
 import { EmailHeading } from "./components/email-heading";
 import { EmailButton } from "./components/email-button";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface SubscriptionFeature {
   name: string;
@@ -29,12 +30,6 @@ export function SubscriptionStartedEmail({
   manageSubscriptionUrl = "https://freddybeach.com/dashboard/billing",
 }: SubscriptionStartedEmailProps) {
   const firstName = userName.split(" ")[0];
-
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-CA", {
-      style: "currency",
-      currency: "CAD",
-    }).format(amount);
 
   const frequencyLabel = billingFrequency === "monthly" ? "/month" : "/year";
 
@@ -78,7 +73,7 @@ export function SubscriptionStartedEmail({
           </Column>
           <Column style={styles.detailValueColumn}>
             <Text style={styles.detailValue}>
-              {formatCurrency(billingAmount)}
+              {formatCurrency(billingAmount, { showCents: true })}
               {frequencyLabel}
             </Text>
           </Column>

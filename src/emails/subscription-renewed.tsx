@@ -3,6 +3,7 @@ import * as React from "react";
 import { EmailLayout, BRAND } from "./components/email-layout";
 import { EmailHeading } from "./components/email-heading";
 import { EmailButton } from "./components/email-button";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface SubscriptionRenewedEmailProps {
   userName: string;
@@ -29,12 +30,6 @@ export function SubscriptionRenewedEmail({
     month: "long",
     day: "numeric",
   });
-
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-CA", {
-      style: "currency",
-      currency: "CAD",
-    }).format(amount);
 
   const frequencyLabel = billingFrequency === "monthly" ? "/month" : "/year";
 
@@ -72,7 +67,7 @@ export function SubscriptionRenewedEmail({
           </Column>
           <Column style={styles.receiptAmountColumn}>
             <Text style={styles.receiptAmount}>
-              {formatCurrency(billingAmount)}
+              {formatCurrency(billingAmount, { showCents: true })}
             </Text>
           </Column>
         </Row>
@@ -83,7 +78,7 @@ export function SubscriptionRenewedEmail({
           </Column>
           <Column style={styles.receiptAmountColumn}>
             <Text style={styles.totalAmount}>
-              {formatCurrency(billingAmount)}
+              {formatCurrency(billingAmount, { showCents: true })}
             </Text>
           </Column>
         </Row>
@@ -99,7 +94,7 @@ export function SubscriptionRenewedEmail({
           <Column style={styles.nextBillingAmountColumn}>
             <Text style={styles.nextBillingAmountLabel}>Amount</Text>
             <Text style={styles.nextBillingAmount}>
-              {formatCurrency(billingAmount)}
+              {formatCurrency(billingAmount, { showCents: true })}
               {frequencyLabel}
             </Text>
           </Column>

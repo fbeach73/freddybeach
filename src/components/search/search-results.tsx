@@ -27,7 +27,7 @@ export const SearchResults = memo(function SearchResults({
         )}
       >
         {Array.from({ length: 6 }).map((_, i) => (
-          <BusinessCardSkeleton key={i} />
+          <BusinessCardSkeleton key={`skeleton-${i}`} />
         ))}
       </div>
     );

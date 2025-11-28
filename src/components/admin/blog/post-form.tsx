@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/card";
 import { PostEditor } from "./post-editor";
 import { categories } from "@/lib/data/categories";
-import { slugify } from "@/lib/blog/mdx";
+import { slugify } from "@/lib/blog/utils";
 import { Save, Upload, Eye, Loader2, Images } from "lucide-react";
 import {
   Dialog,
@@ -43,8 +43,17 @@ interface PostFormProps {
 
 export function PostForm({ post, mode }: PostFormProps) {
   const router = useRouter();
+  const isMountedRef = useRef(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+
+  // Track mounted state for cleanup
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Form state
   const [title, setTitle] = useState(post?.title || "");
@@ -116,6 +125,9 @@ export function PostForm({ post, mode }: PostFormProps) {
         throw new Error(data.error || "Failed to save post");
       }
 
+      // Check if component is still mounted before updating state
+      if (!isMountedRef.current) return;
+
       toast.success(
         mode === "create" ? "Post created!" : "Post saved!"
       );
@@ -126,11 +138,14 @@ export function PostForm({ post, mode }: PostFormProps) {
         router.refresh();
       }
     } catch (error) {
+      if (!isMountedRef.current) return;
       toast.error(
         error instanceof Error ? error.message : "Failed to save post"
       );
     } finally {
-      setIsSaving(false);
+      if (isMountedRef.current) {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -159,6 +174,9 @@ export function PostForm({ post, mode }: PostFormProps) {
       // Save first to ensure latest content is saved
       await handleSave();
 
+      // Check if component is still mounted
+      if (!isMountedRef.current) return;
+
       // Then publish
       const response = await fetch(`/api/blog/posts/${post.id}/publish`, {
         method: "POST",
@@ -170,15 +188,21 @@ export function PostForm({ post, mode }: PostFormProps) {
         throw new Error(data.error || "Failed to publish post");
       }
 
+      // Check if component is still mounted before updating state
+      if (!isMountedRef.current) return;
+
       toast.success("Post published successfully!");
       router.push("/admin/blog");
       router.refresh();
     } catch (error) {
+      if (!isMountedRef.current) return;
       toast.error(
         error instanceof Error ? error.message : "Failed to publish post"
       );
     } finally {
-      setIsPublishing(false);
+      if (isMountedRef.current) {
+        setIsPublishing(false);
+      }
     }
   };
 

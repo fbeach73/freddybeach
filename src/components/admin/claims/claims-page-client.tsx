@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -110,8 +110,20 @@ function formatClaimDate(date: Date) {
 
 export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
   const router = useRouter();
+  const isMountedRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [activeTab, setActiveTab] = useState("pending");
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Track mounted state and cleanup abort controller
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      // Cancel any in-flight requests on unmount
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   // Approve dialog state
   const [showApproveDialog, setShowApproveDialog] = useState(false);
@@ -137,12 +149,17 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
   const handleApprove = async () => {
     if (!claimToApprove) return;
 
+    // Cancel any previous request
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
+
     setIsProcessing(true);
     try {
       const response = await fetch(`/api/admin/claims/${claimToApprove.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "approve" }),
+        signal: abortControllerRef.current.signal,
       });
 
       const data = await response.json();
@@ -151,16 +168,24 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
         throw new Error(data.error || "Failed to approve claim");
       }
 
+      // Check if component is still mounted before updating state
+      if (!isMountedRef.current) return;
+
       toast.success(data.message || "Claim approved successfully");
       setShowApproveDialog(false);
       setClaimToApprove(null);
       router.refresh();
     } catch (error) {
+      // Ignore abort errors
+      if (error instanceof Error && error.name === "AbortError") return;
+      if (!isMountedRef.current) return;
       toast.error(
         error instanceof Error ? error.message : "Failed to approve claim"
       );
     } finally {
-      setIsProcessing(false);
+      if (isMountedRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -172,6 +197,10 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
       return;
     }
 
+    // Cancel any previous request
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
+
     setIsProcessing(true);
     try {
       const response = await fetch(`/api/admin/claims/${claimToReject.id}`, {
@@ -181,6 +210,7 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
           action: "reject",
           rejectionReason: rejectionReason.trim(),
         }),
+        signal: abortControllerRef.current.signal,
       });
 
       const data = await response.json();
@@ -189,17 +219,25 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
         throw new Error(data.error || "Failed to reject claim");
       }
 
+      // Check if component is still mounted before updating state
+      if (!isMountedRef.current) return;
+
       toast.success("Claim rejected");
       setShowRejectDialog(false);
       setClaimToReject(null);
       setRejectionReason("");
       router.refresh();
     } catch (error) {
+      // Ignore abort errors
+      if (error instanceof Error && error.name === "AbortError") return;
+      if (!isMountedRef.current) return;
       toast.error(
         error instanceof Error ? error.message : "Failed to reject claim"
       );
     } finally {
-      setIsProcessing(false);
+      if (isMountedRef.current) {
+        setIsProcessing(false);
+      }
     }
   };
 

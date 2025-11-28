@@ -230,9 +230,9 @@ export function BulkImportTab() {
                 </h4>
                 <ScrollArea className="h-[200px] rounded-md border">
                   <div className="p-4 space-y-2">
-                    {importResult.skippedPlaces.map((place, index) => (
+                    {importResult.skippedPlaces.map((place) => (
                       <div
-                        key={index}
+                        key={place.googlePlaceId || `skipped-${place.name}`}
                         className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
                       >
                         <span className="text-sm">{place.name}</span>

@@ -62,7 +62,7 @@ export function ResultsList({
           </div>
         </div>
         {Array.from({ length: 5 }).map((_, i) => (
-          <PlaceResultCardSkeleton key={i} />
+          <PlaceResultCardSkeleton key={`skeleton-${i}`} />
         ))}
       </div>
     );

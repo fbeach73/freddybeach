@@ -198,27 +198,3 @@ export function sortByName(businesses: Business[], descending = false): Business
     descending ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name)
   );
 }
-
-/**
- * Filter businesses that are currently open
- */
-export function filterOpenNow(businesses: Business[]): Business[] {
-  return businesses.filter((b) => isOpenNow(b.hours));
-}
-
-/**
- * Filter businesses by minimum rating
- */
-export function filterByMinRating(businesses: Business[], minRating: number): Business[] {
-  return businesses.filter((b) => b.rating >= minRating);
-}
-
-/**
- * Filter businesses by tier
- */
-export function filterByTier(
-  businesses: Business[],
-  tier: "free" | "enhanced" | "featured"
-): Business[] {
-  return businesses.filter((b) => b.tier === tier);
-}

@@ -3,6 +3,7 @@ import * as React from "react";
 import { EmailLayout, BRAND } from "./components/email-layout";
 import { EmailHeading } from "./components/email-heading";
 import { EmailButton } from "./components/email-button";
+import { formatCurrency } from "@/lib/utils/format";
 
 interface PurchaseItem {
   name: string;
@@ -40,12 +41,6 @@ export function PurchaseConfirmationEmail({
     month: "long",
     day: "numeric",
   });
-
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-CA", {
-      style: "currency",
-      currency: "CAD",
-    }).format(amount);
 
   return (
     <EmailLayout preview={`Your FreddyBeach order #${orderNumber} is confirmed`}>
@@ -91,7 +86,7 @@ export function PurchaseConfirmationEmail({
             </Column>
             <Column style={styles.priceColumn}>
               <Text style={styles.itemPrice}>
-                {formatCurrency(item.unitPrice * item.quantity)}
+                {formatCurrency(item.unitPrice * item.quantity, { showCents: true })}
               </Text>
             </Column>
           </Row>
@@ -105,7 +100,7 @@ export function PurchaseConfirmationEmail({
             <Text style={styles.totalLabel}>Subtotal</Text>
           </Column>
           <Column style={styles.totalValueColumn}>
-            <Text style={styles.totalValue}>{formatCurrency(subtotal)}</Text>
+            <Text style={styles.totalValue}>{formatCurrency(subtotal, { showCents: true })}</Text>
           </Column>
         </Row>
 
@@ -115,7 +110,7 @@ export function PurchaseConfirmationEmail({
               <Text style={styles.totalLabel}>Tax</Text>
             </Column>
             <Column style={styles.totalValueColumn}>
-              <Text style={styles.totalValue}>{formatCurrency(tax)}</Text>
+              <Text style={styles.totalValue}>{formatCurrency(tax, { showCents: true })}</Text>
             </Column>
           </Row>
         )}
@@ -125,7 +120,7 @@ export function PurchaseConfirmationEmail({
             <Text style={styles.grandTotalLabel}>Total</Text>
           </Column>
           <Column style={styles.totalValueColumn}>
-            <Text style={styles.grandTotalValue}>{formatCurrency(total)}</Text>
+            <Text style={styles.grandTotalValue}>{formatCurrency(total, { showCents: true })}</Text>
           </Column>
         </Row>
       </Section>

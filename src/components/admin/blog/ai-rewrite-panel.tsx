@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -86,8 +86,8 @@ export function AIRewritePanel({
     }
   };
 
-  // Get change icon
-  const getChangeIcon = (type: RewriteChange["type"]) => {
+  // Get change icon - memoized to prevent re-creation on each render
+  const getChangeIcon = useCallback((type: RewriteChange["type"]) => {
     switch (type) {
       case "added":
         return <Plus className="h-3 w-3 text-green-500" />;
@@ -96,10 +96,10 @@ export function AIRewritePanel({
       case "modified":
         return <RefreshCw className="h-3 w-3 text-blue-500" />;
     }
-  };
+  }, []);
 
-  // Get change badge color
-  const getChangeBadge = (type: RewriteChange["type"]) => {
+  // Get change badge color - memoized to prevent re-creation on each render
+  const getChangeBadge = useCallback((type: RewriteChange["type"]) => {
     switch (type) {
       case "added":
         return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300";
@@ -108,7 +108,7 @@ export function AIRewritePanel({
       case "modified":
         return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300";
     }
-  };
+  }, []);
 
   return (
     <div className="space-y-6">

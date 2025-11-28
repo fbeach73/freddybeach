@@ -53,12 +53,12 @@ export function MediaLibrary({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Fetch images
-  const fetchImages = useCallback(async () => {
+  // Fetch images - memoized with stable dependencies
+  const fetchImages = useCallback(async (searchQuery: string) => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
-      if (search) params.set("search", search);
+      if (searchQuery) params.set("search", searchQuery);
       if (blogPostId) params.set("blogPostId", blogPostId);
 
       const response = await fetch(`/api/blog/images?${params.toString()}`);
@@ -73,16 +73,18 @@ export function MediaLibrary({
     } finally {
       setIsLoading(false);
     }
-  }, [search, blogPostId]);
+  }, [blogPostId]);
 
+  // Initial fetch on mount
   useEffect(() => {
-    fetchImages();
-  }, [fetchImages]);
+    fetchImages(search);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blogPostId]);
 
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchImages();
+      fetchImages(search);
     }, 300);
     return () => clearTimeout(timer);
   }, [search, fetchImages]);

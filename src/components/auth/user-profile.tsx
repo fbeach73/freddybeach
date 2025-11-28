@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, LogOut, Shield } from "lucide-react";
+import { User, LogOut, Shield, FileText } from "lucide-react";
 
 export function UserProfile() {
   const { data: session, isPending } = useSession();
@@ -82,12 +82,20 @@ export function UserProfile() {
           </Link>
         </DropdownMenuItem>
         {session.user?.role === "admin" && (
-          <DropdownMenuItem asChild>
-            <Link href="/admin" className="flex items-center">
-              <Shield className="mr-2 h-4 w-4" />
-              Admin
-            </Link>
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/admin" className="flex items-center">
+                <Shield className="mr-2 h-4 w-4" />
+                Admin
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/blog" className="flex items-center">
+                <FileText className="mr-2 h-4 w-4" />
+                Blog Admin
+              </Link>
+            </DropdownMenuItem>
+          </>
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} variant="destructive">

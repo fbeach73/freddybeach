@@ -5,6 +5,7 @@ import { Download, Search, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SearchForm } from "@/components/admin/import/search-form";
 import { ResultsList } from "@/components/admin/import/results-list";
 import { ImportConfirmationDialog } from "@/components/admin/import/import-confirmation-dialog";
@@ -311,23 +312,25 @@ export default function ImportPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <ResultsList
-                    places={places}
-                    selectedPlaces={selectedPlaces}
-                    categoryAssignments={categoryAssignments}
-                    importedPlaceIds={importedPlaceIds}
-                    onToggleSelect={handleToggleSelect}
-                    onCategoryChange={handleCategoryChange}
-                    onSelectAll={handleSelectAll}
-                    onDeselectAll={handleDeselectAll}
-                    onImport={handleImportClick}
-                    onLoadMore={handleLoadMore}
-                    hasMoreResults={!!nextPageToken}
-                    isLoading={isSearching}
-                    isLoadingMore={isLoadingMore}
-                    isImporting={isImporting}
-                    hasSearched={hasSearched}
-                  />
+                  <ErrorBoundary name="Search Results">
+                    <ResultsList
+                      places={places}
+                      selectedPlaces={selectedPlaces}
+                      categoryAssignments={categoryAssignments}
+                      importedPlaceIds={importedPlaceIds}
+                      onToggleSelect={handleToggleSelect}
+                      onCategoryChange={handleCategoryChange}
+                      onSelectAll={handleSelectAll}
+                      onDeselectAll={handleDeselectAll}
+                      onImport={handleImportClick}
+                      onLoadMore={handleLoadMore}
+                      hasMoreResults={!!nextPageToken}
+                      isLoading={isSearching}
+                      isLoadingMore={isLoadingMore}
+                      isImporting={isImporting}
+                      hasSearched={hasSearched}
+                    />
+                  </ErrorBoundary>
                 </CardContent>
               </Card>
             </div>

@@ -122,14 +122,15 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses" }:
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update business");
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to update business");
       }
 
       toast.success("Business updated successfully");
       router.push(redirectTo);
       router.refresh();
-    } catch {
-      toast.error("Failed to update business");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update business");
     } finally {
       setIsSaving(false);
     }

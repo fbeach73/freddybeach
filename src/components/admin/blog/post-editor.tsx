@@ -45,6 +45,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { MediaLibrary } from "./media-library";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import type { BlogImage } from "@/types/blog";
 
 interface PostEditorProps {
@@ -507,11 +508,13 @@ export function PostEditor({
                         new one.
                       </DialogDescription>
                     </DialogHeader>
-                    <MediaLibrary
-                      onSelect={insertImageFromLibrary}
-                      selectionMode
-                      blogPostId={blogPostId}
-                    />
+                    <ErrorBoundary name="Media Library">
+                      <MediaLibrary
+                        onSelect={insertImageFromLibrary}
+                        selectionMode
+                        blogPostId={blogPostId}
+                      />
+                    </ErrorBoundary>
                   </DialogContent>
                 </Dialog>
               </TabsContent>

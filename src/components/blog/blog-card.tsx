@@ -4,19 +4,12 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReadingTimeBadge } from "./reading-time-badge";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/format";
 import type { BlogPostCard } from "@/types/blog";
 
 interface BlogCardProps {
   post: BlogPostCard;
   className?: string;
-}
-
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
 }
 
 export function BlogCard({ post, className }: BlogCardProps) {

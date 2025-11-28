@@ -1,5 +1,5 @@
 import { HeroSection } from "@/components/home/hero-section";
-import { FeaturedBusinessesCarousel } from "@/components/home/featured-businesses-carousel";
+import { FeaturedBusinessesWrapper } from "@/components/home/featured-businesses-wrapper";
 import { CategoryGrid } from "@/components/home/category-grid";
 import { AIToolsTeaser } from "@/components/home/ai-tools-teaser";
 import { TestimonialSection } from "@/components/home/testimonial-section";
@@ -20,7 +20,7 @@ export default async function Home() {
   return (
     <main className="flex-1 container mx-auto px-4">
       <HeroSection />
-      <FeaturedBusinessesCarousel businesses={featuredBusinesses} />
+      <FeaturedBusinessesWrapper businesses={featuredBusinesses} />
       <CategoryGrid categories={categoriesWithCounts} />
       <AIToolsTeaser />
       <TestimonialSection />

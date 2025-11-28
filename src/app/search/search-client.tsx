@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,6 +50,15 @@ interface SearchClientProps {
 export function SearchClient({ businesses, categories }: SearchClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isMountedRef = useRef(true);
+
+  // Track mounted state for cleanup
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Parse URL params
   const initialQuery = searchParams.get("q") || "";
@@ -76,7 +85,9 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
+      if (isMountedRef.current) {
+        setDebouncedQuery(searchQuery);
+      }
     }, 300);
 
     return () => clearTimeout(timer);

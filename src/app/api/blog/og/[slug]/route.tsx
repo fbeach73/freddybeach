@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getPostBySlug } from "@/lib/blog/get-posts";
 import { getCategoryById } from "@/lib/data/categories";
+import { formatDate } from "@/lib/utils/format";
 
 export const runtime = "edge";
 
@@ -158,7 +159,7 @@ export async function GET(
                   color: "#94a3b8", // slate-400
                 }}
               >
-                {post.author.name} • {formatDate(post.publishedAt)}
+                {post.author.name} • {formatDate(post.publishedAt, { year: "numeric", month: "short", day: "numeric" })}
               </div>
             </div>
 
@@ -209,12 +210,4 @@ export async function GET(
       height: HEIGHT,
     }
   );
-}
-
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-CA", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
 }

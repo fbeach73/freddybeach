@@ -2,6 +2,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { UserProfile } from "@/components/auth/user-profile";
 import { ChatClient } from "@/components/chat/chat-client";
+import { ChatErrorFallback } from "@/components/chat/chat-error-fallback";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 export default async function ChatPage() {
   // Server-side session validation
@@ -20,6 +22,10 @@ export default async function ChatPage() {
     );
   }
 
-  // Pass validated user data to client component
-  return <ChatClient user={session.user} />;
+  // Pass validated user data to client component wrapped in error boundary
+  return (
+    <ErrorBoundary fallback={<ChatErrorFallback />} name="AI Chat">
+      <ChatClient user={session.user} />
+    </ErrorBoundary>
+  );
 }

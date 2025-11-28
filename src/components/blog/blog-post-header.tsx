@@ -4,27 +4,11 @@ import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ReadingTimeBadge } from "./reading-time-badge";
+import { formatDate, getInitials } from "@/lib/utils/format";
 import type { BlogPost } from "@/types/blog";
 
 interface BlogPostHeaderProps {
   post: BlogPost;
-}
-
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 }
 
 export function BlogPostHeader({ post }: BlogPostHeaderProps) {

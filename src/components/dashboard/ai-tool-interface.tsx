@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import Link from "next/link";
 import { Copy, RefreshCw, Lock, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,7 +64,7 @@ const toolControls: Record<
   },
 };
 
-export function AIToolInterface({ tool, userTier = "free" }: AIToolInterfaceProps) {
+export const AIToolInterface = memo(function AIToolInterface({ tool, userTier = "free" }: AIToolInterfaceProps) {
   const [input, setInput] = useState(tool.exampleInput);
   const [output, setOutput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -267,4 +267,6 @@ export function AIToolInterface({ tool, userTier = "free" }: AIToolInterfaceProp
       </Card>
     </div>
   );
-}
+});
+
+AIToolInterface.displayName = "AIToolInterface";

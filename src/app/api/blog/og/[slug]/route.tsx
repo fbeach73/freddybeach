@@ -3,7 +3,8 @@ import { getPostBySlug } from "@/lib/blog/get-posts";
 import { getCategoryById } from "@/lib/data/categories";
 import { formatDate } from "@/lib/utils/format";
 
-export const runtime = "edge";
+// Use Node.js runtime since we need database access
+export const runtime = "nodejs";
 
 // Image dimensions for OG image
 const WIDTH = 1200;

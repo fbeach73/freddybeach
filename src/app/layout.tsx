@@ -29,6 +29,29 @@ export const metadata: Metadata = {
   title: "FreddyBeach - Fredericton Business Directory",
   description:
     "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach. Support local and explore what makes our community special.",
+  metadataBase: new URL("https://fbeach.vercel.app"),
+  openGraph: {
+    title: "FreddyBeach - Fredericton Business Directory",
+    description:
+      "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach. Support local and explore what makes our community special.",
+    url: "https://fbeach.vercel.app",
+    siteName: "FreddyBeach",
+    locale: "en_CA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FreddyBeach - Fredericton Business Directory",
+    description:
+      "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach.",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({

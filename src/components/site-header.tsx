@@ -7,6 +7,7 @@ import { UserProfile } from "@/components/auth/user-profile";
 import { ModeToggle } from "./ui/mode-toggle";
 import { MobileNav } from "./layout/mobile-nav";
 import { Button } from "./ui/button";
+import { LiquidButton } from "./ui/liquid-button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -101,9 +102,11 @@ export function SiteHeader() {
             <ModeToggle />
 
             {/* CTA Button - Desktop only */}
-            <Button asChild className="hidden lg:flex" size="sm">
-              <Link href="/dashboard">Dashboard</Link>
-            </Button>
+            <Link href="/dashboard" className="hidden lg:block">
+              <LiquidButton size="sm">
+                Dashboard
+              </LiquidButton>
+            </Link>
           </div>
         </div>
       </div>

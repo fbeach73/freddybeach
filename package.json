@@ -61,6 +61,7 @@
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.539.0",
     "mailgun.js": "^12.2.0",
+    "motion": "^12.23.24",
     "nanoid": "^5.1.6",
     "next": "16.0.3",
     "next-mdx-remote": "^5.0.0",

@@ -240,6 +240,25 @@ export async function generateWithUserKey(
 
     enhancedPrompt = `Generate an image in ${aspectRatioHint}: ${enhancedPrompt}`;
 
+    // Build content parts array with text prompt AND avatar images
+    const contentParts: Part[] = [{ text: enhancedPrompt }];
+
+    // Add avatar images to the request
+    if (avatars.length > 0) {
+      console.log(`Including ${avatars.length} avatar reference image(s) in request`);
+      for (const av of avatars) {
+        if (av.imageUrl) {
+          const imagePart = await createImagePart(av.imageUrl);
+          if (imagePart) {
+            contentParts.push(imagePart);
+            console.log(`✓ Added avatar image: ${av.name}`);
+          } else {
+            console.warn(`✗ Failed to load avatar image: ${av.name}`);
+          }
+        }
+      }
+    }
+
     // Process images array
     const images: Array<{
       imageBytes: string;
@@ -265,7 +284,7 @@ export async function generateWithUserKey(
 
           const response = await client.models.generateContent({
             model,
-            contents: enhancedPrompt,
+            contents: contentParts,
             config: {
               responseModalities: ["TEXT", "IMAGE"],
             },

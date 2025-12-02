@@ -9,11 +9,11 @@ import type {
   Avatar,
 } from "@/lib/types/image-generation";
 
-// Image generation models - try in order of preference
-// gemini-2.0-flash-exp supports native image generation via generateContent
-const GEMINI_IMAGE_MODEL = "gemini-2.0-flash-exp";
-// Fallback Imagen model (requires Vertex AI)
-const IMAGEN_MODEL = "imagen-3.0-generate-002";
+// Image generation models
+// Nano Banana Pro (Gemini 3 Pro Image) - best quality, highest capability
+const NANO_BANANA_PRO_MODEL = "gemini-3-pro-image-preview";
+// Nano Banana (Gemini 2.5 Flash Image) - faster, lower cost fallback
+const NANO_BANANA_MODEL = "gemini-2.5-flash-image";
 
 // Resolution to dimensions mapping
 const RESOLUTION_MAP = {
@@ -246,39 +246,52 @@ export async function generateWithUserKey(
 
     const imageCount = settings.imageCount || 1;
 
-    // Generate images using Gemini's native image generation
-    // Gemini 2.0 Flash can generate images via generateContent
+    // Generate images using Nano Banana Pro (Gemini 3 Pro Image)
+    // Falls back to Nano Banana (Gemini 2.5 Flash Image) if Pro fails
     for (let i = 0; i < imageCount; i++) {
-      try {
-        const response = await client.models.generateContent({
-          model: GEMINI_IMAGE_MODEL,
-          contents: enhancedPrompt,
-          config: {
-            responseModalities: ["image", "text"],
-          },
-        });
+      let generated = false;
 
-        // Extract image from response
-        if (response.candidates && response.candidates[0]?.content?.parts) {
-          for (const part of response.candidates[0].content.parts) {
-            if (part.inlineData?.data) {
-              const dimensions = calculateDimensions(
-                settings.resolution || "1K",
-                settings.aspectRatio || "1:1"
-              );
+      // Try Nano Banana Pro first (best quality)
+      for (const model of [NANO_BANANA_PRO_MODEL, NANO_BANANA_MODEL]) {
+        if (generated) break;
 
-              images.push({
-                imageBytes: part.inlineData.data,
-                width: dimensions.width,
-                height: dimensions.height,
-              });
-              break; // Only take first image from each response
+        try {
+          const response = await client.models.generateContent({
+            model,
+            contents: enhancedPrompt,
+            config: {
+              responseModalities: ["TEXT", "IMAGE"],
+            },
+          });
+
+          // Extract image from response
+          if (response.candidates && response.candidates[0]?.content?.parts) {
+            for (const part of response.candidates[0].content.parts) {
+              if (part.inlineData?.data) {
+                const dimensions = calculateDimensions(
+                  settings.resolution || "1K",
+                  settings.aspectRatio || "1:1"
+                );
+
+                images.push({
+                  imageBytes: part.inlineData.data,
+                  width: dimensions.width,
+                  height: dimensions.height,
+                });
+                generated = true;
+                console.log(`Generated image ${i + 1} using ${model}`);
+                break; // Only take first image from response
+              }
             }
           }
+        } catch (genError) {
+          console.error(`Failed to generate image ${i + 1} with ${model}:`, genError);
+          // Try next model
         }
-      } catch (genError) {
-        console.error(`Failed to generate image ${i + 1}:`, genError);
-        // Continue trying to generate remaining images
+      }
+
+      if (!generated) {
+        console.error(`Failed to generate image ${i + 1} with all models`);
       }
     }
 

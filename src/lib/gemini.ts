@@ -285,7 +285,13 @@ export async function generateWithUserKey(
             }
           }
         } catch (genError) {
-          console.error(`Failed to generate image ${i + 1} with ${model}:`, genError);
+          const errorMsg = genError instanceof Error ? genError.message : String(genError);
+          console.error(`Failed to generate image ${i + 1} with ${model}:`, errorMsg);
+          // If it's a 404 (model not found), try next model
+          // If it's another error, log full details
+          if (!errorMsg.includes("404")) {
+            console.error("Full error details:", genError);
+          }
           // Try next model
         }
       }

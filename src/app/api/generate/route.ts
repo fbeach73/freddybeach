@@ -200,11 +200,26 @@ export async function POST(request: Request) {
     });
 
     // Generate images
+    console.log("Starting generation with settings:", {
+      prompt: prompt.trim().substring(0, 100) + "...",
+      imageCount: generationSettings.imageCount,
+      avatarIds: settings.avatarIds,
+      resolution: generationSettings.resolution,
+      aspectRatio: generationSettings.aspectRatio,
+    });
+
     const result = await generateWithUserKey({
       prompt: prompt.trim(),
       userId: session.user.id,
       settings: generationSettings,
       avatarIds: settings.avatarIds,
+    });
+
+    console.log("Generation result:", {
+      success: result.success,
+      imageCount: result.images?.length || 0,
+      error: result.error,
+      usedAppKey: result.usedAppKey,
     });
 
     if (!result.success || !result.images || result.images.length === 0) {

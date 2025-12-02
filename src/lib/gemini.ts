@@ -9,11 +9,13 @@ import type {
   Avatar,
 } from "@/lib/types/image-generation";
 
-// Image generation models
-// Nano Banana Pro (Gemini 3 Pro Image) - best quality, highest capability
-const NANO_BANANA_PRO_MODEL = "gemini-3-pro-image-preview";
-// Nano Banana (Gemini 2.5 Flash Image) - faster, lower cost fallback
-const NANO_BANANA_MODEL = "gemini-2.5-flash-image";
+// Image generation models - try in order of preference
+const IMAGE_GENERATION_MODELS = [
+  "gemini-2.0-flash-preview-image-generation", // Most reliable for image gen
+  "gemini-2.5-flash-image-preview",            // Gemini 2.5 Flash Image preview
+  "gemini-2.5-flash-image",                    // Gemini 2.5 Flash Image stable
+  "gemini-3-pro-image-preview",                // Nano Banana Pro (may require special access)
+];
 
 // Resolution to dimensions mapping
 const RESOLUTION_MAP = {
@@ -246,16 +248,19 @@ export async function generateWithUserKey(
 
     const imageCount = settings.imageCount || 1;
 
-    // Generate images using Nano Banana Pro (Gemini 3 Pro Image)
-    // Falls back to Nano Banana (Gemini 2.5 Flash Image) if Pro fails
+    // Generate images using available Gemini image generation models
+    // Try multiple models in order of preference until one works
+    let lastError = "";
+
     for (let i = 0; i < imageCount; i++) {
       let generated = false;
 
-      // Try Nano Banana Pro first (best quality)
-      for (const model of [NANO_BANANA_PRO_MODEL, NANO_BANANA_MODEL]) {
+      for (const model of IMAGE_GENERATION_MODELS) {
         if (generated) break;
 
         try {
+          console.log(`Attempting image ${i + 1} with model: ${model}`);
+
           const response = await client.models.generateContent({
             model,
             contents: enhancedPrompt,
@@ -279,32 +284,32 @@ export async function generateWithUserKey(
                   height: dimensions.height,
                 });
                 generated = true;
-                console.log(`Generated image ${i + 1} using ${model}`);
+                console.log(`✓ Generated image ${i + 1} using ${model}`);
                 break; // Only take first image from response
               }
             }
           }
+
+          if (!generated) {
+            console.log(`Model ${model} returned response but no image data`);
+          }
         } catch (genError) {
           const errorMsg = genError instanceof Error ? genError.message : String(genError);
-          console.error(`Failed to generate image ${i + 1} with ${model}:`, errorMsg);
-          // If it's a 404 (model not found), try next model
-          // If it's another error, log full details
-          if (!errorMsg.includes("404")) {
-            console.error("Full error details:", genError);
-          }
+          lastError = errorMsg;
+          console.error(`✗ Failed with ${model}: ${errorMsg}`);
           // Try next model
         }
       }
 
       if (!generated) {
-        console.error(`Failed to generate image ${i + 1} with all models`);
+        console.error(`Failed to generate image ${i + 1} with all models. Last error: ${lastError}`);
       }
     }
 
     if (images.length === 0) {
       return {
         success: false,
-        error: "No images were generated. The model may not support image generation or the content was filtered.",
+        error: lastError || "No images were generated. The model may not support image generation or the content was filtered.",
         usedAppKey,
       };
     }

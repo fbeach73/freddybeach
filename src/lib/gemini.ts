@@ -10,11 +10,13 @@ import type {
 } from "@/lib/types/image-generation";
 
 // Image generation models - try in order of preference
+// Note: Image generation requires a paid API key with billing enabled
+// Free tier has 0 quota for image generation models
+// See: https://ai.google.dev/gemini-api/docs/image-generation
 const IMAGE_GENERATION_MODELS = [
-  "gemini-2.0-flash-preview-image-generation", // Most reliable for image gen
-  "gemini-2.5-flash-image-preview",            // Gemini 2.5 Flash Image preview
-  "gemini-2.5-flash-image",                    // Gemini 2.5 Flash Image stable
-  "gemini-3-pro-image-preview",                // Nano Banana Pro (may require special access)
+  "gemini-2.5-flash-image",                    // Nano Banana - stable production model
+  "gemini-2.5-flash-image-preview",            // Nano Banana preview
+  "gemini-3-pro-image-preview",                // Nano Banana Pro (advanced model)
 ];
 
 // Resolution to dimensions mapping
@@ -307,9 +309,13 @@ export async function generateWithUserKey(
     }
 
     if (images.length === 0) {
+      // Check if the last error was a quota issue
+      const isQuotaError = lastError.includes("429") || lastError.includes("quota") || lastError.includes("limit");
+      const quotaMessage = "Image generation quota exceeded. The free tier has 0 quota for image generation. Please enable billing at https://aistudio.google.com to generate images.";
+
       return {
         success: false,
-        error: lastError || "No images were generated. The model may not support image generation or the content was filtered.",
+        error: isQuotaError ? quotaMessage : (lastError || "No images were generated. The model may not support image generation or the content was filtered."),
         usedAppKey,
       };
     }
@@ -330,11 +336,11 @@ export async function generateWithUserKey(
       if (error.message.includes("API key")) {
         errorMessage = "Invalid or missing Google GenAI API key. Please check your GOOGLE_GENAI_API_KEY environment variable.";
       } else if (error.message.includes("403") || error.message.includes("permission")) {
-        errorMessage = "Access denied. The Imagen model may require billing enabled or specific API access. Visit https://aistudio.google.com to verify your API key permissions.";
+        errorMessage = "Access denied. Image generation requires billing enabled on your Google AI account. Visit https://aistudio.google.com to enable billing.";
       } else if (error.message.includes("404") || error.message.includes("not found")) {
-        errorMessage = "Model not found. The Imagen model may not be available in your region or require Vertex AI.";
-      } else if (error.message.includes("429") || error.message.includes("quota")) {
-        errorMessage = "Rate limit or quota exceeded. Please try again later or check your API usage limits.";
+        errorMessage = "Model not available. Please try again or check your API key permissions at https://aistudio.google.com";
+      } else if (error.message.includes("429") || error.message.includes("quota") || error.message.includes("limit")) {
+        errorMessage = "Image generation quota exceeded. The free tier has limited or no image generation quota. Enable billing at https://aistudio.google.com or wait for quota reset.";
       }
     }
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { eq } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -16,10 +16,91 @@ import {
   incrementTokenUsage,
   hasOwnApiKey,
 } from "@/lib/services/token-system";
+import {
+  VALID_RESOLUTIONS,
+  VALID_ASPECT_RATIOS,
+} from "@/lib/constants/validation";
 import type {
   GenerateRequestBody,
   GenerationSettings,
 } from "@/lib/types/image-generation";
+
+/**
+ * GET /api/generate
+ * List user's generations with pagination
+ */
+export async function GET(request: Request) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const pageSize = Math.min(50, Math.max(1, parseInt(searchParams.get("pageSize") || "20", 10)));
+    const offset = (page - 1) * pageSize;
+
+    // Get total count
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(generation)
+      .where(eq(generation.userId, session.user.id));
+
+    const total = countResult?.count || 0;
+
+    // Get paginated generations with first image as thumbnail
+    const generations = await db
+      .select({
+        id: generation.id,
+        prompt: generation.prompt,
+        status: generation.status,
+        createdAt: generation.createdAt,
+      })
+      .from(generation)
+      .where(eq(generation.userId, session.user.id))
+      .orderBy(desc(generation.createdAt))
+      .limit(pageSize)
+      .offset(offset);
+
+    // Get image counts and thumbnails for each generation
+    const generationsWithDetails = await Promise.all(
+      generations.map(async (gen) => {
+        const images = await db
+          .select({ imageUrl: generatedImage.imageUrl })
+          .from(generatedImage)
+          .where(eq(generatedImage.generationId, gen.id))
+          .limit(1);
+
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(generatedImage)
+          .where(eq(generatedImage.generationId, gen.id));
+
+        return {
+          ...gen,
+          imageCount: countResult?.count || 0,
+          thumbnailUrl: images[0]?.imageUrl || null,
+        };
+      })
+    );
+
+    return NextResponse.json({
+      generations: generationsWithDetails,
+      total,
+      page,
+      pageSize,
+      hasMore: offset + generations.length < total,
+    });
+  } catch (error) {
+    console.error("Error fetching generations:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch generations" },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * POST /api/generate
@@ -33,7 +114,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body: GenerateRequestBody = await request.json();
+    // Parse and validate JSON body
+    let body: GenerateRequestBody;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
     const { prompt, settings } = body;
 
     // Validate input
@@ -52,17 +142,14 @@ export async function POST(request: Request) {
     }
 
     // Validate settings
-    const validResolutions = ["1K", "2K", "4K"];
-    const validAspectRatios = ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"];
-
-    if (!validResolutions.includes(settings.resolution)) {
+    if (!VALID_RESOLUTIONS.includes(settings.resolution as typeof VALID_RESOLUTIONS[number])) {
       return NextResponse.json(
         { error: "Invalid resolution" },
         { status: 400 }
       );
     }
 
-    if (!validAspectRatios.includes(settings.aspectRatio)) {
+    if (!VALID_ASPECT_RATIOS.includes(settings.aspectRatio as typeof VALID_ASPECT_RATIOS[number])) {
       return NextResponse.json(
         { error: "Invalid aspect ratio" },
         { status: 400 }
@@ -153,25 +240,40 @@ export async function POST(request: Request) {
         i
       );
 
-      if (imageUrl) {
-        const imageId = nanoid();
-        await db.insert(generatedImage).values({
-          id: imageId,
-          generationId,
-          userId: session.user.id,
-          imageUrl,
-          width: img.width,
-          height: img.height,
-          isPublic: false,
-        });
+      if (!imageUrl) {
+        console.error(`Failed to upload image ${i + 1} for generation ${generationId}`);
+        // Update generation status to failed
+        await db
+          .update(generation)
+          .set({
+            status: "failed",
+            errorMessage: `Failed to upload image ${i + 1}`,
+          })
+          .where(eq(generation.id, generationId));
 
-        savedImages.push({
-          id: imageId,
-          imageUrl,
-          width: img.width,
-          height: img.height,
-        });
+        return NextResponse.json(
+          { error: `Failed to upload image ${i + 1}` },
+          { status: 500 }
+        );
       }
+
+      const imageId = nanoid();
+      await db.insert(generatedImage).values({
+        id: imageId,
+        generationId,
+        userId: session.user.id,
+        imageUrl,
+        width: img.width,
+        height: img.height,
+        isPublic: false,
+      });
+
+      savedImages.push({
+        id: imageId,
+        imageUrl,
+        width: img.width,
+        height: img.height,
+      });
     }
 
     // Update generation status to completed

@@ -3,12 +3,13 @@ import { headers } from "next/headers";
 import { eq, desc } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { preset, type PresetSettings } from "@/lib/schema";
+import { preset } from "@/lib/schema";
 import { nanoid } from "nanoid";
-import type { CreatePresetInput } from "@/lib/types/image-generation";
-
-const VALID_RESOLUTIONS = ["1K", "2K", "4K"];
-const VALID_ASPECT_RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"];
+import {
+  VALID_RESOLUTIONS,
+  VALID_ASPECT_RATIOS,
+} from "@/lib/constants/validation";
+import type { CreatePresetInput, PresetSettings } from "@/lib/types/image-generation";
 
 /**
  * GET /api/presets
@@ -58,7 +59,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body: CreatePresetInput = await request.json();
+    // Parse and validate JSON body
+    let body: CreatePresetInput;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
     const { name, settings } = body;
 
     // Validate name
@@ -74,14 +84,14 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!VALID_RESOLUTIONS.includes(settings.resolution)) {
+    if (!VALID_RESOLUTIONS.includes(settings.resolution as typeof VALID_RESOLUTIONS[number])) {
       return NextResponse.json(
         { error: "Invalid resolution" },
         { status: 400 }
       );
     }
 
-    if (!VALID_ASPECT_RATIOS.includes(settings.aspectRatio)) {
+    if (!VALID_ASPECT_RATIOS.includes(settings.aspectRatio as typeof VALID_ASPECT_RATIOS[number])) {
       return NextResponse.json(
         { error: "Invalid aspect ratio" },
         { status: 400 }

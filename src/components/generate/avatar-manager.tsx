@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import Image from "next/image";
 import {
   Plus,
   Upload,
@@ -119,6 +120,10 @@ export function AvatarManager({
         reader.onload = (e) => {
           setCreatePreview(e.target?.result as string);
         };
+        reader.onerror = () => {
+          setError("Failed to read image file");
+          setCreateFile(null);
+        };
         reader.readAsDataURL(file);
       }
     },
@@ -139,6 +144,10 @@ export function AvatarManager({
         const reader = new FileReader();
         reader.onload = (e) => {
           setCreatePreview(e.target?.result as string);
+        };
+        reader.onerror = () => {
+          setError("Failed to read image file");
+          setCreateFile(null);
         };
         reader.readAsDataURL(file);
       }
@@ -166,6 +175,7 @@ export function AvatarManager({
       );
 
       if (result.success) {
+        setError(null);
         setIsCreateOpen(false);
         resetCreateForm();
       } else {
@@ -198,6 +208,7 @@ export function AvatarManager({
       });
 
       if (result.success) {
+        setError(null);
         setEditingAvatar(null);
       } else {
         setError(result.error || "Failed to update avatar");
@@ -266,12 +277,14 @@ export function AvatarManager({
                   className="group relative overflow-hidden rounded-lg border bg-card"
                 >
                   {/* Image */}
-                  <div className="aspect-square">
-                    <img
+                  <div className="aspect-square relative">
+                    <Image
                       src={avatar.imageUrl}
                       alt={avatar.name}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      unoptimized
                     />
                   </div>
 
@@ -340,11 +353,13 @@ export function AvatarManager({
               onDrop={handleDrop}
             >
               {createPreview ? (
-                <div className="relative">
-                  <img
+                <div className="relative h-32 w-32">
+                  <Image
                     src={createPreview}
                     alt="Preview"
-                    className="h-32 w-32 rounded-lg object-cover"
+                    fill
+                    className="rounded-lg object-cover"
+                    unoptimized
                   />
                   <Button
                     variant="secondary"
@@ -478,11 +493,15 @@ export function AvatarManager({
             {/* Preview */}
             {editingAvatar && (
               <div className="flex justify-center">
-                <img
-                  src={editingAvatar.imageUrl}
-                  alt={editingAvatar.name}
-                  className="h-32 w-32 rounded-lg object-cover"
-                />
+                <div className="relative h-32 w-32">
+                  <Image
+                    src={editingAvatar.imageUrl}
+                    alt={editingAvatar.name}
+                    fill
+                    className="rounded-lg object-cover"
+                    unoptimized
+                  />
+                </div>
               </div>
             )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Image from "next/image";
 import {
   Download,
   Share2,
@@ -58,6 +59,9 @@ export function GenerationOutput({
   const handleDownload = useCallback(async (image: GeneratedImage) => {
     try {
       const response = await fetch(image.imageUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status}`);
+      }
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -67,8 +71,10 @@ export function GenerationOutput({
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      toast.success("Image downloaded");
     } catch (error) {
       console.error("Failed to download image:", error);
+      toast.error("Failed to download image");
     }
   }, []);
 
@@ -166,13 +172,15 @@ export function GenerationOutput({
                 <button
                   type="button"
                   onClick={() => setLightboxImage(image)}
-                  className="block w-full"
+                  className="block w-full relative aspect-square"
                 >
-                  <img
+                  <Image
                     src={image.imageUrl}
                     alt="Generated image"
-                    className="aspect-square w-full object-cover transition-transform group-hover:scale-105"
-                    loading="lazy"
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    unoptimized
                   />
                 </button>
 
@@ -250,11 +258,15 @@ export function GenerationOutput({
           </DialogHeader>
           {lightboxImage && (
             <div className="space-y-4">
-              <img
-                src={lightboxImage.imageUrl}
-                alt="Generated image"
-                className="w-full rounded-lg"
-              />
+              <div className="relative w-full aspect-square max-h-[70vh]">
+                <Image
+                  src={lightboxImage.imageUrl}
+                  alt="Generated image"
+                  fill
+                  className="rounded-lg object-contain"
+                  unoptimized
+                />
+              </div>
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
                   {lightboxImage.width && lightboxImage.height && (

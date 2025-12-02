@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GalleryClient } from "./gallery-client";
+import { GenerationErrorBoundary } from "@/components/generate";
 
 export const metadata: Metadata = {
   title: "Community Gallery | FreddyBeach Directory",
@@ -33,7 +34,9 @@ export default function GalleryPage() {
       {/* Gallery Content */}
       <section className="py-8 md:py-12">
         <div className="container mx-auto px-4">
-          <GalleryClient />
+          <GenerationErrorBoundary>
+            <GalleryClient />
+          </GenerationErrorBoundary>
         </div>
       </section>
     </div>

@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GenerateClientSection } from "./generate-client";
+import { GenerationErrorBoundary } from "@/components/generate";
 
 export const metadata: Metadata = {
   title: "AI Image Generator | FreddyBeach Directory",
@@ -234,7 +235,9 @@ export default async function GeneratePage() {
       </section>
 
       {/* Interactive Demo / Generator Section */}
-      <GenerateClientSection isAuthenticated={!!session} />
+      <GenerationErrorBoundary>
+        <GenerateClientSection isAuthenticated={!!session} />
+      </GenerationErrorBoundary>
 
       {/* Gallery Preview Section */}
       <section className="border-t py-16 md:py-24">

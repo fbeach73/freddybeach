@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   Sparkles,
@@ -182,8 +183,23 @@ export default function ImageGeneratorPage() {
   // Handle toggling image public status
   const handleTogglePublic = useCallback(
     async (imageId: string, isPublic: boolean) => {
-      // TODO: Implement API call to toggle public status
-      console.log("Toggle public:", imageId, isPublic);
+      try {
+        const response = await fetch(`/api/generate/${imageId}/public`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isPublic }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "Failed to update image");
+        }
+
+        toast.success(isPublic ? "Image shared to gallery" : "Image removed from gallery");
+      } catch (error) {
+        toast.error("Failed to update image visibility");
+        throw error; // Re-throw so GenerationOutput can handle loading state
+      }
     },
     []
   );
@@ -378,14 +394,17 @@ export default function ImageGeneratorPage() {
                     >
                       {/* Thumbnail */}
                       {gen.thumbnailUrl ? (
-                        <img
-                          src={gen.thumbnailUrl}
-                          alt="Generation thumbnail"
-                          className="h-16 w-16 rounded-lg object-cover"
-                          loading="lazy"
-                        />
+                        <div className="relative h-16 w-16 flex-shrink-0">
+                          <Image
+                            src={gen.thumbnailUrl}
+                            alt="Generation thumbnail"
+                            fill
+                            className="rounded-lg object-cover"
+                            unoptimized
+                          />
+                        </div>
                       ) : (
-                        <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-muted">
+                        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
                           <ImageIcon className="h-8 w-8 text-muted-foreground" />
                         </div>
                       )}

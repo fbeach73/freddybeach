@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   Heart,
   Loader2,
@@ -97,6 +98,9 @@ export function ImageGallery({
   const handleDownload = useCallback(async (image: GalleryImage) => {
     try {
       const response = await fetch(image.imageUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status}`);
+      }
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -108,6 +112,7 @@ export function ImageGallery({
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Failed to download image:", error);
+      // Note: No toast imported in this component - error is logged only
     }
   }, []);
 
@@ -209,13 +214,15 @@ export function ImageGallery({
                   <button
                     type="button"
                     onClick={() => setLightboxImage(image)}
-                    className="block w-full"
+                    className="block w-full relative aspect-square"
                   >
-                    <img
+                    <Image
                       src={image.imageUrl}
                       alt={image.prompt || "Generated image"}
-                      className="w-full object-cover transition-transform group-hover:scale-105"
-                      loading="lazy"
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      unoptimized
                     />
                   </button>
 
@@ -323,11 +330,15 @@ export function ImageGallery({
 
           {lightboxImage && (
             <div className="space-y-4">
-              <img
-                src={lightboxImage.imageUrl}
-                alt={lightboxImage.prompt || "Generated image"}
-                className="w-full rounded-lg"
-              />
+              <div className="relative w-full aspect-square max-h-[70vh]">
+                <Image
+                  src={lightboxImage.imageUrl}
+                  alt={lightboxImage.prompt || "Generated image"}
+                  fill
+                  className="rounded-lg object-contain"
+                  unoptimized
+                />
+              </div>
 
               {/* Prompt */}
               {lightboxImage.prompt && (

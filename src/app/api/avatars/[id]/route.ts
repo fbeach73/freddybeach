@@ -67,7 +67,17 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     const { id } = await params;
-    const body: UpdateAvatarInput = await request.json();
+
+    // Parse and validate JSON body
+    let body: UpdateAvatarInput;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
 
     // Verify ownership
     const [existing] = await db
@@ -169,8 +179,13 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Avatar not found" }, { status: 404 });
     }
 
-    // Delete image from blob storage
-    await deleteImage(a.imageUrl);
+    // Delete image from blob storage (log error but continue to delete DB record)
+    try {
+      await deleteImage(a.imageUrl);
+    } catch (blobError) {
+      // Log error but don't fail - orphan blob is better than orphan DB record
+      console.error("Failed to delete avatar image from blob storage:", blobError);
+    }
 
     // Delete avatar record
     await db.delete(avatar).where(eq(avatar.id, id));

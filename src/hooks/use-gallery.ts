@@ -23,6 +23,8 @@ export function useGallery(options: UseGalleryOptions = {}) {
 
   // Track liked images locally for optimistic updates
   const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
+  // Track pending like requests to prevent double requests
+  const [pendingLikes, setPendingLikes] = useState<Set<string>>(new Set());
 
   /**
    * Fetch gallery images (initial load or when sort changes)
@@ -145,6 +147,12 @@ export function useGallery(options: UseGalleryOptions = {}) {
    */
   const toggleLike = useCallback(
     async (imageId: string): Promise<boolean> => {
+      // Prevent double requests
+      if (pendingLikes.has(imageId)) {
+        return false;
+      }
+
+      setPendingLikes((prev) => new Set(prev).add(imageId));
       const isCurrentlyLiked = likedImages.has(imageId);
 
       // Optimistic update
@@ -235,9 +243,16 @@ export function useGallery(options: UseGalleryOptions = {}) {
         );
 
         return false;
+      } finally {
+        // Remove from pending set
+        setPendingLikes((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(imageId);
+          return newSet;
+        });
       }
     },
-    [likedImages]
+    [likedImages, pendingLikes]
   );
 
   /**

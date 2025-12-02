@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import Image from "next/image";
 import { Sparkles, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -301,11 +302,15 @@ export function PromptBuilder({
                         className="flex flex-1 items-center gap-2 text-sm"
                       >
                         {avatar.imageUrl && (
-                          <img
-                            src={avatar.imageUrl}
-                            alt={avatar.name}
-                            className="h-8 w-8 rounded object-cover"
-                          />
+                          <div className="relative h-8 w-8">
+                            <Image
+                              src={avatar.imageUrl}
+                              alt={avatar.name}
+                              fill
+                              className="rounded object-cover"
+                              unoptimized
+                            />
+                          </div>
                         )}
                         <div>
                           <div className="font-medium">{avatar.name}</div>

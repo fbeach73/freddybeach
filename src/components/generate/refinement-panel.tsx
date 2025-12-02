@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import Image from "next/image";
 import { Send, Loader2, User, Bot, Image as ImageIcon, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -120,12 +121,15 @@ export function RefinementPanel({
                     {entry.imageUrls && entry.imageUrls.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {entry.imageUrls.map((url, idx) => (
-                          <img
-                            key={idx}
-                            src={url}
-                            alt={`Generated image ${idx + 1}`}
-                            className="h-16 w-16 rounded object-cover"
-                          />
+                          <div key={`${entry.id}-image-${idx}`} className="relative h-16 w-16">
+                            <Image
+                              src={url}
+                              alt={`Generated image ${idx + 1}`}
+                              fill
+                              className="rounded object-cover"
+                              unoptimized
+                            />
+                          </div>
                         ))}
                       </div>
                     )}
@@ -174,10 +178,12 @@ export function RefinementPanel({
                   )}
                   disabled={isRefining || disabled}
                 >
-                  <img
+                  <Image
                     src={image.imageUrl}
                     alt="Select for refinement"
-                    className="h-full w-full object-cover"
+                    fill
+                    className="object-cover"
+                    unoptimized
                   />
                   {selectedImageId === image.id && (
                     <div className="absolute inset-0 flex items-center justify-center bg-primary/20">

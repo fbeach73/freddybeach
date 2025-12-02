@@ -7,7 +7,6 @@ import {
   generation,
   generatedImage,
   generationHistory,
-  type GenerationSettings,
 } from "@/lib/schema";
 import { nanoid } from "nanoid";
 import { refineGeneration } from "@/lib/gemini";
@@ -17,7 +16,7 @@ import {
   incrementTokenUsage,
   hasOwnApiKey,
 } from "@/lib/services/token-system";
-import type { RefineRequestBody } from "@/lib/types/image-generation";
+import type { RefineRequestBody, GenerationSettings } from "@/lib/types/image-generation";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -36,7 +35,17 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     const { id: generationId } = await params;
-    const body: RefineRequestBody = await request.json();
+
+    // Parse and validate JSON body
+    let body: RefineRequestBody;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
     const { instruction, imageId } = body;
 
     // Validate input
@@ -97,7 +106,13 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     // Check token availability (skip if user has their own API key)
-    const settings = gen.settings as GenerationSettings;
+    const settings = gen.settings as GenerationSettings | null;
+    if (!settings) {
+      return NextResponse.json(
+        { error: "Generation settings not found" },
+        { status: 500 }
+      );
+    }
     const imageCount = settings.imageCount || 1;
     const userHasOwnKey = await hasOwnApiKey(session.user.id);
 
@@ -173,25 +188,45 @@ export async function POST(request: Request, { params }: RouteParams) {
         Date.now() + i // Unique index for refined images
       );
 
-      if (imageUrl) {
-        const imageId = nanoid();
-        await db.insert(generatedImage).values({
-          id: imageId,
+      if (!imageUrl) {
+        console.error(`Failed to upload refined image ${i + 1} for generation ${generationId}`);
+        // Update generation status back to completed with error noted
+        await db
+          .update(generation)
+          .set({ status: "completed" })
+          .where(eq(generation.id, generationId));
+
+        // Add error to history
+        await db.insert(generationHistory).values({
+          id: nanoid(),
           generationId,
-          userId: session.user.id,
-          imageUrl,
-          width: img.width,
-          height: img.height,
-          isPublic: false,
+          role: "assistant",
+          content: `Refinement partially failed: Could not upload image ${i + 1}`,
         });
 
-        savedImages.push({
-          id: imageId,
-          imageUrl,
-          width: img.width,
-          height: img.height,
-        });
+        return NextResponse.json(
+          { error: `Failed to upload refined image ${i + 1}` },
+          { status: 500 }
+        );
       }
+
+      const imageId = nanoid();
+      await db.insert(generatedImage).values({
+        id: imageId,
+        generationId,
+        userId: session.user.id,
+        imageUrl,
+        width: img.width,
+        height: img.height,
+        isPublic: false,
+      });
+
+      savedImages.push({
+        id: imageId,
+        imageUrl,
+        width: img.width,
+        height: img.height,
+      });
     }
 
     // Update generation status back to completed

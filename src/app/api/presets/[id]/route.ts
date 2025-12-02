@@ -3,15 +3,16 @@ import { headers } from "next/headers";
 import { eq, and } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { preset, type PresetSettings } from "@/lib/schema";
-import type { UpdatePresetInput } from "@/lib/types/image-generation";
+import { preset } from "@/lib/schema";
+import {
+  VALID_RESOLUTIONS,
+  VALID_ASPECT_RATIOS,
+} from "@/lib/constants/validation";
+import type { UpdatePresetInput, PresetSettings } from "@/lib/types/image-generation";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
-
-const VALID_RESOLUTIONS = ["1K", "2K", "4K"];
-const VALID_ASPECT_RATIOS = ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"];
 
 /**
  * GET /api/presets/[id]
@@ -67,7 +68,17 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     const { id } = await params;
-    const body: UpdatePresetInput = await request.json();
+
+    // Parse and validate JSON body
+    let body: UpdatePresetInput;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
 
     // Verify ownership
     const [existing] = await db
@@ -94,14 +105,14 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     if (body.settings !== undefined) {
       // Validate settings
-      if (!VALID_RESOLUTIONS.includes(body.settings.resolution)) {
+      if (!VALID_RESOLUTIONS.includes(body.settings.resolution as typeof VALID_RESOLUTIONS[number])) {
         return NextResponse.json(
           { error: "Invalid resolution" },
           { status: 400 }
         );
       }
 
-      if (!VALID_ASPECT_RATIOS.includes(body.settings.aspectRatio)) {
+      if (!VALID_ASPECT_RATIOS.includes(body.settings.aspectRatio as typeof VALID_ASPECT_RATIOS[number])) {
         return NextResponse.json(
           { error: "Invalid aspect ratio" },
           { status: 400 }
@@ -136,11 +147,20 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     // Update preset
-    const [updated] = await db
+    const result = await db
       .update(preset)
       .set(updateData)
       .where(eq(preset.id, id))
       .returning();
+
+    if (result.length === 0) {
+      return NextResponse.json(
+        { error: "Failed to update preset" },
+        { status: 500 }
+      );
+    }
+
+    const updated = result[0];
 
     return NextResponse.json({
       success: true,

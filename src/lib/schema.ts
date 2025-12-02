@@ -53,22 +53,9 @@ export const generationStatusEnum = pgEnum("generation_status", [
 export const avatarTypeEnum = pgEnum("avatar_type", ["human", "object"]);
 
 // AI Image Generation TypeScript interfaces for JSONB columns
-export interface PresetSettings {
-  resolution: "1K" | "2K" | "4K";
-  aspectRatio: "1:1" | "16:9" | "9:16" | "4:3" | "3:4" | "21:9";
-  imageCount: number;
-  style?: string;
-  negativePrompt?: string;
-}
-
-export interface GenerationSettings {
-  resolution: "1K" | "2K" | "4K";
-  aspectRatio: "1:1" | "16:9" | "9:16" | "4:3" | "3:4" | "21:9";
-  imageCount: number;
-  style?: string;
-  negativePrompt?: string;
-  avatarIds?: string[];
-}
+// Re-export from centralized types file for backwards compatibility
+import type { PresetSettings, GenerationSettings } from "@/lib/types/image-generation";
+export type { PresetSettings, GenerationSettings };
 
 // Type for business hours
 export interface BusinessHours {

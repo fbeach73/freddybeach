@@ -113,7 +113,7 @@ export function SceneSelectorModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
@@ -179,8 +179,8 @@ export function SceneSelectorModal({
           available
         </div>
 
-        {/* Preset Grid */}
-        <ScrollArea className="flex-1 -mx-6 px-6">
+        {/* Preset Grid - ScrollArea with explicit height for proper scrolling */}
+        <ScrollArea className="flex-1 min-h-0 -mx-6 px-6" style={{ maxHeight: "calc(85vh - 320px)" }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
             {filteredPresets.map((preset) => {
               const isSelected = isPresetSelected(preset);

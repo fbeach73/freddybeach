@@ -7,3 +7,7 @@ export { ImageGallery } from "./image-gallery";
 export { ApiKeyManager } from "./api-key-manager";
 export { TokenUsageCard } from "./token-usage-card";
 export { GenerationErrorBoundary } from "./generation-error-boundary";
+export { SceneSettings } from "./scene-settings";
+export { SubjectsPanel } from "./subjects-panel";
+export { PreviewGenerate } from "./preview-generate";
+export { ResultsPanel } from "./results-panel";

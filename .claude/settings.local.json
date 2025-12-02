@@ -32,7 +32,8 @@
       "Bash(sips:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(pnpm typecheck:*)",
-      "Bash(pnpm lint:*)"
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm exec tsc:*)"
     ],
     "deny": [],
     "ask": [],

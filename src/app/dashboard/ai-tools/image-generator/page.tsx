@@ -29,25 +29,104 @@ import {
 } from "@/components/ui/card";
 import { TierBadge } from "@/components/shared/tier-badge";
 import {
-  PromptBuilder,
-  GenerationOutput,
-  RefinementPanel,
   AvatarManager,
   PresetManager,
   ApiKeyManager,
   TokenUsageCard,
   GenerationErrorBoundary,
+  SceneSettings,
+  SubjectsPanel,
+  PreviewGenerate,
+  ResultsPanel,
 } from "@/components/generate";
 import { toast } from "sonner";
 import { useGeneration } from "@/hooks/use-generation";
 import { useAvatars } from "@/hooks/use-avatars";
 import { usePresets } from "@/hooks/use-presets";
 import { useApiKey } from "@/hooks/use-api-key";
-import type { GenerationSettings, PresetSettings } from "@/lib/types/image-generation";
+import type {
+  GenerationSettings,
+  PresetSettings,
+  SceneSettings as SceneSettingsType,
+  ScenePreset,
+  Avatar,
+  GeneratedImage,
+} from "@/lib/types/image-generation";
+
+// ============================================================================
+// Prompt Assembly Utility
+// ============================================================================
+
+function getPromptText(value: ScenePreset | string | undefined): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value.promptText;
+}
+
+function assemblePrompt(
+  sceneSettings: SceneSettingsType,
+  selectedAvatars: Avatar[]
+): string {
+  const parts: string[] = [];
+
+  // Style
+  const style = getPromptText(sceneSettings.style);
+  if (style) parts.push(style);
+
+  // Subjects (avatars)
+  if (selectedAvatars.length > 0) {
+    const subjectDescriptions = selectedAvatars
+      .map((a) => {
+        const typeLabel = a.type === "human" ? "person" : "object";
+        return a.description
+          ? `${a.name} (${a.description})`
+          : `${a.name} (${typeLabel})`;
+      })
+      .join(", ");
+    parts.push(subjectDescriptions);
+  }
+
+  // Location
+  const location = getPromptText(sceneSettings.location);
+  if (location) parts.push(`in ${location}`);
+
+  // Lighting
+  const lighting = getPromptText(sceneSettings.lighting);
+  if (lighting) parts.push(lighting);
+
+  // Camera
+  const camera = getPromptText(sceneSettings.camera);
+  if (camera) parts.push(camera);
+
+  return parts.join(". ") + (parts.length > 0 ? "." : "");
+}
+
+// ============================================================================
+// Page Component
+// ============================================================================
 
 export default function ImageGeneratorPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("generate");
+
+  // Scene settings state
+  const [sceneSettings, setSceneSettings] = useState<SceneSettingsType>({});
+  const [selectedAvatarIds, setSelectedAvatarIds] = useState<string[]>([]);
+
+  // Prompt state
+  const [prompt, setPrompt] = useState("");
+  const [hasUserEdited, setHasUserEdited] = useState(false);
+
+  // Generation settings state
+  const [generationSettings, setGenerationSettings] = useState<{
+    resolution: "1K" | "2K" | "4K";
+    aspectRatio: "1:1" | "16:9" | "9:16" | "4:3" | "3:4" | "21:9";
+    imageCount: number;
+  }>({
+    resolution: "1K",
+    aspectRatio: "1:1",
+    imageCount: 4,
+  });
 
   // Hooks
   const {
@@ -103,6 +182,29 @@ export default function ImageGeneratorPage() {
   const [historyHasMore, setHistoryHasMore] = useState(false);
   const HISTORY_PAGE_SIZE = 10;
 
+  // Get selected avatars
+  const selectedAvatars = avatars.filter((a) => selectedAvatarIds.includes(a.id));
+
+  // Auto-assemble prompt when scene settings or selected avatars change
+  useEffect(() => {
+    if (!hasUserEdited) {
+      const assembled = assemblePrompt(sceneSettings, selectedAvatars);
+      setPrompt(assembled);
+    }
+  }, [sceneSettings, selectedAvatars, hasUserEdited]);
+
+  // Handle prompt change (from user editing)
+  const handlePromptChange = useCallback((newPrompt: string) => {
+    setPrompt(newPrompt);
+    setHasUserEdited(true);
+  }, []);
+
+  // Reset user edited flag when scene settings change
+  const handleSceneSettingsChange = useCallback((newSettings: SceneSettingsType) => {
+    setSceneSettings(newSettings);
+    setHasUserEdited(false);
+  }, []);
+
   // Load generations when switching to history tab
   useEffect(() => {
     if (activeTab === "history") {
@@ -115,8 +217,8 @@ export default function ImageGeneratorPage() {
 
   // Handle generation
   const handleGenerate = useCallback(
-    async (prompt: string, settings: GenerationSettings) => {
-      const result = await generate(prompt, settings);
+    async (promptText: string, settings: GenerationSettings) => {
+      const result = await generate(promptText, settings);
       if (result.success) {
         const retryInfo = result.retriesUsed && result.retriesUsed > 0
           ? ` (after ${result.retriesUsed} ${result.retriesUsed === 1 ? "retry" : "retries"})`
@@ -142,37 +244,18 @@ export default function ImageGeneratorPage() {
     [generate]
   );
 
-  // Handle refinement
-  const handleRefine = useCallback(
-    async (instruction: string, imageId?: string) => {
-      if (!currentGeneration) return;
-      const result = await refine(currentGeneration.generation.id, instruction, imageId);
-      if (result.success) {
-        const retryInfo = result.retriesUsed && result.retriesUsed > 0
-          ? ` (after ${result.retriesUsed} ${result.retriesUsed === 1 ? "retry" : "retries"})`
-          : "";
-        toast.success("Refinement complete!", {
-          description: `Your images have been updated${retryInfo}.`,
-        });
-        if (result.usedAppKey) {
-          setTokensUsed((prev) => prev + 1);
-        }
-      } else {
-        if (result.isRateLimited) {
-          toast.error("Rate limit reached", {
-            description: "Too many requests. Please wait a moment and try again.",
-          });
-        } else {
-          toast.error("Refinement failed", {
-            description: result.error || "Please try again.",
-          });
-        }
-      }
+  // Handle refinement (for when clicking refine on an image)
+  const handleRefineImage = useCallback(
+    (image: GeneratedImage) => {
+      // TODO: Open refinement modal or panel with this image
+      toast.info("Refinement coming soon!", {
+        description: `Selected image: ${image.id}`,
+      });
     },
-    [refine, currentGeneration]
+    []
   );
 
-  // Handle saving preset from PromptBuilder
+  // Handle saving preset from PreviewGenerate
   const handleSavePreset = useCallback(
     async (name: string, settings: PresetSettings) => {
       await createPreset(name, settings);
@@ -198,11 +281,20 @@ export default function ImageGeneratorPage() {
         toast.success(isPublic ? "Image shared to gallery" : "Image removed from gallery");
       } catch (error) {
         toast.error("Failed to update image visibility");
-        throw error; // Re-throw so GenerationOutput can handle loading state
+        throw error;
       }
     },
     []
   );
+
+  // Subject (avatar) selection handlers
+  const handleSelectAvatar = useCallback((avatarId: string) => {
+    setSelectedAvatarIds((prev) => [...prev, avatarId]);
+  }, []);
+
+  const handleDeselectAvatar = useCallback((avatarId: string) => {
+    setSelectedAvatarIds((prev) => prev.filter((id) => id !== avatarId));
+  }, []);
 
   // Navigate to settings tab when clicking "Add API Key"
   const handleAddApiKey = useCallback(() => {
@@ -233,7 +325,7 @@ export default function ImageGeneratorPage() {
               </div>
               <p className="mt-1 max-w-2xl text-muted-foreground">
                 Create stunning AI-generated images with Google&apos;s Gemini. Use
-                avatars for consistent characters and refine your creations with
+                subjects for consistent characters and refine your creations with
                 natural language.
               </p>
             </div>
@@ -284,7 +376,7 @@ export default function ImageGeneratorPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Generate Tab */}
+        {/* Generate Tab - 3 Column Layout */}
         <TabsContent value="generate" className="space-y-6">
           {/* Error Display */}
           {generationError && (
@@ -293,40 +385,77 @@ export default function ImageGeneratorPage() {
             </div>
           )}
 
-          {/* Prompt Builder */}
-          <GenerationErrorBoundary>
-            <PromptBuilder
-              onGenerate={handleGenerate}
-              isGenerating={isGenerating}
-              avatars={avatars}
-              presets={presets}
-              onSavePreset={handleSavePreset}
-              tokensRemaining={hasApiKey ? undefined : tokensRemaining}
-              tokenLimit={hasApiKey ? undefined : tokenLimit}
-              hasApiKey={hasApiKey}
-            />
-          </GenerationErrorBoundary>
+          {/* 3-Column Grid */}
+          <div className="grid gap-6 lg:grid-cols-[320px_1fr_320px]">
+            {/* Left Column - Prompt Builder */}
+            <div className="order-2 lg:order-1">
+              <Card className="lg:sticky lg:top-4">
+                <CardContent className="space-y-6 p-4 sm:p-5">
+                  <GenerationErrorBoundary>
+                    <SceneSettings
+                      value={sceneSettings}
+                      onChange={handleSceneSettingsChange}
+                    />
+                  </GenerationErrorBoundary>
 
-          {/* Generation Output */}
-          <GenerationErrorBoundary>
-            <GenerationOutput
-              images={currentGeneration?.images || []}
-              prompt={currentGeneration?.generation.prompt}
-              isLoading={isGenerating}
-              onTogglePublic={handleTogglePublic}
-            />
-          </GenerationErrorBoundary>
+                  <div className="border-t pt-4">
+                    <GenerationErrorBoundary>
+                      <SubjectsPanel
+                        avatars={avatars}
+                        selectedAvatarIds={selectedAvatarIds}
+                        isLoading={isLoadingAvatars}
+                        onSelectAvatar={handleSelectAvatar}
+                        onDeselectAvatar={handleDeselectAvatar}
+                        onCreateAvatar={createAvatar}
+                        onDeleteAvatar={deleteAvatar}
+                      />
+                    </GenerationErrorBoundary>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
-          {/* Refinement Panel */}
-          <GenerationErrorBoundary>
-            <RefinementPanel
-              history={currentGeneration?.history || []}
-              images={currentGeneration?.images || []}
-              onRefine={handleRefine}
-              isRefining={isRefining}
-              disabled={!currentGeneration || isGenerating}
-            />
-          </GenerationErrorBoundary>
+            {/* Center Column - Preview & Generate */}
+            <div className="order-1 lg:order-2">
+              <Card>
+                <CardContent className="p-4 sm:p-5">
+                  <GenerationErrorBoundary>
+                    <PreviewGenerate
+                      prompt={prompt}
+                      onPromptChange={handlePromptChange}
+                      settings={generationSettings}
+                      onSettingsChange={setGenerationSettings}
+                      onGenerate={handleGenerate}
+                      isGenerating={isGenerating}
+                      presets={presets}
+                      onSavePreset={handleSavePreset}
+                      hasApiKey={hasApiKey}
+                      tokensRemaining={hasApiKey ? undefined : tokensRemaining}
+                      tokenLimit={hasApiKey ? undefined : tokenLimit}
+                      selectedAvatarIds={selectedAvatarIds}
+                    />
+                  </GenerationErrorBoundary>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - Results */}
+            <div className="order-3">
+              <Card className="lg:sticky lg:top-4">
+                <CardContent className="p-4 sm:p-5">
+                  <GenerationErrorBoundary>
+                    <ResultsPanel
+                      images={currentGeneration?.images || []}
+                      isLoading={isGenerating}
+                      prompt={currentGeneration?.generation.prompt}
+                      onTogglePublic={handleTogglePublic}
+                      onRefine={handleRefineImage}
+                    />
+                  </GenerationErrorBoundary>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
 
         {/* Avatars Tab */}

@@ -5,6 +5,30 @@
 // Resolution options for image generation
 export type Resolution = "1K" | "2K" | "4K";
 
+// Scene category types for the prompt builder
+export type SceneCategory = "style" | "location" | "lighting" | "camera";
+
+/**
+ * Scene Preset - A predefined option for scene settings
+ */
+export interface ScenePreset {
+  id: string;
+  name: string;
+  description: string;
+  promptText: string;
+}
+
+/**
+ * Scene Settings - Selected values for each scene category
+ * Can be either a preset or a custom string value
+ */
+export interface SceneSettings {
+  style?: ScenePreset | string;
+  location?: ScenePreset | string;
+  lighting?: ScenePreset | string;
+  camera?: ScenePreset | string;
+}
+
 // Aspect ratio options for image generation
 export type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4" | "21:9";
 
@@ -60,6 +84,7 @@ export interface GenerationSettings {
   style?: string;
   negativePrompt?: string;
   avatarIds?: string[];
+  sceneSettings?: SceneSettings;
 }
 
 /**

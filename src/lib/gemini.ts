@@ -1,4 +1,4 @@
-import { GoogleGenAI, Part, PersonGeneration } from "@google/genai";
+import { GoogleGenAI, Part } from "@google/genai";
 import { db } from "@/lib/db";
 import { userApiKey, avatar } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
@@ -9,7 +9,10 @@ import type {
   Avatar,
 } from "@/lib/types/image-generation";
 
-// Imagen model for image generation
+// Image generation models - try in order of preference
+// gemini-2.0-flash-exp supports native image generation via generateContent
+const GEMINI_IMAGE_MODEL = "gemini-2.0-flash-exp";
+// Fallback Imagen model (requires Vertex AI)
 const IMAGEN_MODEL = "imagen-3.0-generate-002";
 
 // Resolution to dimensions mapping
@@ -211,20 +214,29 @@ export async function generateWithUserKey(
     // Build the final prompt
     const finalPrompt = buildPromptWithReferences(prompt, avatars);
 
-    // Generate images using Imagen
-    const response = await client.models.generateImages({
-      model: IMAGEN_MODEL,
-      prompt: finalPrompt,
-      config: {
-        numberOfImages: settings.imageCount || 1,
-        aspectRatio: settings.aspectRatio || "1:1",
-        includeRaiReason: true,
-        personGeneration: PersonGeneration.ALLOW_ADULT,
-        negativePrompt: settings.negativePrompt,
-      },
-    });
+    // Build enhanced prompt with style and negative prompt
+    let enhancedPrompt = finalPrompt;
+    if (settings.style) {
+      enhancedPrompt = `${finalPrompt}. Style: ${settings.style}`;
+    }
+    if (settings.negativePrompt) {
+      enhancedPrompt = `${enhancedPrompt}. Avoid: ${settings.negativePrompt}`;
+    }
 
-    // Process the generated images
+    // Add aspect ratio guidance to prompt
+    const aspectRatioHint = settings.aspectRatio === "16:9"
+      ? "wide landscape format"
+      : settings.aspectRatio === "9:16"
+      ? "tall portrait format"
+      : settings.aspectRatio === "4:3"
+      ? "standard landscape format"
+      : settings.aspectRatio === "3:4"
+      ? "standard portrait format"
+      : "square format";
+
+    enhancedPrompt = `Generate an image in ${aspectRatioHint}: ${enhancedPrompt}`;
+
+    // Process images array
     const images: Array<{
       imageBytes: string;
       width: number;
@@ -232,29 +244,48 @@ export async function generateWithUserKey(
       raiFilteredReason?: string;
     }> = [];
 
-    if (response.generatedImages) {
-      for (const img of response.generatedImages) {
-        if (img.image?.imageBytes) {
-          // Get dimensions based on resolution and aspect ratio
-          const dimensions = calculateDimensions(
-            settings.resolution || "1K",
-            settings.aspectRatio || "1:1"
-          );
+    const imageCount = settings.imageCount || 1;
 
-          images.push({
-            imageBytes: img.image.imageBytes,
-            width: dimensions.width,
-            height: dimensions.height,
-            raiFilteredReason: img.raiFilteredReason || undefined,
-          });
+    // Generate images using Gemini's native image generation
+    // Gemini 2.0 Flash can generate images via generateContent
+    for (let i = 0; i < imageCount; i++) {
+      try {
+        const response = await client.models.generateContent({
+          model: GEMINI_IMAGE_MODEL,
+          contents: enhancedPrompt,
+          config: {
+            responseModalities: ["image", "text"],
+          },
+        });
+
+        // Extract image from response
+        if (response.candidates && response.candidates[0]?.content?.parts) {
+          for (const part of response.candidates[0].content.parts) {
+            if (part.inlineData?.data) {
+              const dimensions = calculateDimensions(
+                settings.resolution || "1K",
+                settings.aspectRatio || "1:1"
+              );
+
+              images.push({
+                imageBytes: part.inlineData.data,
+                width: dimensions.width,
+                height: dimensions.height,
+              });
+              break; // Only take first image from each response
+            }
+          }
         }
+      } catch (genError) {
+        console.error(`Failed to generate image ${i + 1}:`, genError);
+        // Continue trying to generate remaining images
       }
     }
 
     if (images.length === 0) {
       return {
         success: false,
-        error: "No images were generated. The content may have been filtered.",
+        error: "No images were generated. The model may not support image generation or the content was filtered.",
         usedAppKey,
       };
     }

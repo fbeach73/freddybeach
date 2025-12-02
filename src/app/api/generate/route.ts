@@ -314,8 +314,9 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Generation error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to generate images";
     return NextResponse.json(
-      { error: "Failed to generate images" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

@@ -266,8 +266,22 @@ export async function generateWithUserKey(
     };
   } catch (error) {
     console.error("Image generation failed:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
+
+    // Extract more detailed error information
+    let errorMessage = "Unknown error occurred";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      // Check for common API errors
+      if (error.message.includes("API key")) {
+        errorMessage = "Invalid or missing Google GenAI API key. Please check your GOOGLE_GENAI_API_KEY environment variable.";
+      } else if (error.message.includes("403") || error.message.includes("permission")) {
+        errorMessage = "Access denied. The Imagen model may require billing enabled or specific API access. Visit https://aistudio.google.com to verify your API key permissions.";
+      } else if (error.message.includes("404") || error.message.includes("not found")) {
+        errorMessage = "Model not found. The Imagen model may not be available in your region or require Vertex AI.";
+      } else if (error.message.includes("429") || error.message.includes("quota")) {
+        errorMessage = "Rate limit or quota exceeded. Please try again later or check your API usage limits.";
+      }
+    }
 
     return {
       success: false,

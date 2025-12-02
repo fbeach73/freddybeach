@@ -9,14 +9,13 @@ import type {
   Avatar,
 } from "@/lib/types/image-generation";
 
-// Image generation models - try in order of preference
+// Image generation models - try in order of preference (best quality first)
 // Note: Image generation requires a paid API key with billing enabled
 // Free tier has 0 quota for image generation models
 // See: https://ai.google.dev/gemini-api/docs/image-generation
 const IMAGE_GENERATION_MODELS = [
-  "gemini-2.5-flash-image",                    // Nano Banana - stable production model
-  "gemini-2.5-flash-image-preview",            // Nano Banana preview
-  "gemini-3-pro-image-preview",                // Nano Banana Pro (advanced model)
+  "gemini-3-pro-image-preview",                // Nano Banana Pro - highest quality, up to 14 reference images
+  "gemini-2.5-flash-image",                    // Nano Banana - fast, production-ready
 ];
 
 // Resolution to dimensions mapping

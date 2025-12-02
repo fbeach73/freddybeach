@@ -148,6 +148,29 @@ The Downtown Family Dental Team
       "Seasonal & holiday templates",
     ],
   },
+  {
+    id: "image-generator",
+    name: "AI Image Generator",
+    slug: "image-generator",
+    description:
+      "Create stunning AI-generated images with Google's Gemini. Use avatars for consistent characters across generations, refine your creations with natural language, and share your best work to the community gallery. Perfect for social media graphics, marketing materials, and creative projects.",
+    shortDescription: "Generate professional images with AI",
+    icon: "Image",
+    tier: "free",
+    usageCount: 2156,
+    exampleInput:
+      "A cozy coffee shop interior in downtown Fredericton, warm lighting, exposed brick walls, customers enjoying their drinks, autumn leaves visible through the window",
+    exampleOutput:
+      "Your AI-generated image shows a beautifully rendered coffee shop scene with warm amber lighting casting soft shadows across exposed red brick walls. A few patrons sit at wooden tables, steam rising from their cups. Through the large storefront window, golden and crimson autumn leaves drift past, and the Saint John River is visible in the distance.",
+    features: [
+      "High-resolution image generation (1K, 2K, 4K)",
+      "Multiple aspect ratios for different platforms",
+      "Avatar system for consistent characters",
+      "Conversational refinement of images",
+      "Save presets for quick generation",
+      "Share to community gallery",
+    ],
+  },
 ];
 
 export function getToolBySlug(slug: string): AITool | undefined {

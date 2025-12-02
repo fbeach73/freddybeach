@@ -126,3 +126,100 @@ export async function uploadImageFromUrl(
     return null;
   }
 }
+
+/**
+ * Upload a generated image from base64 data to Vercel Blob storage
+ * Used for AI-generated images
+ */
+export async function uploadGeneratedImage(
+  imageBase64: string,
+  userId: string,
+  generationId: string,
+  index: number
+): Promise<string | null> {
+  try {
+    // Convert base64 to buffer
+    const imageBuffer = Buffer.from(imageBase64, "base64");
+
+    // Determine content type (default to PNG for generated images)
+    const contentType = "image/png";
+    const ext = "png";
+
+    // Create a structured path for generated images
+    const path = `generated/${userId}/${generationId}/image-${index}.${ext}`;
+
+    const blob = await put(path, imageBuffer, {
+      access: "public",
+      contentType,
+    });
+
+    return blob.url;
+  } catch (error) {
+    console.error("Error uploading generated image to blob storage:", error);
+    return null;
+  }
+}
+
+/**
+ * Upload an avatar image from a File object to Vercel Blob storage
+ * Returns the permanent blob URL
+ */
+export async function uploadAvatarImage(
+  fileBuffer: ArrayBuffer,
+  contentType: string,
+  userId: string,
+  avatarId: string
+): Promise<string | null> {
+  try {
+    // Determine file extension from content type
+    const ext = contentType.includes("png")
+      ? "png"
+      : contentType.includes("webp")
+        ? "webp"
+        : contentType.includes("gif")
+          ? "gif"
+          : "jpg";
+
+    // Create a structured path for avatar images
+    const path = `avatars/${userId}/${avatarId}.${ext}`;
+
+    const blob = await put(path, fileBuffer, {
+      access: "public",
+      contentType,
+    });
+
+    return blob.url;
+  } catch (error) {
+    console.error("Error uploading avatar image to blob storage:", error);
+    return null;
+  }
+}
+
+/**
+ * Delete a single image from blob storage
+ */
+export async function deleteImage(url: string): Promise<boolean> {
+  try {
+    await del(url);
+    return true;
+  } catch (error) {
+    console.error("Error deleting image from blob storage:", error);
+    return false;
+  }
+}
+
+/**
+ * Delete all generated images for a specific generation
+ */
+export async function deleteGenerationImages(urls: string[]): Promise<void> {
+  const deletePromises = urls.map((url) => {
+    try {
+      return del(url);
+    } catch (error) {
+      console.error(`Failed to delete generated image: ${url}`, error);
+      return Promise.resolve();
+    }
+  });
+
+  await Promise.all(deletePromises);
+}

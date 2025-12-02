@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
 import {
@@ -6,6 +6,7 @@ import {
   Share2,
   PenLine,
   Mail,
+  Image as ImageIcon,
   LucideIcon,
   Lock,
   ArrowLeft,
@@ -25,6 +26,7 @@ const iconMap: Record<string, LucideIcon> = {
   Share2,
   PenLine,
   Mail,
+  Image: ImageIcon,
 };
 
 // Generate static params for all AI tools
@@ -61,6 +63,12 @@ export default async function AIToolPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  // Redirect image-generator to its dedicated page
+  if (slug === "image-generator") {
+    redirect("/dashboard/ai-tools/image-generator");
+  }
+
   const tool = getToolBySlug(slug);
 
   // Show 404 if tool not found

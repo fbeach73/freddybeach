@@ -31,14 +31,20 @@ export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
   return (
     <Link href={`/${category}/${business.slug}`}>
       <Card className="group h-full overflow-hidden transition-shadow hover:shadow-md">
-        <div className="relative aspect-video overflow-hidden">
-          <Image
-            src={business.heroImage}
-            alt={business.name}
-            fill
-            className="object-cover transition-transform group-hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
+        <div className="relative aspect-video overflow-hidden bg-muted">
+          {business.heroImage ? (
+            <Image
+              src={business.heroImage}
+              alt={business.name}
+              fill
+              className="object-cover transition-transform group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+              <MapPin className="h-8 w-8" />
+            </div>
+          )}
           {/* Business badges */}
           {badges.length > 0 && (
             <div className="absolute left-2 top-2 flex flex-wrap gap-1">

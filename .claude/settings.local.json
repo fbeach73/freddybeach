@@ -28,7 +28,11 @@
       "mcp__playwright__browser_take_screenshot",
       "Bash(git push:*)",
       "WebSearch",
-      "WebFetch(domain:www.shadcn.io)"
+      "WebFetch(domain:www.shadcn.io)",
+      "Bash(sips:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm lint:*)"
     ],
     "deny": [],
     "ask": [],

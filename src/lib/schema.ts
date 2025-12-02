@@ -42,6 +42,34 @@ export const claimRoleEnum = pgEnum("claim_role", [
   "authorized_representative",
 ]);
 
+// AI Image Generation enums
+export const generationStatusEnum = pgEnum("generation_status", [
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+]);
+
+export const avatarTypeEnum = pgEnum("avatar_type", ["human", "object"]);
+
+// AI Image Generation TypeScript interfaces for JSONB columns
+export interface PresetSettings {
+  resolution: "1K" | "2K" | "4K";
+  aspectRatio: "1:1" | "16:9" | "9:16" | "4:3" | "3:4" | "21:9";
+  imageCount: number;
+  style?: string;
+  negativePrompt?: string;
+}
+
+export interface GenerationSettings {
+  resolution: "1K" | "2K" | "4K";
+  aspectRatio: "1:1" | "16:9" | "9:16" | "4:3" | "3:4" | "21:9";
+  imageCount: number;
+  style?: string;
+  negativePrompt?: string;
+  avatarIds?: string[];
+}
+
 // Type for business hours
 export interface BusinessHours {
   day: number; // 0-6 (Sunday-Saturday)
@@ -367,5 +395,199 @@ export const blogImage = pgTable(
     index("blog_image_post_idx").on(table.blogPostId),
     // Index on created date for sorting
     index("blog_image_created_idx").on(table.createdAt),
+  ]
+);
+
+// =============================================
+// AI Image Generation Tables
+// =============================================
+
+// User API keys - stores encrypted BYOK (Bring Your Own Key) API keys
+export const userApiKey = pgTable(
+  "user_api_key",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull().default("google"), // For future expansion
+    encryptedKey: text("encrypted_key").notNull(),
+    iv: text("iv").notNull(), // Initialization vector for AES-256-GCM
+    keyHint: text("key_hint").notNull(), // Last 4 characters for identification
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Unique constraint: one key per provider per user
+    index("user_api_key_user_provider_idx").on(table.userId, table.provider),
+  ]
+);
+
+// Avatars - reference images users can include in generations
+export const avatar = pgTable(
+  "avatar",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    type: avatarTypeEnum("type").notNull(),
+    imageUrl: text("image_url").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Index for finding avatars by user
+    index("avatar_user_idx").on(table.userId),
+  ]
+);
+
+// Presets - saved generation settings for quick reuse
+export const preset = pgTable(
+  "preset",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    settings: jsonb("settings").$type<PresetSettings>().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Index for finding presets by user
+    index("preset_user_idx").on(table.userId),
+  ]
+);
+
+// Generations - tracks each image generation request
+export const generation = pgTable(
+  "generation",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    prompt: text("prompt").notNull(),
+    status: generationStatusEnum("status").default("pending").notNull(),
+    settings: jsonb("settings").$type<GenerationSettings>().notNull(),
+    usedAppKey: boolean("used_app_key").default(true).notNull(), // false = user's BYOK
+    errorMessage: text("error_message"), // For failed generations
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Index for finding generations by user
+    index("generation_user_idx").on(table.userId),
+    // Index for finding generations by status
+    index("generation_status_idx").on(table.status),
+    // Index for recent generations
+    index("generation_created_idx").on(table.createdAt),
+  ]
+);
+
+// Generated images - individual images produced by a generation
+export const generatedImage = pgTable(
+  "generated_image",
+  {
+    id: text("id").primaryKey(),
+    generationId: text("generation_id")
+      .notNull()
+      .references(() => generation.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    imageUrl: text("image_url").notNull(),
+    isPublic: boolean("is_public").default(false).notNull(),
+    width: integer("width"),
+    height: integer("height"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    // Index for finding images by generation
+    index("generated_image_generation_idx").on(table.generationId),
+    // Index for finding images by user
+    index("generated_image_user_idx").on(table.userId),
+    // Index for public gallery
+    index("generated_image_public_idx").on(table.isPublic),
+  ]
+);
+
+// Generation history - conversation history for refinements
+export const generationHistory = pgTable(
+  "generation_history",
+  {
+    id: text("id").primaryKey(),
+    generationId: text("generation_id")
+      .notNull()
+      .references(() => generation.id, { onDelete: "cascade" }),
+    role: text("role").notNull(), // "user" | "assistant"
+    content: text("content").notNull(),
+    imageUrls: jsonb("image_urls").$type<string[]>(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    // Index for finding history by generation
+    index("generation_history_generation_idx").on(table.generationId),
+    // Index for ordering by time
+    index("generation_history_created_idx").on(table.createdAt),
+  ]
+);
+
+// Image likes - tracks user likes on public gallery images
+export const imageLike = pgTable(
+  "image_like",
+  {
+    id: text("id").primaryKey(),
+    imageId: text("image_id")
+      .notNull()
+      .references(() => generatedImage.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    // Unique constraint: one like per user per image
+    index("image_like_image_user_idx").on(table.imageId, table.userId),
+    // Index for counting likes per image
+    index("image_like_image_idx").on(table.imageId),
+  ]
+);
+
+// User token usage - tracks monthly token consumption
+export const userTokenUsage = pgTable(
+  "user_token_usage",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    month: text("month").notNull(), // Format: "YYYY-MM"
+    tokensUsed: integer("tokens_used").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Unique constraint: one record per user per month
+    index("user_token_usage_user_month_idx").on(table.userId, table.month),
   ]
 );

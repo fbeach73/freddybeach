@@ -1,0 +1,352 @@
+import { GoogleGenAI, Part, PersonGeneration } from "@google/genai";
+import { db } from "@/lib/db";
+import { userApiKey, avatar } from "@/lib/schema";
+import { eq, and } from "drizzle-orm";
+import { decrypt } from "@/lib/encryption";
+import type {
+  GenerateOptions,
+  GenerationResult,
+  Avatar,
+} from "@/lib/types/image-generation";
+
+// Imagen model for image generation
+const IMAGEN_MODEL = "imagen-3.0-generate-002";
+
+// Resolution to dimensions mapping
+const RESOLUTION_MAP = {
+  "1K": { width: 1024, height: 1024 },
+  "2K": { width: 2048, height: 2048 },
+  "4K": { width: 4096, height: 4096 },
+};
+
+/**
+ * Create a new GoogleGenAI client with the provided API key
+ */
+export function createGeminiClient(apiKey: string): GoogleGenAI {
+  return new GoogleGenAI({ apiKey });
+}
+
+/**
+ * Get the default app-provided API key
+ */
+export function getAppApiKey(): string {
+  const key = process.env.GOOGLE_GENAI_API_KEY;
+  if (!key) {
+    throw new Error("GOOGLE_GENAI_API_KEY environment variable is not set");
+  }
+  return key;
+}
+
+/**
+ * Retrieve and decrypt a user's stored API key from the database
+ */
+export async function getUserApiKey(userId: string): Promise<string | null> {
+  try {
+    const result = await db
+      .select()
+      .from(userApiKey)
+      .where(
+        and(eq(userApiKey.userId, userId), eq(userApiKey.provider, "google"))
+      )
+      .limit(1);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    const { encryptedKey, iv } = result[0];
+    return decrypt(encryptedKey, iv);
+  } catch (error) {
+    console.error("Failed to retrieve user API key:", error);
+    return null;
+  }
+}
+
+/**
+ * Create an image Part from various sources (base64, URL, or file buffer)
+ */
+export async function createImagePart(
+  source: string | Buffer
+): Promise<Part | null> {
+  try {
+    // If source is a Buffer, convert to base64
+    if (Buffer.isBuffer(source)) {
+      return {
+        inlineData: {
+          data: source.toString("base64"),
+          mimeType: "image/jpeg", // Default to JPEG
+        },
+      };
+    }
+
+    // If source is a base64 string (data URL)
+    if (source.startsWith("data:")) {
+      const [header, data] = source.split(",");
+      const mimeMatch = header.match(/data:([^;]+)/);
+      const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+
+      return {
+        inlineData: {
+          data,
+          mimeType,
+        },
+      };
+    }
+
+    // If source is a URL, fetch and convert to base64
+    if (source.startsWith("http://") || source.startsWith("https://")) {
+      const response = await fetch(source);
+      if (!response.ok) {
+        console.error(`Failed to fetch image from URL: ${response.status}`);
+        return null;
+      }
+
+      const buffer = await response.arrayBuffer();
+      const contentType = response.headers.get("content-type") || "image/jpeg";
+
+      return {
+        inlineData: {
+          data: Buffer.from(buffer).toString("base64"),
+          mimeType: contentType,
+        },
+      };
+    }
+
+    // Assume it's already a base64 string without data URL prefix
+    return {
+      inlineData: {
+        data: source,
+        mimeType: "image/jpeg",
+      },
+    };
+  } catch (error) {
+    console.error("Failed to create image part:", error);
+    return null;
+  }
+}
+
+/**
+ * Build a prompt with avatar references
+ * Avatars can be referenced in the prompt using @avatarName syntax
+ */
+export function buildPromptWithReferences(
+  prompt: string,
+  avatars: Avatar[]
+): string {
+  if (avatars.length === 0) {
+    return prompt;
+  }
+
+  // Build avatar reference descriptions
+  const avatarDescriptions = avatars
+    .map((a) => {
+      const typeDesc = a.type === "human" ? "person" : "object";
+      return `- "${a.name}": A ${typeDesc}${a.description ? ` (${a.description})` : ""}`;
+    })
+    .join("\n");
+
+  // Add avatar context to the prompt
+  return `${prompt}
+
+Note: The following reference images are included:
+${avatarDescriptions}
+Please incorporate these visual references into the generated image as specified in the prompt.`;
+}
+
+/**
+ * Generate images using the user's API key (BYOK) or app key
+ */
+export async function generateWithUserKey(
+  options: GenerateOptions
+): Promise<GenerationResult> {
+  const {
+    prompt,
+    userId,
+    apiKey,
+    settings,
+    avatarIds = [],
+  } = options;
+
+  try {
+    // Get the appropriate API key
+    let effectiveApiKey: string | undefined = apiKey;
+    let usedAppKey = false;
+
+    if (!effectiveApiKey) {
+      // Try to get user's stored key
+      const userKey = await getUserApiKey(userId);
+      if (userKey) {
+        effectiveApiKey = userKey;
+      }
+    }
+
+    if (!effectiveApiKey) {
+      // Fall back to app key
+      effectiveApiKey = getAppApiKey();
+      usedAppKey = true;
+    }
+
+    // Create the Gemini client
+    const client = createGeminiClient(effectiveApiKey);
+
+    // Fetch avatars if specified
+    let avatars: Avatar[] = [];
+    if (avatarIds.length > 0) {
+      const avatarResults = await db
+        .select()
+        .from(avatar)
+        .where(eq(avatar.userId, userId));
+
+      avatars = avatarResults
+        .filter((a) => avatarIds.includes(a.id))
+        .map((a) => ({
+          id: a.id,
+          name: a.name,
+          type: a.type,
+          imageUrl: a.imageUrl,
+          description: a.description,
+        }));
+    }
+
+    // Build the final prompt
+    const finalPrompt = buildPromptWithReferences(prompt, avatars);
+
+    // Generate images using Imagen
+    const response = await client.models.generateImages({
+      model: IMAGEN_MODEL,
+      prompt: finalPrompt,
+      config: {
+        numberOfImages: settings.imageCount || 1,
+        aspectRatio: settings.aspectRatio || "1:1",
+        includeRaiReason: true,
+        personGeneration: PersonGeneration.ALLOW_ADULT,
+        negativePrompt: settings.negativePrompt,
+      },
+    });
+
+    // Process the generated images
+    const images: Array<{
+      imageBytes: string;
+      width: number;
+      height: number;
+      raiFilteredReason?: string;
+    }> = [];
+
+    if (response.generatedImages) {
+      for (const img of response.generatedImages) {
+        if (img.image?.imageBytes) {
+          // Get dimensions based on resolution and aspect ratio
+          const dimensions = calculateDimensions(
+            settings.resolution || "1K",
+            settings.aspectRatio || "1:1"
+          );
+
+          images.push({
+            imageBytes: img.image.imageBytes,
+            width: dimensions.width,
+            height: dimensions.height,
+            raiFilteredReason: img.raiFilteredReason || undefined,
+          });
+        }
+      }
+    }
+
+    if (images.length === 0) {
+      return {
+        success: false,
+        error: "No images were generated. The content may have been filtered.",
+        usedAppKey,
+      };
+    }
+
+    return {
+      success: true,
+      images,
+      usedAppKey,
+    };
+  } catch (error) {
+    console.error("Image generation failed:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+
+    return {
+      success: false,
+      error: errorMessage,
+      usedAppKey: false,
+    };
+  }
+}
+
+/**
+ * Refine a generation with additional instructions
+ * This creates a new generation based on the previous one with modifications
+ */
+export async function refineGeneration(
+  generationId: string,
+  instruction: string,
+  imageId?: string,
+  options?: {
+    userId: string;
+    apiKey?: string;
+    originalPrompt: string;
+    settings: GenerateOptions["settings"];
+  }
+): Promise<GenerationResult> {
+  if (!options) {
+    return {
+      success: false,
+      error: "Options are required for refinement",
+      usedAppKey: false,
+    };
+  }
+
+  // Build refined prompt
+  const refinedPrompt = `Original request: ${options.originalPrompt}
+
+Refinement instruction: ${instruction}
+
+Please generate a new image incorporating the refinement while maintaining the original intent.`;
+
+  // Generate with the refined prompt
+  return generateWithUserKey({
+    prompt: refinedPrompt,
+    userId: options.userId,
+    apiKey: options.apiKey,
+    settings: options.settings,
+  });
+}
+
+/**
+ * Calculate image dimensions based on resolution and aspect ratio
+ */
+function calculateDimensions(
+  resolution: "1K" | "2K" | "4K",
+  aspectRatio: string
+): { width: number; height: number } {
+  const baseSize = RESOLUTION_MAP[resolution] || RESOLUTION_MAP["1K"];
+
+  // Parse aspect ratio
+  const [widthRatio, heightRatio] = aspectRatio.split(":").map(Number);
+
+  if (!widthRatio || !heightRatio) {
+    return baseSize; // Default to square
+  }
+
+  const ratio = widthRatio / heightRatio;
+
+  if (ratio > 1) {
+    // Landscape
+    return {
+      width: baseSize.width,
+      height: Math.round(baseSize.width / ratio),
+    };
+  } else if (ratio < 1) {
+    // Portrait
+    return {
+      height: baseSize.height,
+      width: Math.round(baseSize.height * ratio),
+    };
+  }
+
+  return baseSize; // Square
+}

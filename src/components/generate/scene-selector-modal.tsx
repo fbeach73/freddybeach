@@ -14,7 +14,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import type { ScenePreset } from "@/lib/types/image-generation";
 
@@ -179,8 +178,8 @@ export function SceneSelectorModal({
           available
         </div>
 
-        {/* Preset Grid - ScrollArea with explicit height for proper scrolling */}
-        <ScrollArea className="flex-1 min-h-0 -mx-6 px-6" style={{ maxHeight: "calc(85vh - 320px)" }}>
+        {/* Preset Grid - Scrollable container with fixed height */}
+        <div className="flex-1 min-h-0 overflow-y-auto -mx-6 px-6" style={{ maxHeight: "40vh" }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
             {filteredPresets.map((preset) => {
               const isSelected = isPresetSelected(preset);
@@ -234,10 +233,10 @@ export function SceneSelectorModal({
               </p>
             </div>
           )}
-        </ScrollArea>
+        </div>
 
-        {/* Footer */}
-        <DialogFooter className="flex-row justify-between sm:justify-between gap-2">
+        {/* Footer - with background to prevent content bleed-through */}
+        <DialogFooter className="flex-row justify-between sm:justify-between gap-2 pt-4 border-t bg-background">
           <Button
             variant="ghost"
             onClick={handleClearSelection}

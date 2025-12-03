@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import { aiTools, getFreeTools, getPremiumTools } from "@/lib/data/ai-tools";
+import { db } from "@/lib/db";
+import { creditTransaction } from "@/lib/schema";
+import { eq, and, or, count } from "drizzle-orm";
+import { getSubscriptionInfo, hasOwnApiKey, checkSoftCap } from "@/lib/services/token-system";
 
 export const metadata = {
   title: "AI Tools | Dashboard",
@@ -41,21 +45,44 @@ export default async function AIToolsPage() {
     );
   }
 
-  // TODO: Track actual tool usage when implemented
-  const totalUsage = 0;
-  const userTier = "free" as const; // TODO: Get from subscription system
+  // Fetch actual usage and subscription data
+  const [aiToolUsageResult, subscriptionInfo, hasByok, softCapStatus] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(creditTransaction)
+      .where(
+        and(
+          eq(creditTransaction.userId, session.user.id),
+          or(
+            eq(creditTransaction.type, "usage"),
+            eq(creditTransaction.type, "subscription_usage")
+          )
+        )
+      ),
+    getSubscriptionInfo(session.user.id),
+    hasOwnApiKey(session.user.id),
+    checkSoftCap(session.user.id),
+  ]);
 
-  // Usage limits based on tier
+  const totalUsage = aiToolUsageResult[0]?.count || 0;
+
+  // Determine user tier based on subscription status
+  const userTier: "free" | "enhanced" | "featured" =
+    hasByok || subscriptionInfo.isActive ? "featured" : "free";
+
+  // Usage limits based on tier (for display purposes)
   const usageLimits = {
-    free: 100,
-    enhanced: 500,
-    featured: 2000,
+    free: 10,       // Free tier: 10 generations per month
+    enhanced: 500,  // Subscribers: soft cap at 500
+    featured: 500,  // Subscribers: soft cap at 500 (same as enhanced)
   };
 
-  const usageLimit = usageLimits[userTier];
-  const usageRemaining = usageLimit - totalUsage;
-  const usagePercentage = (totalUsage / usageLimit) * 100;
-  const isNearingLimit = usagePercentage >= 80;
+  // For subscribers with BYOK, show "unlimited"
+  const isUnlimited = hasByok;
+  const usageLimit = isUnlimited ? Infinity : usageLimits[userTier];
+  const usageRemaining = isUnlimited ? Infinity : Math.max(0, usageLimit - (userTier === "free" ? totalUsage : softCapStatus.usage));
+  const usagePercentage = isUnlimited ? 0 : ((userTier === "free" ? totalUsage : softCapStatus.usage) / usageLimit) * 100;
+  const isNearingLimit = !isUnlimited && usagePercentage >= 80;
 
   // Get tools by tier
   const freeTools = getFreeTools();
@@ -73,7 +100,9 @@ export default async function AIToolsPage() {
           <div className="flex items-center gap-3">
             <Badge variant="secondary" className="text-sm">
               <Zap className="mr-1.5 h-3.5 w-3.5" />
-              {usageRemaining}/{usageLimit} remaining
+              {isUnlimited
+                ? "Unlimited"
+                : `${usageRemaining}/${usageLimit} remaining`}
             </Badge>
           </div>
         </div>
@@ -89,31 +118,49 @@ export default async function AIToolsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  {totalUsage} of {usageLimit} generations used
-                </span>
-                <span className="font-medium">
-                  {Math.round(usagePercentage)}%
-                </span>
+            {isUnlimited ? (
+              <div className="flex items-center gap-3 rounded-lg bg-green-500/10 p-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                  <Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="font-semibold text-green-800 dark:text-green-200">
+                    Unlimited Access
+                  </p>
+                  <p className="text-sm text-green-600 dark:text-green-400">
+                    Using your own API key - no limits on generations
+                  </p>
+                </div>
               </div>
-              <Progress value={usagePercentage} className="h-2" />
-            </div>
-            {isNearingLimit && userTier === "free" && (
-              <div className="flex items-center justify-between rounded-lg bg-amber-500/10 p-3 text-sm">
-                <p className="text-amber-700 dark:text-amber-400">
-                  You&apos;re nearing your monthly limit. Upgrade for more generations.
-                </p>
-                <Button size="sm" variant="outline" asChild>
-                  <Link href="/ai-tools#pricing">Upgrade</Link>
-                </Button>
-              </div>
-            )}
-            {!isNearingLimit && (
-              <p className="text-sm text-muted-foreground">
-                Your usage resets on the 1st of each month.
-              </p>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {userTier === "free" ? totalUsage : softCapStatus.usage} of {usageLimit} generations used
+                    </span>
+                    <span className="font-medium">
+                      {Math.round(usagePercentage)}%
+                    </span>
+                  </div>
+                  <Progress value={usagePercentage} className="h-2" />
+                </div>
+                {isNearingLimit && userTier === "free" && (
+                  <div className="flex items-center justify-between rounded-lg bg-amber-500/10 p-3 text-sm">
+                    <p className="text-amber-700 dark:text-amber-400">
+                      You&apos;re nearing your monthly limit. Upgrade for more generations.
+                    </p>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link href="/ai-tools#pricing">Upgrade</Link>
+                    </Button>
+                  </div>
+                )}
+                {!isNearingLimit && (
+                  <p className="text-sm text-muted-foreground">
+                    Your usage resets on the 1st of each month.
+                  </p>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
@@ -130,7 +177,7 @@ export default async function AIToolsPage() {
             <DashboardToolCard
               key={tool.id}
               tool={tool}
-              usageCount={0}
+              usageCount={totalUsage}
               userTier={userTier}
             />
           ))}
@@ -152,7 +199,7 @@ export default async function AIToolsPage() {
             <DashboardToolCard
               key={tool.id}
               tool={tool}
-              usageCount={0}
+              usageCount={totalUsage}
               userTier={userTier}
             />
           ))}

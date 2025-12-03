@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -10,12 +10,15 @@ import {
   Loader2,
   Settings2,
   User,
+  Coins,
+  AlertCircle,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -41,10 +44,17 @@ import type {
 // Constants
 // ============================================================================
 
-const RESOLUTIONS: { value: Resolution; label: string }[] = [
-  { value: "1K", label: "1K (1024px)" },
-  { value: "2K", label: "2K (2048px)" },
-  { value: "4K", label: "4K (4096px)" },
+// Credit cost per resolution tier (matches token-system.ts)
+const RESOLUTION_CREDIT_COSTS: Record<Resolution, number> = {
+  "1K": 1,
+  "2K": 2,
+  "4K": 4,
+};
+
+const RESOLUTIONS: { value: Resolution; label: string; credits: number }[] = [
+  { value: "1K", label: "1K (1024px)", credits: RESOLUTION_CREDIT_COSTS["1K"] },
+  { value: "2K", label: "2K (2048px)", credits: RESOLUTION_CREDIT_COSTS["2K"] },
+  { value: "4K", label: "4K (4096px)", credits: RESOLUTION_CREDIT_COSTS["4K"] },
 ];
 
 const ASPECT_RATIOS: { value: AspectRatio; label: string }[] = [
@@ -89,14 +99,18 @@ interface PreviewGenerateProps {
   onSavePreset?: (name: string, settings: PresetSettings) => Promise<void>;
   /** Callback to load a preset */
   onLoadPreset?: (preset: Preset) => void;
-  /** Whether user has API key configured */
+  /** Whether user has API key configured (unlimited usage) */
   hasApiKey?: boolean;
-  /** Remaining tokens (if using app key) */
+  /** Remaining credits (for credit-based users) */
+  creditsRemaining?: number;
+  /** Remaining tokens (if using app key) - DEPRECATED, use creditsRemaining */
   tokensRemaining?: number;
-  /** Token limit (if using app key) */
+  /** Token limit (if using app key) - soft cap for subscribers */
   tokenLimit?: number;
   /** Selected avatar IDs for generation */
   selectedAvatarIds?: string[];
+  /** Whether user has active subscription (unlimited but with soft cap) */
+  hasSubscription?: boolean;
 }
 
 // ============================================================================
@@ -114,12 +128,25 @@ export function PreviewGenerate({
   onSavePreset,
   onLoadPreset,
   hasApiKey = false,
+  creditsRemaining,
   tokensRemaining,
   tokenLimit,
   selectedAvatarIds = [],
+  hasSubscription = false,
 }: PreviewGenerateProps) {
   const [isSavingPreset, setIsSavingPreset] = React.useState(false);
   const [presetDialogOpen, setPresetDialogOpen] = React.useState(false);
+
+  // Calculate credit cost for current settings
+  const creditCost = useMemo(() => {
+    const creditsPerImage = RESOLUTION_CREDIT_COSTS[settings.resolution] || 1;
+    return creditsPerImage * settings.imageCount;
+  }, [settings.resolution, settings.imageCount]);
+
+  // Determine if user has sufficient credits for current settings
+  // For backwards compat, use tokensRemaining if creditsRemaining is undefined
+  const effectiveCredits = creditsRemaining ?? tokensRemaining ?? 0;
+  const hasInsufficientCredits = !hasApiKey && !hasSubscription && effectiveCredits < creditCost;
 
   // Handle generation
   const handleGenerate = useCallback(async () => {
@@ -183,11 +210,14 @@ export function PreviewGenerate({
     onSettingsChange({ ...settings, imageCount: value });
   };
 
-  // Can generate check
+  // Can generate check - user needs:
+  // 1. Non-empty prompt
+  // 2. Not currently generating
+  // 3. Either: has API key (unlimited), has subscription, or has sufficient credits
   const canGenerate =
     prompt.trim().length > 0 &&
     !isGenerating &&
-    (hasApiKey || (tokensRemaining !== undefined && tokensRemaining > 0));
+    (hasApiKey || hasSubscription || effectiveCredits >= creditCost);
 
   // Keyboard shortcut: Ctrl/Cmd + Enter to generate
   useEffect(() => {
@@ -323,7 +353,15 @@ export function PreviewGenerate({
 
         {/* Resolution */}
         <div className="space-y-2">
-          <Label className="text-sm">Resolution</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Resolution</Label>
+            {!hasApiKey && !hasSubscription && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Coins className="h-3 w-3" />
+                {RESOLUTION_CREDIT_COSTS[settings.resolution]} credit{RESOLUTION_CREDIT_COSTS[settings.resolution] > 1 ? "s" : ""}/image
+              </span>
+            )}
+          </div>
           <Select
             value={settings.resolution}
             onValueChange={(v) => updateResolution(v as Resolution)}
@@ -335,7 +373,14 @@ export function PreviewGenerate({
             <SelectContent>
               {RESOLUTIONS.map((res) => (
                 <SelectItem key={res.value} value={res.value}>
-                  {res.label}
+                  <span className="flex items-center justify-between gap-4">
+                    <span>{res.label}</span>
+                    {!hasApiKey && !hasSubscription && (
+                      <Badge variant="outline" className="ml-2 text-xs font-normal">
+                        {res.credits} cr
+                      </Badge>
+                    )}
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -366,33 +411,86 @@ export function PreviewGenerate({
 
       {/* Generate Section */}
       <div className="space-y-4 pt-2">
+        {/* Credit Cost Display (for credit-based users) */}
+        {!hasApiKey && !hasSubscription && effectiveCredits > 0 && (
+          <div className="flex items-center justify-between rounded-lg bg-muted/50 p-3">
+            <div className="flex items-center gap-2 text-sm">
+              <Coins className="h-4 w-4 text-amber-600" />
+              <span>Total cost:</span>
+              <span className="font-semibold">{creditCost} credit{creditCost > 1 ? "s" : ""}</span>
+              <span className="text-muted-foreground">
+                ({settings.imageCount} image{settings.imageCount > 1 ? "s" : ""} × {RESOLUTION_CREDIT_COSTS[settings.resolution]} credit{RESOLUTION_CREDIT_COSTS[settings.resolution] > 1 ? "s" : ""})
+              </span>
+            </div>
+            <div className="text-sm">
+              <span className={cn(
+                "font-medium",
+                hasInsufficientCredits ? "text-destructive" : "text-muted-foreground"
+              )}>
+                {effectiveCredits} remaining
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Insufficient Credits Warning */}
+        {hasInsufficientCredits && (
+          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
+              <div className="flex-1">
+                <p className="font-medium text-destructive">
+                  Insufficient credits
+                </p>
+                <p className="mt-1 text-sm text-destructive/80">
+                  You need {creditCost} credits but only have {effectiveCredits}.
+                  {settings.resolution !== "1K" && (
+                    <> Try selecting a lower resolution, or </>
+                  )}
+                  <Link href="/dashboard/billing" className="underline hover:no-underline">
+                    purchase more credits
+                  </Link>.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* API Key Status / Generate Button */}
-        {!hasApiKey && tokensRemaining === 0 ? (
-          // No tokens remaining - need API key or upgrade
+        {!hasApiKey && !hasSubscription && effectiveCredits === 0 ? (
+          // No credits remaining - need API key or upgrade
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950">
             <div className="flex flex-col gap-3">
               <div className="flex items-start gap-3">
                 <User className="mt-0.5 h-5 w-5 text-amber-600 dark:text-amber-400" />
                 <div className="flex-1">
                   <p className="font-medium text-amber-800 dark:text-amber-200">
-                    No generations remaining
+                    No credits remaining
                   </p>
                   <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
-                    Add your own Google AI API key for unlimited generations, or
-                    upgrade your plan.
+                    Purchase credits, add your own API key for unlimited generations,
+                    or subscribe to a plan.
                   </p>
                 </div>
               </div>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/dashboard/ai-tools/image-generator?tab=settings">
-                  <User className="mr-2 h-4 w-4" />
-                  Go to Profile Settings
-                </Link>
-              </Button>
+              <div className="flex gap-2">
+                <Button asChild variant="default" className="flex-1">
+                  <Link href="/dashboard/billing">
+                    <Coins className="mr-2 h-4 w-4" />
+                    Buy Credits
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="flex-1">
+                  <Link href="/dashboard/ai-tools/image-generator?tab=settings">
+                    <User className="mr-2 h-4 w-4" />
+                    Add API Key
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
-          // Has tokens or API key - show generate button
+          // Has credits, subscription, or API key - show generate button
           <>
             {/* Token/Key Status */}
             <div className="flex items-center justify-between text-sm">
@@ -401,10 +499,16 @@ export function PreviewGenerate({
                   <span className="text-green-600 dark:text-green-400">
                     Using your API key (unlimited)
                   </span>
-                ) : tokensRemaining !== undefined && tokenLimit !== undefined ? (
-                  <span>
-                    {tokensRemaining} of {tokenLimit} generations remaining
-                  </span>
+                ) : hasSubscription ? (
+                  tokensRemaining !== undefined && tokenLimit !== undefined ? (
+                    <span>
+                      {tokensRemaining} of {tokenLimit} generations remaining this month
+                    </span>
+                  ) : (
+                    <span className="text-green-600 dark:text-green-400">
+                      Unlimited subscription
+                    </span>
+                  )
                 ) : null}
               </div>
               <div className="hidden text-xs text-muted-foreground sm:block">
@@ -434,7 +538,12 @@ export function PreviewGenerate({
               ) : (
                 <>
                   <Sparkles className="mr-2 h-5 w-5" />
-                  Generate Images
+                  Generate {settings.imageCount} Image{settings.imageCount > 1 ? "s" : ""}
+                  {!hasApiKey && !hasSubscription && effectiveCredits > 0 && (
+                    <span className="ml-1.5 opacity-80">
+                      ({creditCost} credit{creditCost > 1 ? "s" : ""})
+                    </span>
+                  )}
                 </>
               )}
             </Button>

@@ -15,7 +15,10 @@ import {
   canGenerateWithDetails,
   incrementTokenUsage,
   consumeCredit,
+  logSubscriptionUsage,
+  getCreditsForResolution,
   type GenerationEligibility,
+  type Resolution,
 } from "@/lib/services/token-system";
 import {
   VALID_RESOLUTIONS,
@@ -165,20 +168,43 @@ export async function POST(request: Request) {
       );
     }
 
+    // Calculate credits needed based on resolution and image count
+    // Resolution credit costs: 1K = 1, 2K = 2, 4K = 4
+    const creditsPerImage = getCreditsForResolution(settings.resolution as Resolution);
+    const totalCreditsNeeded = creditsPerImage * imageCount;
+
     // Check generation eligibility with new priority logic:
     // 1. BYOK → allow unlimited
     // 2. Active subscription → allow (track for soft cap)
-    // 3. Credits > 0 → allow
+    // 3. Credits >= totalCreditsNeeded → allow
     // 4. Deny with reason
-    const eligibility: GenerationEligibility = await canGenerateWithDetails(session.user.id);
+    const eligibility: GenerationEligibility = await canGenerateWithDetails(
+      session.user.id,
+      totalCreditsNeeded
+    );
 
     if (!eligibility.allowed) {
+      let errorMessage: string;
+      switch (eligibility.reason) {
+        case "no_credits":
+          errorMessage = "No credits remaining. Purchase credits or subscribe to continue.";
+          break;
+        case "insufficient_credits":
+          errorMessage = `Not enough credits. You have ${eligibility.creditsRemaining} credit(s), but need ${totalCreditsNeeded} for ${imageCount} ${settings.resolution} image(s).`;
+          break;
+        case "soft_cap_exceeded":
+          errorMessage = "Monthly fair use limit (500 generations) reached. Your limit resets next month.";
+          break;
+        default:
+          errorMessage = "Unable to generate images. Please sign in.";
+      }
+
       return NextResponse.json(
         {
-          error: eligibility.reason === "no_credits"
-            ? "No credits remaining. Purchase credits or subscribe to continue."
-            : "Unable to generate images. Please sign in.",
+          error: errorMessage,
           reason: eligibility.reason,
+          creditsRemaining: eligibility.creditsRemaining,
+          creditsNeeded: totalCreditsNeeded,
         },
         { status: 403 }
       );
@@ -326,18 +352,26 @@ export async function POST(request: Request) {
 
     // Handle consumption based on eligibility reason:
     // - BYOK: No consumption (unlimited)
-    // - Subscription: Track usage for soft cap only
-    // - Credits: Consume from balance
+    // - Subscription: Track usage for soft cap and log to audit trail
+    // - Credits: Consume from balance (resolution-based pricing)
     if (result.usedAppKey) {
       if (eligibility.reason === "subscription") {
         // Track usage for soft cap (subscription users)
         await incrementTokenUsage(session.user.id, savedImages.length);
-      } else if (eligibility.reason === "credits") {
-        // Consume credits from balance
-        await consumeCredit(
+        // Log to audit trail (amount=0, for billing history completeness)
+        await logSubscriptionUsage(
           session.user.id,
           savedImages.length,
-          `Generated ${savedImages.length} image(s)`
+          `Generated ${savedImages.length} ${settings.resolution} image(s)`
+        );
+      } else if (eligibility.reason === "credits") {
+        // Consume credits from balance (resolution-based pricing)
+        // Each image costs creditsPerImage based on resolution
+        const actualCreditsUsed = creditsPerImage * savedImages.length;
+        await consumeCredit(
+          session.user.id,
+          actualCreditsUsed,
+          `Generated ${savedImages.length} ${settings.resolution} image(s) (${actualCreditsUsed} credits)`
         );
       }
     }
@@ -351,6 +385,8 @@ export async function POST(request: Request) {
       softCapWarning?: boolean;
       subscriptionUsage?: number;
       creditsRemaining?: number;
+      creditCost?: number;
+      creditsPerImage?: number;
     } = {
       success: true,
       generationId,
@@ -364,9 +400,12 @@ export async function POST(request: Request) {
       response.subscriptionUsage = eligibility.subscriptionUsage;
     }
 
-    // Include remaining credits for credit-based users
+    // Include credit cost and remaining credits for credit-based users
     if (eligibility.reason === "credits" && eligibility.creditsRemaining !== undefined) {
-      response.creditsRemaining = eligibility.creditsRemaining - savedImages.length;
+      const actualCreditsUsed = creditsPerImage * savedImages.length;
+      response.creditCost = actualCreditsUsed;
+      response.creditsPerImage = creditsPerImage;
+      response.creditsRemaining = eligibility.creditsRemaining - actualCreditsUsed;
     }
 
     return NextResponse.json(response);

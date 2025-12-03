@@ -123,6 +123,18 @@ export interface BYOKOption {
   requirements: string[];
 }
 
+export interface BYOKProPlan {
+  id: string;
+  name: string;
+  price: number;
+  priceLabel: string;
+  period: "monthly";
+  description: string;
+  features: string[];
+  requirements: string[];
+  isPopular: boolean;
+}
+
 export interface ConsultationPackage {
   id: string;
   name: string;

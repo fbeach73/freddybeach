@@ -19,6 +19,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AIToolInterface } from "@/components/dashboard/ai-tool-interface";
 import { aiTools, getToolBySlug } from "@/lib/data/ai-tools";
+import { db } from "@/lib/db";
+import { creditTransaction } from "@/lib/schema";
+import { eq, and, or, count } from "drizzle-orm";
+import { getSubscriptionInfo, hasOwnApiKey, checkSoftCap } from "@/lib/services/token-system";
 
 // Map icon names to Lucide components
 const iconMap: Record<string, LucideIcon> = {
@@ -99,20 +103,42 @@ export default async function AIToolPage({
     );
   }
 
-  // TODO: Track actual tool usage when implemented
-  const usageCount = 0;
-  const totalUsage = 0;
-  const userTier = "free" as const; // TODO: Get from subscription system
+  // Fetch actual usage and subscription data
+  const [aiToolUsageResult, subscriptionInfo, hasByok, softCapStatus] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(creditTransaction)
+      .where(
+        and(
+          eq(creditTransaction.userId, session.user.id),
+          or(
+            eq(creditTransaction.type, "usage"),
+            eq(creditTransaction.type, "subscription_usage")
+          )
+        )
+      ),
+    getSubscriptionInfo(session.user.id),
+    hasOwnApiKey(session.user.id),
+    checkSoftCap(session.user.id),
+  ]);
+
+  const usageCount = aiToolUsageResult[0]?.count || 0;
+  const totalUsage = usageCount;
+
+  // Determine user tier based on subscription status
+  const userTier: "free" | "enhanced" | "featured" =
+    hasByok || subscriptionInfo.isActive ? "featured" : "free";
 
   // Usage limits based on tier
   const usageLimits = {
-    free: 100,
-    enhanced: 500,
-    featured: 2000,
+    free: 10,       // Free tier: 10 generations per month
+    enhanced: 500,  // Subscribers: soft cap at 500
+    featured: 500,  // Subscribers: soft cap at 500
   };
 
-  const usageLimit = usageLimits[userTier];
-  const usageRemaining = usageLimit - totalUsage;
+  const isUnlimited = hasByok;
+  const usageLimit = isUnlimited ? Infinity : usageLimits[userTier];
+  const usageRemaining = isUnlimited ? Infinity : Math.max(0, usageLimit - (userTier === "free" ? totalUsage : softCapStatus.usage));
 
   // Check if user has access to this tool
   const isLocked = tool.tier !== "free" && userTier === "free";
@@ -154,11 +180,11 @@ export default async function AIToolPage({
           {/* Usage Stats */}
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="text-sm">
-              Used {usageCount} {usageCount as number === 1 ? "time" : "times"}
+              Used {usageCount} {usageCount === 1 ? "time" : "times"}
             </Badge>
             <Badge variant="outline" className="text-sm">
               <Zap className="mr-1.5 h-3.5 w-3.5" />
-              {usageRemaining} remaining
+              {isUnlimited ? "Unlimited" : `${usageRemaining} remaining`}
             </Badge>
           </div>
         </div>

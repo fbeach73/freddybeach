@@ -242,11 +242,51 @@ export async function hasOwnApiKey(userId: string): Promise<boolean> {
 // Credit System Functions (Phase 4)
 // =============================================
 
+// Resolution type (matches validation constants)
+export type Resolution = "1K" | "2K" | "4K";
+
+// Credit cost per resolution tier
+const RESOLUTION_CREDIT_COSTS: Record<Resolution, number> = {
+  "1K": 1,  // ≤1024px
+  "2K": 2,  // ≤2048px
+  "4K": 4,  // ≤4096px
+};
+
+/**
+ * Get the credit cost for a given resolution
+ * @param resolution - The resolution tier ("1K", "2K", or "4K")
+ * @returns Number of credits required for this resolution
+ */
+export function getCreditsForResolution(resolution: Resolution): number {
+  return RESOLUTION_CREDIT_COSTS[resolution] ?? RESOLUTION_CREDIT_COSTS["1K"];
+}
+
+/**
+ * Get the credit cost for a resolution by pixel dimensions
+ * @param width - Image width in pixels
+ * @param height - Image height in pixels
+ * @returns Number of credits required based on the larger dimension
+ */
+export function getCreditsForDimensions(width: number, height: number): number {
+  const maxDimension = Math.max(width, height);
+
+  if (maxDimension <= 1024) {
+    return RESOLUTION_CREDIT_COSTS["1K"]; // 1 credit
+  } else if (maxDimension <= 2048) {
+    return RESOLUTION_CREDIT_COSTS["2K"]; // 2 credits
+  } else {
+    return RESOLUTION_CREDIT_COSTS["4K"]; // 4 credits
+  }
+}
+
 // Subscription tier types
-export type SubscriptionTier = "monthly" | "yearly";
+// - "monthly" and "yearly" are unlimited AI generation subscriptions
+// - "byok" is BYOK Pro - allows users to use their own API key with priority processing
+export type SubscriptionTier = "monthly" | "yearly" | "byok";
 
 // Credit transaction types
-export type CreditTransactionType = "purchase" | "usage" | "refund" | "admin_grant";
+// Note: "subscription_usage" logs generations made by subscribers (amount=0) for audit trail
+export type CreditTransactionType = "purchase" | "usage" | "refund" | "admin_grant" | "subscription_usage";
 
 // Subscription soft cap (500 generations per month)
 const SUBSCRIPTION_SOFT_CAP = 500;
@@ -263,10 +303,23 @@ export interface SubscriptionInfo {
 // Generation eligibility result
 export interface GenerationEligibility {
   allowed: boolean;
-  reason: "byok" | "subscription" | "credits" | "no_credits" | "not_authenticated";
+  reason: "byok" | "subscription" | "credits" | "no_credits" | "not_authenticated" | "soft_cap_exceeded" | "insufficient_credits";
+  /**
+   * The user's effective tier for display purposes.
+   * Tier Priority (highest to lowest):
+   * 1. byok - User has their own API key (unlimited usage)
+   * 2. subscription - User has active monthly/yearly subscription
+   * 3. credits - User has purchased credits
+   * 4. free - No payment method (cannot generate)
+   */
+  effectiveTier: "free" | "credits" | "subscription" | "byok";
   creditsRemaining?: number;
+  /** Number of credits needed for the requested generation */
+  creditsNeeded?: number;
   subscriptionUsage?: number;
   softCapWarning?: boolean;
+  /** Whether soft cap is being enforced (blocks generation when exceeded) */
+  softCapEnforced?: boolean;
 }
 
 /**
@@ -402,21 +455,42 @@ export async function checkSoftCap(userId: string): Promise<{
   };
 }
 
+// Check if soft cap enforcement is enabled via environment variable
+const isSoftCapEnforced = (): boolean => {
+  const envValue = process.env.ENFORCE_SOFT_CAP;
+  return envValue === "true" || envValue === "1";
+};
+
 /**
  * Enhanced canGenerate check with new priority logic:
- * 1. BYOK → allow unlimited
- * 2. Active subscription → allow (track for soft cap)
- * 3. Credits > 0 → allow
- * 4. Deny with reason
+ *
+ * Tier Priority (highest to lowest):
+ * 1. BYOK → allow unlimited (user has their own API key)
+ * 2. Active subscription → allow (track for soft cap, 500/month warning at 80%)
+ *    - If ENFORCE_SOFT_CAP=true and soft cap exceeded, deny with reason "soft_cap_exceeded"
+ * 3. Credits >= creditsNeeded → allow (pay-per-use credits)
+ * 4. Free tier → deny (no valid payment method)
+ *
+ * @param userId - The user's ID
+ * @param creditsNeeded - Number of credits needed for this generation (default: 1)
+ * @returns GenerationEligibility with allowed status, reason, and effectiveTier
  */
-export async function canGenerateWithDetails(userId: string): Promise<GenerationEligibility> {
+export async function canGenerateWithDetails(
+  userId: string,
+  creditsNeeded: number = 1
+): Promise<GenerationEligibility> {
   try {
+    const softCapEnforced = isSoftCapEnforced();
+
     // Priority 1: Check for BYOK (Bring Your Own Key)
     const hasApiKey = await hasOwnApiKey(userId);
     if (hasApiKey) {
       return {
         allowed: true,
         reason: "byok",
+        effectiveTier: "byok",
+        creditsNeeded,
+        softCapEnforced,
       };
     }
 
@@ -424,35 +498,72 @@ export async function canGenerateWithDetails(userId: string): Promise<Generation
     const isSubscribed = await hasActiveSubscription(userId);
     if (isSubscribed) {
       const softCapStatus = await checkSoftCap(userId);
+      const softCapWarning = softCapStatus.usage >= SUBSCRIPTION_SOFT_CAP * 0.8; // Warn at 80%
+
+      // If enforcement is enabled and soft cap exceeded, deny
+      if (softCapEnforced && softCapStatus.exceeded) {
+        return {
+          allowed: false,
+          reason: "soft_cap_exceeded",
+          effectiveTier: "subscription",
+          creditsNeeded,
+          subscriptionUsage: softCapStatus.usage,
+          softCapWarning: true,
+          softCapEnforced,
+        };
+      }
+
       return {
         allowed: true,
         reason: "subscription",
+        effectiveTier: "subscription",
+        creditsNeeded,
         subscriptionUsage: softCapStatus.usage,
-        softCapWarning: softCapStatus.usage >= SUBSCRIPTION_SOFT_CAP * 0.8, // Warn at 80%
+        softCapWarning,
+        softCapEnforced,
       };
     }
 
     // Priority 3: Check for credits
     const credits = await getUserCredits(userId);
-    if (credits > 0) {
+    if (credits >= creditsNeeded) {
       return {
         allowed: true,
         reason: "credits",
+        effectiveTier: "credits",
         creditsRemaining: credits,
+        creditsNeeded,
+        softCapEnforced,
       };
     }
 
-    // Priority 4: Deny - no valid payment method
+    // User has some credits but not enough for this resolution
+    if (credits > 0) {
+      return {
+        allowed: false,
+        reason: "insufficient_credits",
+        effectiveTier: "credits",
+        creditsRemaining: credits,
+        creditsNeeded,
+        softCapEnforced,
+      };
+    }
+
+    // Priority 4: Deny - no valid payment method (free tier)
     return {
       allowed: false,
       reason: "no_credits",
+      effectiveTier: "free",
       creditsRemaining: 0,
+      creditsNeeded,
+      softCapEnforced,
     };
   } catch (error) {
     console.error("Failed to check generation eligibility:", error);
     return {
       allowed: false,
       reason: "no_credits",
+      effectiveTier: "free",
     };
   }
 }
@@ -710,5 +821,136 @@ export async function extendSubscription(
   } catch (error) {
     console.error("Failed to extend subscription:", error);
     return false;
+  }
+}
+
+/**
+ * Log subscription usage to the credit transaction table for audit trail
+ * This logs generations made by subscribers with amount=0 (no credits consumed)
+ * Ensures billing history shows all generations regardless of payment method
+ *
+ * @param userId - The user's ID
+ * @param imageCount - Number of images generated
+ * @param description - Optional description for the transaction
+ */
+export async function logSubscriptionUsage(
+  userId: string,
+  imageCount: number = 1,
+  description?: string
+): Promise<void> {
+  try {
+    // Get current credit balance for the balanceAfter field
+    const currentBalance = await getUserCredits(userId);
+
+    // Create transaction record with amount=0 (no credits consumed)
+    await db.insert(creditTransaction).values({
+      id: nanoid(),
+      userId,
+      amount: 0, // No credits consumed for subscription usage
+      type: "subscription_usage",
+      description: description || `Subscription: Generated ${imageCount} image(s)`,
+      balanceAfter: currentBalance,
+      createdAt: new Date(),
+    });
+  } catch (error) {
+    // Log error but don't throw - audit trail failure shouldn't block generation
+    console.error("Failed to log subscription usage:", error);
+  }
+}
+
+// =============================================
+// User Tier Data for UI (Phase 3)
+// =============================================
+
+/**
+ * Effective tier type for UI display
+ *
+ * Tier Priority (highest to lowest):
+ * 1. byok - User has their own API key (unlimited usage)
+ * 2. subscription - User has active monthly/yearly subscription
+ * 3. credits - User has purchased credits
+ * 4. free - No payment method (cannot generate)
+ */
+export type EffectiveTier = "free" | "credits" | "subscription" | "byok";
+
+/**
+ * Complete user tier data for UI components
+ * This consolidates all tier-related information into a single object
+ */
+export interface UserTierData {
+  /** The user's effective tier based on priority: byok > subscription > credits > free */
+  effectiveTier: EffectiveTier;
+  /** Whether user has their own API key (unlimited usage) */
+  hasByok: boolean;
+  /** Whether user has an active subscription */
+  hasSubscription: boolean;
+  /** Subscription tier if active */
+  subscriptionTier: SubscriptionTier | null;
+  /** Days remaining in subscription */
+  subscriptionDaysRemaining: number | null;
+  /** Available credits balance */
+  creditsRemaining: number;
+  /** Monthly usage count (for subscription users) */
+  monthlyUsage: number;
+  /** Soft cap limit for subscribers */
+  softCapLimit: number;
+  /** Whether approaching soft cap (80%+) */
+  softCapWarning: boolean;
+}
+
+/**
+ * Fetch complete user tier data for UI display
+ * This is the primary function for getting all tier information at once
+ *
+ * @param userId - The user's ID
+ * @returns Complete tier data for UI components
+ */
+export async function getUserTierData(userId: string): Promise<UserTierData> {
+  try {
+    // Fetch all data in parallel for performance
+    const [hasByok, subscriptionInfo, credits, softCapStatus] = await Promise.all([
+      hasOwnApiKey(userId),
+      getSubscriptionInfo(userId),
+      getUserCredits(userId),
+      checkSoftCap(userId),
+    ]);
+
+    // Determine effective tier based on priority
+    let effectiveTier: EffectiveTier;
+    if (hasByok) {
+      effectiveTier = "byok";
+    } else if (subscriptionInfo.isActive) {
+      effectiveTier = "subscription";
+    } else if (credits > 0) {
+      effectiveTier = "credits";
+    } else {
+      effectiveTier = "free";
+    }
+
+    return {
+      effectiveTier,
+      hasByok,
+      hasSubscription: subscriptionInfo.isActive,
+      subscriptionTier: subscriptionInfo.tier,
+      subscriptionDaysRemaining: subscriptionInfo.daysRemaining,
+      creditsRemaining: credits,
+      monthlyUsage: softCapStatus.usage,
+      softCapLimit: SUBSCRIPTION_SOFT_CAP,
+      softCapWarning: softCapStatus.usage >= SUBSCRIPTION_SOFT_CAP * 0.8,
+    };
+  } catch (error) {
+    console.error("Failed to get user tier data:", error);
+    // Return safe defaults on error
+    return {
+      effectiveTier: "free",
+      hasByok: false,
+      hasSubscription: false,
+      subscriptionTier: null,
+      subscriptionDaysRemaining: null,
+      creditsRemaining: 0,
+      monthlyUsage: 0,
+      softCapLimit: SUBSCRIPTION_SOFT_CAP,
+      softCapWarning: false,
+    };
   }
 }

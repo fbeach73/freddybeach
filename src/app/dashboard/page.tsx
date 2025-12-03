@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { UserProfile } from "@/components/auth/user-profile";
-import { Lock, ArrowRight, Building2, Plus } from "lucide-react";
+import { Lock, ArrowRight, Building2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -16,8 +16,9 @@ import { Badge } from "@/components/ui/badge";
 
 import { aiTools } from "@/lib/data/ai-tools";
 import { db } from "@/lib/db";
-import { business, claim } from "@/lib/schema";
-import { eq, and, count } from "drizzle-orm";
+import { business, claim, creditTransaction } from "@/lib/schema";
+import { eq, and, count, or } from "drizzle-orm";
+import { getSubscriptionInfo, hasOwnApiKey } from "@/lib/services/token-system";
 
 export default async function DashboardPage() {
   // Server-side session validation
@@ -58,12 +59,44 @@ export default async function DashboardPage() {
     );
   const pendingClaimsCount = pendingClaimsResult[0]?.count || 0;
 
+  // Fetch AI tool usage count (usage and subscription_usage transactions)
+  const aiToolUsageResult = await db
+    .select({ count: count() })
+    .from(creditTransaction)
+    .where(
+      and(
+        eq(creditTransaction.userId, session.user.id),
+        or(
+          eq(creditTransaction.type, "usage"),
+          eq(creditTransaction.type, "subscription_usage")
+        )
+      )
+    );
+  const aiToolUsageCount = aiToolUsageResult[0]?.count || 0;
+
+  // Fetch subscription info and BYOK status
+  const [subscriptionInfo, hasByok] = await Promise.all([
+    getSubscriptionInfo(session.user.id),
+    hasOwnApiKey(session.user.id),
+  ]);
+
+  // Determine current plan display text
+  const getCurrentPlanText = (): string => {
+    if (hasByok) return "BYOK (Unlimited)";
+    if (subscriptionInfo.isActive) {
+      return subscriptionInfo.tier === "yearly"
+        ? "Unlimited Yearly"
+        : "Unlimited Monthly";
+    }
+    return "Free";
+  };
+
   // Build real stats
   const stats = {
     businessesClaimed: ownedBusinesses.length,
-    aiToolsUsed: 0, // TODO: Track actual AI tool usage when implemented
-    hoursSaved: 0, // TODO: Calculate based on AI tool usage
-    currentPlan: "Free", // TODO: Get from subscription system when implemented
+    aiToolsUsed: aiToolUsageCount,
+    hoursSaved: Math.round(aiToolUsageCount * 0.5), // Estimate: 30 mins saved per AI generation
+    currentPlan: getCurrentPlanText(),
   };
 
   // Get current date for welcome message
@@ -168,8 +201,8 @@ export default async function DashboardPage() {
             <DashboardToolCard
               key={tool.id}
               tool={tool}
-              usageCount={0}
-              userTier="free"
+              usageCount={aiToolUsageCount}
+              userTier={hasByok || subscriptionInfo.isActive ? "featured" : "free"}
             />
           ))}
         </div>

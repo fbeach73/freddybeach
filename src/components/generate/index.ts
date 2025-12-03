@@ -11,3 +11,9 @@ export { SceneSettings } from "./scene-settings";
 export { SubjectsPanel } from "./subjects-panel";
 export { PreviewGenerate } from "./preview-generate";
 export { ResultsPanel } from "./results-panel";
+export { ImageGeneratorPage } from "./image-generator-page";
+export type {
+  ImageGeneratorPageProps,
+  UserTierData,
+  EffectiveTier,
+} from "./image-generator-page";

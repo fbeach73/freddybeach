@@ -1,5 +1,6 @@
 import type {
   BYOKOption,
+  BYOKProPlan,
   ConsultationPackage,
   CreditPackage,
   PricingTier,
@@ -163,20 +164,54 @@ export function getTierById(id: string): PricingTier | undefined {
 
 export const creditPackages: CreditPackage[] = [
   {
+    id: "credits-10",
+    name: "Starter Pack",
+    credits: 10,
+    price: 1.99,
+    priceLabel: "$1.99",
+    pricePerCredit: "$0.20",
+    description: "Try AI image generation without commitment.",
+    features: [
+      "10 AI generations",
+      "Use on any available AI tool",
+      "Credits never expire",
+      "No subscription required",
+    ],
+    isPopular: false,
+  },
+  {
+    id: "credits-50",
+    name: "Popular Pack",
+    credits: 50,
+    price: 6.99,
+    priceLabel: "$6.99",
+    pricePerCredit: "$0.14",
+    description: "Most popular choice for regular users.",
+    features: [
+      "50 AI generations",
+      "Use on any available AI tool",
+      "Credits never expire",
+      "No subscription required",
+      "Save 30% vs Starter Pack",
+    ],
+    isPopular: true,
+  },
+  {
     id: "credits-100",
-    name: "100 Credits",
+    name: "Value Pack",
     credits: 100,
-    price: 10,
-    priceLabel: "$10",
+    price: 9.99,
+    priceLabel: "$9.99",
     pricePerCredit: "$0.10",
-    description: "Perfect for occasional use. Credits never expire.",
+    description: "Best value for power users. Credits never expire.",
     features: [
       "100 AI generations",
       "Use on any available AI tool",
       "Credits never expire",
       "No subscription required",
+      "Save 50% vs Starter Pack",
     ],
-    isPopular: true,
+    isPopular: false,
   },
 ];
 
@@ -234,6 +269,30 @@ export const byokOption: BYOKOption = {
     "Google Gemini API key (free tier available)",
     "Technical setup required",
   ],
+};
+
+export const byokProPlan: BYOKProPlan = {
+  id: "byok-pro",
+  name: "BYOK Pro",
+  price: 7.99,
+  priceLabel: "$7.99",
+  period: "monthly",
+  description:
+    "Unlimited AI generations using your own API key. Best for power users and developers.",
+  features: [
+    "Unlimited image generations",
+    "Use your own Google Gemini API key",
+    "No per-image credits needed",
+    "Higher resolution outputs (up to 4K)",
+    "Priority processing queue",
+    "Full privacy - your key, your data",
+    "Cancel anytime",
+  ],
+  requirements: [
+    "Google Gemini API key required",
+    "You pay Google directly for API usage",
+  ],
+  isPopular: false,
 };
 
 export function getCreditPackageById(id: string): CreditPackage | undefined {

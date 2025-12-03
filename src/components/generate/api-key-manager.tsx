@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import {
   Key,
   Check,
@@ -11,10 +12,13 @@ import {
   Eye,
   EyeOff,
   Shield,
+  Zap,
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -41,6 +45,8 @@ interface ApiKeyManagerProps {
   isLoading?: boolean;
   onSaveApiKey: (key: string) => Promise<{ success: boolean; error?: string }>;
   onRemoveApiKey: () => Promise<boolean>;
+  /** Whether user has BYOK Pro subscription */
+  hasByokPro?: boolean;
 }
 
 export function ApiKeyManager({
@@ -50,6 +56,7 @@ export function ApiKeyManager({
   isLoading = false,
   onSaveApiKey,
   onRemoveApiKey,
+  hasByokPro = false,
 }: ApiKeyManagerProps) {
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
@@ -131,31 +138,81 @@ export function ApiKeyManager({
         <CardContent className="space-y-4">
           {/* Current Status */}
           {hasApiKey ? (
-            <div className="flex items-center justify-between rounded-lg border bg-green-50 p-4 dark:bg-green-950/30">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                  <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="font-medium text-green-800 dark:text-green-200">
-                    API Key Connected
-                  </p>
-                  {keyHint && (
-                    <p className="text-sm text-green-600 dark:text-green-400">
-                      Key ending in ...{keyHint}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between rounded-lg border bg-green-50 p-4 dark:bg-green-950/30">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                    <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-green-800 dark:text-green-200">
+                      API Key Connected
                     </p>
-                  )}
+                    {keyHint && (
+                      <p className="text-sm text-green-600 dark:text-green-400">
+                        Key ending in ...{keyHint}
+                      </p>
+                    )}
+                  </div>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowRemoveDialog(true)}
+                  className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Remove
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowRemoveDialog(true)}
-                className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950"
-              >
-                <X className="mr-2 h-4 w-4" />
-                Remove
-              </Button>
+
+              {/* BYOK Pro Promotion (if not already subscribed) */}
+              {!hasByokPro && (
+                <div className="rounded-lg border border-purple-200 bg-gradient-to-br from-purple-50 to-white p-4 dark:border-purple-900 dark:from-purple-950/30 dark:to-background">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/50">
+                      <Crown className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-purple-800 dark:text-purple-200">
+                          Upgrade to BYOK Pro
+                        </p>
+                        <Badge variant="secondary" className="text-xs">
+                          $7.99/mo
+                        </Badge>
+                      </div>
+                      <p className="mt-1 text-sm text-purple-700 dark:text-purple-300">
+                        Get priority processing, higher resolution outputs (4K), and premium support.
+                      </p>
+                      <div className="mt-3 flex items-center gap-2">
+                        <Button asChild size="sm" className="bg-purple-600 hover:bg-purple-700">
+                          <Link href="/dashboard/billing">
+                            <Zap className="mr-2 h-4 w-4" />
+                            Upgrade Now
+                          </Link>
+                        </Button>
+                        <Button asChild variant="link" size="sm" className="text-purple-600">
+                          <Link href="/dashboard/billing#byok-pro">
+                            Learn more
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* BYOK Pro Active Badge */}
+              {hasByokPro && (
+                <div className="flex items-center gap-2 rounded-lg border border-purple-200 bg-purple-50 p-3 dark:border-purple-900 dark:bg-purple-950/30">
+                  <Crown className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  <span className="font-medium text-purple-800 dark:text-purple-200">
+                    BYOK Pro Active
+                  </span>
+                  <Badge className="ml-auto bg-purple-600">Pro</Badge>
+                </div>
+              )}
             </div>
           ) : (
             <Alert>

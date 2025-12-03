@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import {
   Lock,
-  CreditCard,
   Calendar,
   Check,
   ArrowRight,
@@ -12,22 +11,40 @@ import {
   AlertCircle,
   Infinity,
   Clock,
+  HelpCircle,
+  Key,
+  Zap,
+  ImageIcon,
 } from "lucide-react";
+import { PurchaseCreditsButton, ApiKeySection, SubscribeByokButton } from "@/components/billing";
 import { UserProfile } from "@/components/auth/user-profile";
 import { PageHeader, SectionHeader } from "@/components/shared/page-header";
 import { ComingSoon } from "@/components/dashboard/coming-soon";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-import { creditPackages, subscriptionPlans } from "@/lib/data/packages";
+import { creditPackages, subscriptionPlans, byokProPlan } from "@/lib/data/packages";
 import {
   getUserCredits,
   getSubscriptionInfo,
   checkSoftCap,
   hasOwnApiKey,
+  getCreditsForResolution,
 } from "@/lib/services/token-system";
+
+// Check if soft cap enforcement is enabled
+const isSoftCapEnforced = (): boolean => {
+  const envValue = process.env.ENFORCE_SOFT_CAP;
+  return envValue === "true" || envValue === "1";
+};
 
 export const metadata = {
   title: "Billing | Dashboard",
@@ -131,7 +148,7 @@ export default async function BillingPage() {
 
               <p className="mt-4 text-sm text-muted-foreground">
                 {creditBalance > 0
-                  ? `You have ${creditBalance} credit${creditBalance === 1 ? "" : "s"} remaining. Each AI generation uses 1 credit.`
+                  ? `You have ${creditBalance} credit${creditBalance === 1 ? "" : "s"} remaining.`
                   : subscriptionInfo.isActive
                     ? "You have unlimited access with your subscription."
                     : hasByok
@@ -139,14 +156,26 @@ export default async function BillingPage() {
                       : "Purchase credits to use AI tools."}
               </p>
 
-              <div className="mt-4">
-                <Button className="w-full" asChild>
-                  <Link href="/api/checkout/credits">
-                    <Coins className="mr-2 h-4 w-4" />
-                    Buy {creditPackages[0].credits} Credits for{" "}
-                    {creditPackages[0].priceLabel}
-                  </Link>
-                </Button>
+              {/* Credit Cost Per Resolution Info */}
+              <div className="mt-4 rounded-lg bg-muted/50 p-3">
+                <div className="flex items-center gap-2 text-sm font-medium mb-2">
+                  <ImageIcon className="h-4 w-4" />
+                  Credit Cost Per Image
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div className="text-center">
+                    <div className="font-semibold">{getCreditsForResolution("1K")}</div>
+                    <div className="text-muted-foreground">1K</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold">{getCreditsForResolution("2K")}</div>
+                    <div className="text-muted-foreground">2K</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold">{getCreditsForResolution("4K")}</div>
+                    <div className="text-muted-foreground">4K</div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -173,7 +202,9 @@ export default async function BillingPage() {
                     <p className="text-sm text-muted-foreground">Subscription</p>
                     <p className="text-xl font-bold">
                       {subscriptionInfo.isActive
-                        ? `Unlimited ${subscriptionInfo.tier === "yearly" ? "Yearly" : "Monthly"}`
+                        ? subscriptionInfo.tier === "byok"
+                          ? "BYOK Pro"
+                          : `Unlimited ${subscriptionInfo.tier === "yearly" ? "Yearly" : "Monthly"}`
                         : "No Active Plan"}
                     </p>
                   </div>
@@ -211,27 +242,54 @@ export default async function BillingPage() {
                     </div>
                   </div>
 
-                  {/* Soft Cap Usage */}
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        Monthly Usage
-                      </span>
-                      <span className="font-medium">
-                        {softCapStatus.usage} / 500 generations
-                      </span>
+                  {/* Soft Cap Usage (only for non-BYOK subscriptions) */}
+                  {subscriptionInfo.tier !== "byok" && (
+                    <div className="mt-4 space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-1 text-muted-foreground">
+                          Monthly Usage
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-3.5 w-3.5 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <p className="text-sm">
+                                  <strong>Fair Use Policy:</strong> Subscribers have a soft cap of 500 generations per month.
+                                  {isSoftCapEnforced()
+                                    ? " This limit is enforced - generation will be blocked once reached."
+                                    : " This is a guideline, not a hard limit. You'll see warnings at 80% usage."}
+                                </p>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  Usage resets on the 1st of each month.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </span>
+                        <span className="font-medium">
+                          {softCapStatus.usage} / 500 generations
+                        </span>
+                      </div>
+                      <Progress
+                        value={softCapPercentage}
+                        className={`h-2 ${softCapPercentage >= 100 ? "[&>div]:bg-red-500" : softCapPercentage >= 80 ? "[&>div]:bg-amber-500" : ""}`}
+                      />
+                      {softCapPercentage >= 100 ? (
+                        <p className="flex items-center gap-1 text-xs text-red-600">
+                          <AlertCircle className="h-3 w-3" />
+                          {isSoftCapEnforced()
+                            ? "Fair use limit reached - generation blocked until next month"
+                            : "Fair use limit reached - please use responsibly"}
+                        </p>
+                      ) : softCapPercentage >= 80 && (
+                        <p className="flex items-center gap-1 text-xs text-amber-600">
+                          <AlertCircle className="h-3 w-3" />
+                          Approaching fair use limit
+                        </p>
+                      )}
                     </div>
-                    <Progress
-                      value={softCapPercentage}
-                      className={`h-2 ${softCapPercentage >= 80 ? "[&>div]:bg-amber-500" : ""}`}
-                    />
-                    {softCapPercentage >= 80 && (
-                      <p className="flex items-center gap-1 text-xs text-amber-600">
-                        <AlertCircle className="h-3 w-3" />
-                        Approaching fair use limit
-                      </p>
-                    )}
-                  </div>
+                  )}
 
                   <div className="mt-4">
                     <Button variant="outline" className="w-full" asChild>
@@ -283,27 +341,153 @@ export default async function BillingPage() {
         </div>
       </section>
 
-      {/* BYOK Status */}
-      {hasByok && (
-        <section className="space-y-4">
-          <Card className="border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/20">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                  <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+      {/* Credit Packs */}
+      <section className="space-y-4">
+        <SectionHeader
+          title="Buy Credits"
+          description="Purchase credit packs for pay-as-you-go AI generation"
+        />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {creditPackages.map((pack) => (
+            <Card
+              key={pack.id}
+              className={pack.isPopular ? "border-primary ring-1 ring-primary" : ""}
+            >
+              {pack.isPopular && (
+                <div className="bg-primary px-3 py-1 text-center text-xs font-medium text-primary-foreground">
+                  Most Popular
                 </div>
-                <div>
-                  <p className="font-semibold">Bring Your Own Key Active</p>
-                  <p className="text-sm text-muted-foreground">
-                    You&apos;re using your own API key for unlimited free access
-                    to AI tools.
-                  </p>
+              )}
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">{pack.name}</CardTitle>
+                  <Badge variant="secondary">{pack.pricePerCredit}/credit</Badge>
+                </div>
+                <CardDescription>{pack.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold">{pack.priceLabel}</span>
+                  <span className="text-muted-foreground">for {pack.credits} credits</span>
+                </div>
+                <ul className="space-y-2 text-sm">
+                  {pack.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <PurchaseCreditsButton
+                  packId={pack.id}
+                  credits={pack.credits}
+                  priceLabel={pack.priceLabel}
+                  className="w-full"
+                  variant={pack.isPopular ? "default" : "outline"}
+                >
+                  <Coins className="mr-2 h-4 w-4" />
+                  Buy {pack.credits} Credits
+                </PurchaseCreditsButton>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* BYOK Pro Subscription */}
+      <section className="space-y-4">
+        <SectionHeader
+          title="BYOK Pro"
+          description="Unlimited generations with your own API key"
+        />
+        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-white dark:border-purple-900 dark:from-purple-950/30 dark:to-background">
+          <CardContent className="p-6">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-4 lg:max-w-xl">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/50">
+                    <Key className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">{byokProPlan.name}</h3>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                        {byokProPlan.priceLabel}
+                      </span>
+                      <span className="text-muted-foreground">/{byokProPlan.period}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-muted-foreground">{byokProPlan.description}</p>
+
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {byokProPlan.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-purple-600 dark:text-purple-400" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="flex items-start gap-2 rounded-lg bg-purple-100/50 p-3 text-sm dark:bg-purple-900/20">
+                  <Zap className="mt-0.5 h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <div>
+                    <strong>Requirements:</strong>
+                    <ul className="mt-1 list-inside list-disc text-muted-foreground">
+                      {byokProPlan.requirements.map((req, i) => (
+                        <li key={i}>{req}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </section>
-      )}
+
+              <div className="flex flex-col gap-3 lg:min-w-[200px]">
+                {subscriptionInfo.tier === "byok" ? (
+                  <Badge className="w-fit bg-purple-600">
+                    <Check className="mr-1 h-3 w-3" />
+                    Active Subscription
+                  </Badge>
+                ) : hasByok ? (
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="w-fit text-purple-600">
+                      <Key className="mr-1 h-3 w-3" />
+                      API Key Configured
+                    </Badge>
+                    <p className="text-xs text-muted-foreground">
+                      Subscribe to BYOK Pro for priority processing and premium support.
+                    </p>
+                    <SubscribeByokButton className="w-full">
+                      <Key className="mr-2 h-4 w-4" />
+                      Upgrade to BYOK Pro
+                    </SubscribeByokButton>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">
+                      Add your API key first, then subscribe for premium features.
+                    </p>
+                    <SubscribeByokButton className="w-full">
+                      <Key className="mr-2 h-4 w-4" />
+                      Subscribe for {byokProPlan.priceLabel}/mo
+                    </SubscribeByokButton>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* API Key Management */}
+      <section className="space-y-4">
+        <SectionHeader
+          title="API Key"
+          description="Use your own Google API key for unlimited AI generations"
+        />
+        <ApiKeySection hasByokPro={subscriptionInfo.tier === "byok"} />
+      </section>
 
       {/* Account Info */}
       <section className="space-y-4">

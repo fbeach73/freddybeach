@@ -13,6 +13,8 @@ import {
 import type { AITool } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
+  Clock,
+  Image as ImageIcon,
   Mail,
   MessageSquareText,
   PenLine,
@@ -28,6 +30,7 @@ const iconMap: Record<string, LucideIcon> = {
   PenLine,
   Mail,
   Sparkles,
+  Image: ImageIcon,
 };
 
 interface ToolPreviewCardProps {
@@ -37,18 +40,28 @@ interface ToolPreviewCardProps {
 
 export function ToolPreviewCard({ tool, className }: ToolPreviewCardProps) {
   const Icon = iconMap[tool.icon] || Sparkles;
-  const isFree = tool.tier === "free";
-  const tierLabel = isFree ? "Free" : "Premium";
-  const tierVariant = isFree ? "secondary" : "default";
+  const isComingSoon = tool.status === "coming-soon";
+  const isAvailable = tool.status === "available";
 
   return (
-    <Card className={cn("flex flex-col", className)}>
+    <Card className={cn("flex flex-col", isComingSoon && "opacity-75", className)}>
       <CardHeader>
-        <div className="mb-2 flex items-start justify-between">
+        <div className="mb-2 flex items-start justify-between gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
             <Icon className="h-5 w-5 text-primary" />
           </div>
-          <Badge variant={tierVariant}>{tierLabel}</Badge>
+          <div className="flex flex-wrap justify-end gap-1">
+            {isComingSoon ? (
+              <Badge variant="outline" className="border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+                <Clock className="mr-1 h-3 w-3" />
+                Coming Soon
+              </Badge>
+            ) : isAvailable ? (
+              <Badge variant="default" className="bg-green-600 text-white hover:bg-green-700">
+                Available Now
+              </Badge>
+            ) : null}
+          </div>
         </div>
         <CardTitle className="text-lg">{tool.name}</CardTitle>
         <CardDescription>{tool.shortDescription}</CardDescription>
@@ -61,11 +74,17 @@ export function ToolPreviewCard({ tool, className }: ToolPreviewCardProps) {
       </CardContent>
 
       <CardFooter>
-        <Button asChild variant={isFree ? "default" : "outline"} className="w-full">
-          <Link href={isFree ? `/ai-tools/${tool.slug}` : "/pricing"}>
-            {isFree ? "Try It Free" : "Unlock with Premium"}
-          </Link>
-        </Button>
+        {isComingSoon ? (
+          <Button disabled variant="outline" className="w-full">
+            Coming Soon
+          </Button>
+        ) : (
+          <Button asChild variant="default" className="w-full">
+            <Link href={`/ai-tools/${tool.slug}`}>
+              Try It Now
+            </Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

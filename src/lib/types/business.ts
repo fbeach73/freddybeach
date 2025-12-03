@@ -81,10 +81,46 @@ export interface AITool {
   shortDescription: string;
   icon: string; // Lucide icon name
   tier: "free" | "enhanced" | "featured";
+  status: "available" | "coming-soon";
   usageCount: number;
   exampleInput: string;
   exampleOutput: string;
   features: string[];
+}
+
+export interface CreditPackage {
+  id: string;
+  name: string;
+  credits: number;
+  price: number;
+  priceLabel: string;
+  pricePerCredit: string;
+  description: string;
+  features: string[];
+  isPopular: boolean;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  priceLabel: string;
+  period: "monthly" | "yearly";
+  yearlyEquivalent?: string; // e.g., "$16.58/mo" for yearly plan
+  description: string;
+  features: string[];
+  softCapGenerations: number; // e.g., 500 per month
+  isPopular: boolean;
+}
+
+export interface BYOKOption {
+  id: string;
+  name: string;
+  price: number;
+  priceLabel: string;
+  description: string;
+  features: string[];
+  requirements: string[];
 }
 
 export interface ConsultationPackage {

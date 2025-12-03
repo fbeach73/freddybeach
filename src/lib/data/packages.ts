@@ -1,4 +1,10 @@
-import type { ConsultationPackage, PricingTier } from "@/lib/types";
+import type {
+  BYOKOption,
+  ConsultationPackage,
+  CreditPackage,
+  PricingTier,
+  SubscriptionPlan,
+} from "@/lib/types";
 
 export const consultationPackages: ConsultationPackage[] = [
   {
@@ -151,4 +157,89 @@ export function getPackageBySlug(slug: string): ConsultationPackage | undefined 
 
 export function getTierById(id: string): PricingTier | undefined {
   return pricingTiers.find((tier) => tier.id === id);
+}
+
+// AI Tools Credit System
+
+export const creditPackages: CreditPackage[] = [
+  {
+    id: "credits-100",
+    name: "100 Credits",
+    credits: 100,
+    price: 10,
+    priceLabel: "$10",
+    pricePerCredit: "$0.10",
+    description: "Perfect for occasional use. Credits never expire.",
+    features: [
+      "100 AI generations",
+      "Use on any available AI tool",
+      "Credits never expire",
+      "No subscription required",
+    ],
+    isPopular: true,
+  },
+];
+
+export const subscriptionPlans: SubscriptionPlan[] = [
+  {
+    id: "unlimited-monthly",
+    name: "Unlimited Monthly",
+    price: 29,
+    priceLabel: "$29",
+    period: "monthly",
+    description: "Unlimited access for power users who generate content daily.",
+    features: [
+      "Unlimited AI generations",
+      "All available AI tools",
+      "Priority processing",
+      "Cancel anytime",
+    ],
+    softCapGenerations: 500,
+    isPopular: false,
+  },
+  {
+    id: "unlimited-yearly",
+    name: "Unlimited Yearly",
+    price: 199,
+    priceLabel: "$199",
+    period: "yearly",
+    yearlyEquivalent: "$16.58/mo",
+    description:
+      "Best value for committed users. Save over 40% compared to monthly.",
+    features: [
+      "Unlimited AI generations",
+      "All available AI tools",
+      "Priority processing",
+      "2 months free vs monthly",
+    ],
+    softCapGenerations: 500,
+    isPopular: true,
+  },
+];
+
+export const byokOption: BYOKOption = {
+  id: "byok",
+  name: "Bring Your Own Key",
+  price: 0,
+  priceLabel: "Free",
+  description:
+    "Use your own API keys for free, unlimited access. Perfect for developers and power users.",
+  features: [
+    "Unlimited generations",
+    "Use your own API keys",
+    "No usage tracking",
+    "Full privacy control",
+  ],
+  requirements: [
+    "Google Gemini API key (free tier available)",
+    "Technical setup required",
+  ],
+};
+
+export function getCreditPackageById(id: string): CreditPackage | undefined {
+  return creditPackages.find((pkg) => pkg.id === id);
+}
+
+export function getSubscriptionPlanById(id: string): SubscriptionPlan | undefined {
+  return subscriptionPlans.find((plan) => plan.id === id);
 }

@@ -16,13 +16,25 @@ export function BusinessHero({ business, className }: BusinessHeroProps) {
   return (
     <div className={cn("relative w-full overflow-hidden rounded-lg", className)}>
       <div className="relative aspect-[21/9] w-full">
-        <Image
-          src={business.heroImage}
-          alt={`${business.name} hero image`}
-          fill
-          className="object-cover"
-          priority
-        />
+        {business.heroImage ? (
+          <Image
+            src={business.heroImage}
+            alt={`${business.name} hero image`}
+            fill
+            className="object-cover"
+            priority
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-muted">
+            <Image
+              src="/images/freddybeach-logo.png"
+              alt="FreddyBeach Directory"
+              width={180}
+              height={180}
+              className="opacity-30"
+            />
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
       </div>
       <div className="absolute bottom-0 left-0 right-0 p-6 text-white">

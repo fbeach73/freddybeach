@@ -7,16 +7,27 @@ import {
   Calendar,
   Check,
   ArrowRight,
+  Coins,
+  Sparkles,
+  AlertCircle,
+  Infinity,
+  Clock,
 } from "lucide-react";
 import { UserProfile } from "@/components/auth/user-profile";
 import { PageHeader, SectionHeader } from "@/components/shared/page-header";
-import { UpgradeCTACard } from "@/components/dashboard/upgrade-cta-card";
 import { ComingSoon } from "@/components/dashboard/coming-soon";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
-import { getTierById, pricingTiers } from "@/lib/data/packages";
+import { creditPackages, subscriptionPlans } from "@/lib/data/packages";
+import {
+  getUserCredits,
+  getSubscriptionInfo,
+  checkSoftCap,
+  hasOwnApiKey,
+} from "@/lib/services/token-system";
 
 export const metadata = {
   title: "Billing | Dashboard",
@@ -47,19 +58,36 @@ export default async function BillingPage() {
     );
   }
 
-  // TODO: Get tier from subscription system when implemented
-  const userTier = "free" as const;
-  const currentTier = getTierById(userTier);
-  const isFreeTier = userTier === "free";
+  // Fetch credit balance and subscription info
+  const [creditBalance, subscriptionInfo, softCapStatus, hasByok] =
+    await Promise.all([
+      getUserCredits(session.user.id),
+      getSubscriptionInfo(session.user.id),
+      checkSoftCap(session.user.id),
+      hasOwnApiKey(session.user.id),
+    ]);
 
   // Get member since date from session
-  const memberSince = session.user.createdAt ? new Date(session.user.createdAt) : new Date();
+  const memberSince = session.user.createdAt
+    ? new Date(session.user.createdAt)
+    : new Date();
 
-  // Billing info (will come from payment system later)
-  const billingInfo = {
-    nextBillingDate: null as Date | null, // TODO: Get from subscription
-    memberSince,
+  // Calculate soft cap percentage for progress bar
+  const softCapPercentage = Math.min(
+    100,
+    Math.round((softCapStatus.usage / 500) * 100)
+  );
+
+  // Determine subscription status text
+  const getSubscriptionStatusText = () => {
+    if (!subscriptionInfo.isActive) return null;
+    if (subscriptionInfo.daysRemaining && subscriptionInfo.daysRemaining <= 7) {
+      return `Expires in ${subscriptionInfo.daysRemaining} day${subscriptionInfo.daysRemaining === 1 ? "" : "s"}`;
+    }
+    return null;
   };
+
+  const subscriptionStatusText = getSubscriptionStatusText();
 
   return (
     <div className="space-y-8">
@@ -67,142 +95,238 @@ export default async function BillingPage() {
       <section>
         <PageHeader
           title="Billing & Subscription"
-          description="Manage your plan, billing information, and invoices"
+          description="Manage your AI credits, subscription, and billing information"
         />
       </section>
 
-      {/* Current Plan Card */}
+      {/* Credit Balance & Subscription Status */}
       <section className="space-y-4">
-        <SectionHeader title="Current Plan" />
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-              {/* Plan Details */}
-              <div className="space-y-4">
+        <SectionHeader title="AI Tools Access" />
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Credit Balance Card */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <Badge variant="secondary" className="text-sm">
-                    {currentTier?.name || "Free"}
-                  </Badge>
-                  <span className="text-2xl font-bold">
-                    {currentTier?.priceLabel || "Free"}
-                    {!isFreeTier && (
-                      <span className="ml-1 text-base font-normal text-muted-foreground">
-                        /{currentTier?.period}
-                      </span>
-                    )}
-                  </span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+                    <Coins className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Credit Balance
+                    </p>
+                    <p className="text-3xl font-bold">{creditBalance}</p>
+                  </div>
                 </div>
-                <p className="max-w-md text-sm text-muted-foreground">
-                  {currentTier?.description}
-                </p>
-
-                {/* Features List */}
-                <ul className="space-y-2">
-                  {currentTier?.features.slice(0, 4).map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex items-center gap-2 text-sm"
-                    >
-                      <Check className="h-4 w-4 text-green-500" />
-                      {feature}
-                    </li>
-                  ))}
-                  {(currentTier?.features.length || 0) > 4 && (
-                    <li className="text-sm text-muted-foreground">
-                      + {(currentTier?.features.length || 0) - 4} more features
-                    </li>
-                  )}
-                </ul>
+                {creditBalance <= 10 && creditBalance > 0 && (
+                  <Badge variant="outline" className="text-amber-600">
+                    <AlertCircle className="mr-1 h-3 w-3" />
+                    Low
+                  </Badge>
+                )}
+                {creditBalance === 0 && !subscriptionInfo.isActive && !hasByok && (
+                  <Badge variant="destructive">Empty</Badge>
+                )}
               </div>
 
-              {/* Billing Info */}
-              <div className="space-y-3 rounded-lg bg-muted/50 p-4 sm:min-w-[200px]">
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Member since:</span>
+              <p className="mt-4 text-sm text-muted-foreground">
+                {creditBalance > 0
+                  ? `You have ${creditBalance} credit${creditBalance === 1 ? "" : "s"} remaining. Each AI generation uses 1 credit.`
+                  : subscriptionInfo.isActive
+                    ? "You have unlimited access with your subscription."
+                    : hasByok
+                      ? "Using your own API key for unlimited access."
+                      : "Purchase credits to use AI tools."}
+              </p>
+
+              <div className="mt-4">
+                <Button className="w-full" asChild>
+                  <Link href="/api/checkout/credits">
+                    <Coins className="mr-2 h-4 w-4" />
+                    Buy {creditPackages[0].credits} Credits for{" "}
+                    {creditPackages[0].priceLabel}
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Subscription Status Card */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                      subscriptionInfo.isActive
+                        ? "bg-green-100 dark:bg-green-900/30"
+                        : "bg-muted"
+                    }`}
+                  >
+                    {subscriptionInfo.isActive ? (
+                      <Infinity className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    ) : (
+                      <Sparkles className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Subscription</p>
+                    <p className="text-xl font-bold">
+                      {subscriptionInfo.isActive
+                        ? `Unlimited ${subscriptionInfo.tier === "yearly" ? "Yearly" : "Monthly"}`
+                        : "No Active Plan"}
+                    </p>
+                  </div>
                 </div>
+                {subscriptionInfo.isActive && (
+                  <Badge
+                    variant={subscriptionStatusText ? "outline" : "secondary"}
+                    className={
+                      subscriptionStatusText
+                        ? "text-amber-600"
+                        : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    }
+                  >
+                    {subscriptionStatusText || "Active"}
+                  </Badge>
+                )}
+              </div>
+
+              {subscriptionInfo.isActive ? (
+                <>
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span>
+                        Renews{" "}
+                        {subscriptionInfo.expiresAt?.toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          }
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Soft Cap Usage */}
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Monthly Usage
+                      </span>
+                      <span className="font-medium">
+                        {softCapStatus.usage} / 500 generations
+                      </span>
+                    </div>
+                    <Progress
+                      value={softCapPercentage}
+                      className={`h-2 ${softCapPercentage >= 80 ? "[&>div]:bg-amber-500" : ""}`}
+                    />
+                    {softCapPercentage >= 80 && (
+                      <p className="flex items-center gap-1 text-xs text-amber-600">
+                        <AlertCircle className="h-3 w-3" />
+                        Approaching fair use limit
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-4">
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link href="/ai-tools#pricing">
+                        Manage Subscription
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Get unlimited AI generations with a subscription. Cancel
+                    anytime.
+                  </p>
+
+                  <div className="mt-4 space-y-2">
+                    {subscriptionPlans.map((plan) => (
+                      <div
+                        key={plan.id}
+                        className="flex items-center justify-between text-sm"
+                      >
+                        <span className="font-medium">{plan.name}</span>
+                        <span className="text-muted-foreground">
+                          {plan.priceLabel}/{plan.period}
+                          {plan.yearlyEquivalent && (
+                            <span className="ml-1 text-green-600">
+                              ({plan.yearlyEquivalent})
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4">
+                    <Button className="w-full" asChild>
+                      <Link href="/ai-tools#pricing">
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Subscribe Now
+                      </Link>
+                    </Button>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* BYOK Status */}
+      {hasByok && (
+        <section className="space-y-4">
+          <Card className="border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/20">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                  <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="font-semibold">Bring Your Own Key Active</p>
+                  <p className="text-sm text-muted-foreground">
+                    You&apos;re using your own API key for unlimited free access
+                    to AI tools.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      )}
+
+      {/* Account Info */}
+      <section className="space-y-4">
+        <SectionHeader title="Account Info" />
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                <Clock className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Member since</p>
                 <p className="font-medium">
-                  {billingInfo.memberSince.toLocaleDateString("en-US", {
+                  {memberSince.toLocaleDateString("en-US", {
                     month: "long",
                     year: "numeric",
                   })}
                 </p>
-
-                {billingInfo.nextBillingDate && (
-                  <>
-                    <div className="flex items-center gap-2 text-sm">
-                      <CreditCard className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">
-                        Next billing:
-                      </span>
-                    </div>
-                    <p className="font-medium">
-                      {billingInfo.nextBillingDate.toLocaleDateString("en-US", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </>
-                )}
-
-                {!isFreeTier && (
-                  <Button variant="outline" size="sm" className="mt-2 w-full">
-                    Manage Subscription
-                  </Button>
-                )}
               </div>
             </div>
           </CardContent>
         </Card>
       </section>
-
-      {/* Upgrade CTA for Free Users */}
-      {isFreeTier && (
-        <section className="space-y-4">
-          <SectionHeader
-            title="Upgrade Your Plan"
-            description="Unlock more features and higher limits"
-          />
-          <div className="grid gap-4 md:grid-cols-2">
-            <UpgradeCTACard />
-
-            {/* View All Plans Card */}
-            <Card className="flex flex-col justify-between">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold">Compare All Plans</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  See the full feature comparison and choose the plan that works
-                  best for your business needs.
-                </p>
-
-                <div className="mt-4 space-y-2">
-                  {pricingTiers
-                    .filter((tier) => tier.id !== "free")
-                    .map((tier) => (
-                      <div
-                        key={tier.id}
-                        className="flex items-center justify-between text-sm"
-                      >
-                        <span className="font-medium">{tier.name}</span>
-                        <span className="text-muted-foreground">
-                          {tier.priceLabel}/{tier.period}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-
-                <Button className="mt-6 w-full" variant="outline" asChild>
-                  <Link href="/ai-tools#pricing">
-                    View All Plans
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-      )}
 
       {/* Invoice History - Coming Soon */}
       <section className="space-y-4">

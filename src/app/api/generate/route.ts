@@ -12,9 +12,10 @@ import { nanoid } from "nanoid";
 import { generateWithUserKey } from "@/lib/gemini";
 import { uploadGeneratedImage } from "@/lib/services/blob-storage";
 import {
-  canGenerateCount,
+  canGenerateWithDetails,
   incrementTokenUsage,
-  hasOwnApiKey,
+  consumeCredit,
+  type GenerationEligibility,
 } from "@/lib/services/token-system";
 import {
   VALID_RESOLUTIONS,
@@ -164,20 +165,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check token availability (skip if user has their own API key)
-    const userHasOwnKey = await hasOwnApiKey(session.user.id);
-    if (!userHasOwnKey) {
-      const canProceed = await canGenerateCount(session.user.id, imageCount);
-      if (!canProceed) {
-        return NextResponse.json(
-          {
-            error:
-              "Token limit reached. Upgrade your plan or add your own API key.",
-          },
-          { status: 403 }
-        );
-      }
+    // Check generation eligibility with new priority logic:
+    // 1. BYOK → allow unlimited
+    // 2. Active subscription → allow (track for soft cap)
+    // 3. Credits > 0 → allow
+    // 4. Deny with reason
+    const eligibility: GenerationEligibility = await canGenerateWithDetails(session.user.id);
+
+    if (!eligibility.allowed) {
+      return NextResponse.json(
+        {
+          error: eligibility.reason === "no_credits"
+            ? "No credits remaining. Purchase credits or subscribe to continue."
+            : "Unable to generate images. Please sign in.",
+          reason: eligibility.reason,
+        },
+        { status: 403 }
+      );
     }
+
+    // Store whether user has their own key for later
+    const userHasOwnKey = eligibility.reason === "byok";
 
     // Create generation record
     const generationId = nanoid();
@@ -316,17 +324,52 @@ export async function POST(request: Request) {
       imageUrls: savedImages.map((img) => img.imageUrl),
     });
 
-    // Increment token usage if using app key
+    // Handle consumption based on eligibility reason:
+    // - BYOK: No consumption (unlimited)
+    // - Subscription: Track usage for soft cap only
+    // - Credits: Consume from balance
     if (result.usedAppKey) {
-      await incrementTokenUsage(session.user.id, savedImages.length);
+      if (eligibility.reason === "subscription") {
+        // Track usage for soft cap (subscription users)
+        await incrementTokenUsage(session.user.id, savedImages.length);
+      } else if (eligibility.reason === "credits") {
+        // Consume credits from balance
+        await consumeCredit(
+          session.user.id,
+          savedImages.length,
+          `Generated ${savedImages.length} image(s)`
+        );
+      }
     }
 
-    return NextResponse.json({
+    // Build response with optional soft cap warning
+    const response: {
+      success: boolean;
+      generationId: string;
+      images: typeof savedImages;
+      usedAppKey: boolean;
+      softCapWarning?: boolean;
+      subscriptionUsage?: number;
+      creditsRemaining?: number;
+    } = {
       success: true,
       generationId,
       images: savedImages,
       usedAppKey: result.usedAppKey,
-    });
+    };
+
+    // Include soft cap warning if subscriber is approaching limit
+    if (eligibility.softCapWarning) {
+      response.softCapWarning = true;
+      response.subscriptionUsage = eligibility.subscriptionUsage;
+    }
+
+    // Include remaining credits for credit-based users
+    if (eligibility.reason === "credits" && eligibility.creditsRemaining !== undefined) {
+      response.creditsRemaining = eligibility.creditsRemaining - savedImages.length;
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Generation error:", error);
     const errorMessage = error instanceof Error ? error.message : "Failed to generate images";

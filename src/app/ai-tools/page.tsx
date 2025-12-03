@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SectionHero } from "@/components/marketing/section-hero";
-import { PricingGrid } from "@/components/marketing/pricing-grid";
+import { AIPricingSection } from "@/components/marketing/ai-pricing-section";
 import { AIToolsShowcase } from "./ai-tools-showcase";
 
 export const metadata: Metadata = {
@@ -23,12 +23,8 @@ export default function AIToolsPage() {
         subtitle="Save hours every week with AI-powered tools designed specifically for Fredericton local businesses. Respond to reviews, create social content, and market your business—all in seconds."
         badges={["Free Tools Available", "No Credit Card Required"]}
         gradient
-        primaryCTA={{
-          text: "Get Started Free",
-          href: "/claim",
-        }}
         secondaryCTA={{
-          text: "View Pricing",
+          text: "More Info",
           href: "#pricing",
         }}
       />
@@ -38,14 +34,14 @@ export default function AIToolsPage() {
         <div className="container mx-auto px-4">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl">
-              Choose Your Plan
+              Simple, Flexible Pricing
             </h2>
             <p className="text-muted-foreground">
-              Start free and upgrade as your business grows. All plans include
-              our core business listing features.
+              Pay per generation, subscribe for unlimited access, or use your
+              own API key for free.
             </p>
           </div>
-          <PricingGrid className="mx-auto max-w-5xl" />
+          <AIPricingSection className="mx-auto max-w-5xl" />
         </div>
       </section>
 

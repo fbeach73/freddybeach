@@ -98,6 +98,11 @@ export const user = pgTable("user", {
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
+  // Credit and subscription fields
+  creditBalance: integer("credit_balance").default(0).notNull(),
+  subscriptionTier: text("subscription_tier"), // "monthly" | "yearly" | null
+  subscriptionExpiresAt: timestamp("subscription_expires_at"),
+  subscriptionStartedAt: timestamp("subscription_started_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -576,5 +581,29 @@ export const userTokenUsage = pgTable(
   (table) => [
     // Unique constraint: one record per user per month
     index("user_token_usage_user_month_idx").on(table.userId, table.month),
+  ]
+);
+
+// Credit transactions - tracks all credit balance changes
+export const creditTransaction = pgTable(
+  "credit_transaction",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    amount: integer("amount").notNull(), // +100 for purchase, -1 for usage
+    type: text("type").notNull(), // "purchase" | "usage" | "refund" | "admin_grant"
+    description: text("description"),
+    balanceAfter: integer("balance_after").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    // Index for finding transactions by user
+    index("credit_transaction_user_idx").on(table.userId),
+    // Index for finding transactions by type
+    index("credit_transaction_type_idx").on(table.type),
+    // Index for ordering by time
+    index("credit_transaction_created_idx").on(table.createdAt),
   ]
 );

@@ -10,6 +10,7 @@ export const aiTools: AITool[] = [
     shortDescription: "AI-powered review response generator",
     icon: "MessageSquareText",
     tier: "free",
+    status: "coming-soon",
     usageCount: 12847,
     exampleInput:
       "Great food and atmosphere! The salmon was cooked perfectly and our server Alex was fantastic. Only giving 4 stars because the wait for a table was over 30 minutes even with a reservation. Will definitely come back though!",
@@ -38,6 +39,7 @@ The Isaac's Way Team`,
     shortDescription: "Create engaging social media content instantly",
     icon: "Share2",
     tier: "free",
+    status: "coming-soon",
     usageCount: 8932,
     exampleInput:
       "We're a local coffee shop that just started carrying a new single-origin Ethiopian coffee. We want to announce it on Instagram.",
@@ -74,6 +76,7 @@ Stop by this weekend and taste what everyone's talking about. Your new favorite 
     shortDescription: "Compelling business descriptions that convert",
     icon: "PenLine",
     tier: "enhanced",
+    status: "coming-soon",
     usageCount: 4521,
     exampleInput:
       "We're a yoga studio in downtown Fredericton. We offer classes for all levels, from beginner to advanced. We have hot yoga, vinyasa, restorative, and prenatal classes. Our studio has been open for 5 years.",
@@ -110,6 +113,7 @@ Drop in anytime or explore our unlimited monthly membership for the full Yoga Lo
     shortDescription: "Professional email templates for every occasion",
     icon: "Mail",
     tier: "enhanced",
+    status: "coming-soon",
     usageCount: 3187,
     exampleInput:
       "I need an appointment reminder email for my dental clinic. The appointment is tomorrow and I want to remind them to arrive 10 minutes early.",
@@ -157,6 +161,7 @@ The Downtown Family Dental Team
     shortDescription: "Generate professional images with AI",
     icon: "Image",
     tier: "free",
+    status: "available",
     usageCount: 2156,
     exampleInput:
       "A cozy coffee shop interior in downtown Fredericton, warm lighting, exposed brick walls, customers enjoying their drinks, autumn leaves visible through the window",
@@ -187,4 +192,17 @@ export function getFreeTools(): AITool[] {
 
 export function getPremiumTools(): AITool[] {
   return aiTools.filter((tool) => tool.tier !== "free");
+}
+
+export function getAvailableTools(): AITool[] {
+  return aiTools.filter((tool) => tool.status === "available");
+}
+
+export function getComingSoonTools(): AITool[] {
+  return aiTools.filter((tool) => tool.status === "coming-soon");
+}
+
+export function getSortedTools(): AITool[] {
+  // Return available tools first, then coming soon
+  return [...getAvailableTools(), ...getComingSoonTools()];
 }

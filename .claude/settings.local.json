@@ -34,7 +34,9 @@
       "Bash(pnpm typecheck:*)",
       "Bash(pnpm lint:*)",
       "Bash(pnpm exec tsc:*)",
-      "WebFetch(domain:ai.google.dev)"
+      "WebFetch(domain:ai.google.dev)",
+      "Bash(pnpm db:generate:*)",
+      "Bash(pnpm db:migrate:*)"
     ],
     "deny": [],
     "ask": [],

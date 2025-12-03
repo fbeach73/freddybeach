@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { SearchClient } from "./search-client";
 import { getPublishedBusinesses } from "@/lib/data/businesses-db";
-import { categories } from "@/lib/data/categories";
+import { getCategoriesWithCounts } from "@/lib/data/categories-db";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
@@ -58,13 +58,16 @@ function SearchLoading() {
 }
 
 export default async function SearchPage() {
-  // Fetch real businesses from database
-  const businesses = await getPublishedBusinesses();
+  // Fetch businesses and categories with counts from database
+  const [businesses, categoriesWithCounts] = await Promise.all([
+    getPublishedBusinesses(),
+    getCategoriesWithCounts(),
+  ]);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <Suspense fallback={<SearchLoading />}>
-        <SearchClient businesses={businesses} categories={categories} />
+        <SearchClient businesses={businesses} categories={categoriesWithCounts} />
       </Suspense>
     </div>
   );

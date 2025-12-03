@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, MapPin, Sparkles, Users, Search, ChevronDown, Calendar, Image } from "lucide-react";
+import { Menu, MapPin, Sparkles, Search, ChevronDown, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -42,18 +42,6 @@ const mainNavItems = [
     href: "/ai-tools",
     icon: Sparkles,
     description: "Free AI tools for local businesses",
-  },
-  {
-    title: "Generate",
-    href: "/generate",
-    icon: Image,
-    description: "Create stunning AI-generated images",
-  },
-  {
-    title: "Success Stories",
-    href: "/success-stories",
-    icon: Users,
-    description: "See how local businesses are growing",
   },
   {
     title: "Consultation",

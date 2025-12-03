@@ -4,7 +4,7 @@ import { AIToolDemo } from "@/components/marketing/ai-tool-demo";
 import { CTASection } from "@/components/marketing/cta-section";
 import { ToolPreviewCard } from "@/components/marketing/tool-preview-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { aiTools, getToolById } from "@/lib/data/ai-tools";
+import { getToolById, getSortedTools } from "@/lib/data/ai-tools";
 
 export function AIToolsShowcase() {
   const reviewResponder = getToolById("review-responder");
@@ -73,7 +73,7 @@ export function AIToolsShowcase() {
           </div>
 
           <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {aiTools.map((tool) => (
+            {getSortedTools().map((tool) => (
               <ToolPreviewCard key={tool.id} tool={tool} />
             ))}
           </div>

@@ -41,8 +41,14 @@ export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-              <MapPin className="h-8 w-8" />
+            <div className="flex h-full w-full items-center justify-center bg-muted/50">
+              <Image
+                src="/images/freddybeach-logo.png"
+                alt="FreddyBeach Directory"
+                width={100}
+                height={100}
+                className="opacity-40"
+              />
             </div>
           )}
           {/* Business badges */}
@@ -50,6 +56,7 @@ export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
             <div className="absolute left-2 top-2 flex flex-wrap gap-1">
               {badges.slice(0, 2).map((badge) => {
                 const config = BADGE_CONFIG[badge];
+                if (!config) return null;
                 const Icon = config.icon;
                 return (
                   <Badge key={badge} variant={config.variant} className={`${config.className} text-xs`}>

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { userTokenUsage, user } from "@/lib/schema";
+import { userTokenUsage, user, creditTransaction, userApiKey } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
@@ -223,8 +223,6 @@ export async function resetTokenUsage(
  */
 export async function hasOwnApiKey(userId: string): Promise<boolean> {
   try {
-    const { userApiKey } = await import("@/lib/schema");
-
     const result = await db
       .select({ id: userApiKey.id })
       .from(userApiKey)
@@ -236,6 +234,481 @@ export async function hasOwnApiKey(userId: string): Promise<boolean> {
     return result.length > 0;
   } catch (error) {
     console.error("Failed to check for user API key:", error);
+    return false;
+  }
+}
+
+// =============================================
+// Credit System Functions (Phase 4)
+// =============================================
+
+// Subscription tier types
+export type SubscriptionTier = "monthly" | "yearly";
+
+// Credit transaction types
+export type CreditTransactionType = "purchase" | "usage" | "refund" | "admin_grant";
+
+// Subscription soft cap (500 generations per month)
+const SUBSCRIPTION_SOFT_CAP = 500;
+
+// Subscription info interface
+export interface SubscriptionInfo {
+  tier: SubscriptionTier | null;
+  isActive: boolean;
+  expiresAt: Date | null;
+  startedAt: Date | null;
+  daysRemaining: number | null;
+}
+
+// Generation eligibility result
+export interface GenerationEligibility {
+  allowed: boolean;
+  reason: "byok" | "subscription" | "credits" | "no_credits" | "not_authenticated";
+  creditsRemaining?: number;
+  subscriptionUsage?: number;
+  softCapWarning?: boolean;
+}
+
+/**
+ * Get the user's current credit balance
+ */
+export async function getUserCredits(userId: string): Promise<number> {
+  try {
+    const result = await db
+      .select({ creditBalance: user.creditBalance })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+
+    if (result.length === 0) {
+      return 0;
+    }
+
+    return result[0].creditBalance;
+  } catch (error) {
+    console.error("Failed to get user credits:", error);
+    return 0;
+  }
+}
+
+/**
+ * Check if a user has an active subscription
+ */
+export async function hasActiveSubscription(userId: string): Promise<boolean> {
+  try {
+    const result = await db
+      .select({
+        subscriptionTier: user.subscriptionTier,
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+
+    if (result.length === 0) {
+      return false;
+    }
+
+    const { subscriptionTier, subscriptionExpiresAt } = result[0];
+
+    // Must have a tier and expiration date
+    if (!subscriptionTier || !subscriptionExpiresAt) {
+      return false;
+    }
+
+    // Check if subscription is not expired
+    return new Date() < subscriptionExpiresAt;
+  } catch (error) {
+    console.error("Failed to check subscription status:", error);
+    return false;
+  }
+}
+
+/**
+ * Get detailed subscription information for a user
+ */
+export async function getSubscriptionInfo(userId: string): Promise<SubscriptionInfo> {
+  try {
+    const result = await db
+      .select({
+        subscriptionTier: user.subscriptionTier,
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+        subscriptionStartedAt: user.subscriptionStartedAt,
+      })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+
+    if (result.length === 0) {
+      return {
+        tier: null,
+        isActive: false,
+        expiresAt: null,
+        startedAt: null,
+        daysRemaining: null,
+      };
+    }
+
+    const { subscriptionTier, subscriptionExpiresAt, subscriptionStartedAt } = result[0];
+
+    const isActive = !!(
+      subscriptionTier &&
+      subscriptionExpiresAt &&
+      new Date() < subscriptionExpiresAt
+    );
+
+    let daysRemaining: number | null = null;
+    if (isActive && subscriptionExpiresAt) {
+      const now = new Date();
+      const msRemaining = subscriptionExpiresAt.getTime() - now.getTime();
+      daysRemaining = Math.ceil(msRemaining / (1000 * 60 * 60 * 24));
+    }
+
+    return {
+      tier: subscriptionTier as SubscriptionTier | null,
+      isActive,
+      expiresAt: subscriptionExpiresAt,
+      startedAt: subscriptionStartedAt,
+      daysRemaining,
+    };
+  } catch (error) {
+    console.error("Failed to get subscription info:", error);
+    return {
+      tier: null,
+      isActive: false,
+      expiresAt: null,
+      startedAt: null,
+      daysRemaining: null,
+    };
+  }
+}
+
+/**
+ * Check subscription usage against soft cap (500/month)
+ * Returns usage count and whether the soft cap has been exceeded
+ */
+export async function checkSoftCap(userId: string): Promise<{
+  usage: number;
+  exceeded: boolean;
+  remaining: number;
+}> {
+  const month = getCurrentMonth();
+  const usage = await getTokenUsage(userId, month);
+
+  return {
+    usage,
+    exceeded: usage >= SUBSCRIPTION_SOFT_CAP,
+    remaining: Math.max(0, SUBSCRIPTION_SOFT_CAP - usage),
+  };
+}
+
+/**
+ * Enhanced canGenerate check with new priority logic:
+ * 1. BYOK → allow unlimited
+ * 2. Active subscription → allow (track for soft cap)
+ * 3. Credits > 0 → allow
+ * 4. Deny with reason
+ */
+export async function canGenerateWithDetails(userId: string): Promise<GenerationEligibility> {
+  try {
+    // Priority 1: Check for BYOK (Bring Your Own Key)
+    const hasApiKey = await hasOwnApiKey(userId);
+    if (hasApiKey) {
+      return {
+        allowed: true,
+        reason: "byok",
+      };
+    }
+
+    // Priority 2: Check for active subscription
+    const isSubscribed = await hasActiveSubscription(userId);
+    if (isSubscribed) {
+      const softCapStatus = await checkSoftCap(userId);
+      return {
+        allowed: true,
+        reason: "subscription",
+        subscriptionUsage: softCapStatus.usage,
+        softCapWarning: softCapStatus.usage >= SUBSCRIPTION_SOFT_CAP * 0.8, // Warn at 80%
+      };
+    }
+
+    // Priority 3: Check for credits
+    const credits = await getUserCredits(userId);
+    if (credits > 0) {
+      return {
+        allowed: true,
+        reason: "credits",
+        creditsRemaining: credits,
+      };
+    }
+
+    // Priority 4: Deny - no valid payment method
+    return {
+      allowed: false,
+      reason: "no_credits",
+      creditsRemaining: 0,
+    };
+  } catch (error) {
+    console.error("Failed to check generation eligibility:", error);
+    return {
+      allowed: false,
+      reason: "no_credits",
+    };
+  }
+}
+
+/**
+ * Consume credits from user's balance and log the transaction
+ * @param userId - The user's ID
+ * @param amount - Number of credits to consume (positive number)
+ * @param description - Optional description for the transaction
+ * @returns The new balance, or null if insufficient credits
+ */
+export async function consumeCredit(
+  userId: string,
+  amount: number = 1,
+  description?: string
+): Promise<number | null> {
+  try {
+    // Get current balance
+    const currentBalance = await getUserCredits(userId);
+
+    if (currentBalance < amount) {
+      console.warn(`Insufficient credits for user ${userId}: has ${currentBalance}, needs ${amount}`);
+      return null;
+    }
+
+    const newBalance = currentBalance - amount;
+
+    // Update user balance and create transaction in a transaction
+    await db.transaction(async (tx) => {
+      // Update user balance
+      await tx
+        .update(user)
+        .set({
+          creditBalance: newBalance,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, userId));
+
+      // Create transaction record
+      await tx.insert(creditTransaction).values({
+        id: nanoid(),
+        userId,
+        amount: -amount, // Negative for consumption
+        type: "usage",
+        description: description || "Image generation",
+        balanceAfter: newBalance,
+        createdAt: new Date(),
+      });
+    });
+
+    return newBalance;
+  } catch (error) {
+    console.error("Failed to consume credits:", error);
+    throw error;
+  }
+}
+
+/**
+ * Add credits to user's balance and log the transaction
+ * @param userId - The user's ID
+ * @param amount - Number of credits to add
+ * @param type - Type of transaction (purchase, refund, admin_grant)
+ * @param description - Optional description
+ * @returns The new balance
+ */
+export async function addCredits(
+  userId: string,
+  amount: number,
+  type: Exclude<CreditTransactionType, "usage">,
+  description?: string
+): Promise<number> {
+  try {
+    // Get current balance
+    const currentBalance = await getUserCredits(userId);
+    const newBalance = currentBalance + amount;
+
+    // Update user balance and create transaction
+    await db.transaction(async (tx) => {
+      // Update user balance
+      await tx
+        .update(user)
+        .set({
+          creditBalance: newBalance,
+          updatedAt: new Date(),
+        })
+        .where(eq(user.id, userId));
+
+      // Create transaction record
+      await tx.insert(creditTransaction).values({
+        id: nanoid(),
+        userId,
+        amount: amount, // Positive for additions
+        type,
+        description: description || `Credit ${type}`,
+        balanceAfter: newBalance,
+        createdAt: new Date(),
+      });
+    });
+
+    return newBalance;
+  } catch (error) {
+    console.error("Failed to add credits:", error);
+    throw error;
+  }
+}
+
+/**
+ * Activate a subscription for a user
+ * @param userId - The user's ID
+ * @param tier - Subscription tier (monthly or yearly)
+ * @returns Success status
+ */
+export async function activateSubscription(
+  userId: string,
+  tier: SubscriptionTier
+): Promise<boolean> {
+  try {
+    const now = new Date();
+    let expiresAt: Date;
+
+    // Calculate expiration based on tier
+    if (tier === "monthly") {
+      expiresAt = new Date(now);
+      expiresAt.setMonth(expiresAt.getMonth() + 1);
+    } else {
+      // yearly
+      expiresAt = new Date(now);
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+    }
+
+    await db
+      .update(user)
+      .set({
+        subscriptionTier: tier,
+        subscriptionStartedAt: now,
+        subscriptionExpiresAt: expiresAt,
+        updatedAt: now,
+      })
+      .where(eq(user.id, userId));
+
+    console.log(`Activated ${tier} subscription for user ${userId}, expires ${expiresAt.toISOString()}`);
+    return true;
+  } catch (error) {
+    console.error("Failed to activate subscription:", error);
+    return false;
+  }
+}
+
+/**
+ * Cancel a user's subscription
+ * Note: This doesn't immediately remove access - subscription remains active until expiration
+ * @param userId - The user's ID
+ * @returns Success status
+ */
+export async function cancelSubscription(userId: string): Promise<boolean> {
+  try {
+    // We don't clear the subscription immediately - it remains until expiration
+    // This function is called when the subscription won't renew
+    // The user keeps access until subscriptionExpiresAt
+
+    // For now, we just log this. In a real system, you might:
+    // - Set a "cancellation_requested_at" timestamp
+    // - Send a confirmation email
+    // - Update a "will_renew" flag to false
+
+    console.log(`Subscription cancellation requested for user ${userId}`);
+
+    // If you want to immediately cancel, uncomment below:
+    // await db
+    //   .update(user)
+    //   .set({
+    //     subscriptionTier: null,
+    //     subscriptionExpiresAt: null,
+    //     updatedAt: new Date(),
+    //   })
+    //   .where(eq(user.id, userId));
+
+    return true;
+  } catch (error) {
+    console.error("Failed to cancel subscription:", error);
+    return false;
+  }
+}
+
+/**
+ * Immediately end a user's subscription (for admin use or immediate cancellations)
+ * @param userId - The user's ID
+ * @returns Success status
+ */
+export async function endSubscriptionImmediately(userId: string): Promise<boolean> {
+  try {
+    await db
+      .update(user)
+      .set({
+        subscriptionTier: null,
+        subscriptionExpiresAt: null,
+        // Keep subscriptionStartedAt for historical records
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, userId));
+
+    console.log(`Immediately ended subscription for user ${userId}`);
+    return true;
+  } catch (error) {
+    console.error("Failed to end subscription immediately:", error);
+    return false;
+  }
+}
+
+/**
+ * Extend a subscription (for renewals or manual extensions)
+ * @param userId - The user's ID
+ * @param tier - The tier to extend (defaults to current tier)
+ * @returns Success status
+ */
+export async function extendSubscription(
+  userId: string,
+  tier?: SubscriptionTier
+): Promise<boolean> {
+  try {
+    // Get current subscription info
+    const info = await getSubscriptionInfo(userId);
+
+    const subscriptionTier = tier || info.tier;
+    if (!subscriptionTier) {
+      console.error("Cannot extend subscription without a tier");
+      return false;
+    }
+
+    // Calculate new expiration from current expiration (or now if expired)
+    const baseDate = info.expiresAt && info.expiresAt > new Date()
+      ? info.expiresAt
+      : new Date();
+
+    let newExpiresAt: Date;
+    if (subscriptionTier === "monthly") {
+      newExpiresAt = new Date(baseDate);
+      newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+    } else {
+      newExpiresAt = new Date(baseDate);
+      newExpiresAt.setFullYear(newExpiresAt.getFullYear() + 1);
+    }
+
+    await db
+      .update(user)
+      .set({
+        subscriptionTier: subscriptionTier,
+        subscriptionExpiresAt: newExpiresAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, userId));
+
+    console.log(`Extended ${subscriptionTier} subscription for user ${userId}, new expiration: ${newExpiresAt.toISOString()}`);
+    return true;
+  } catch (error) {
+    console.error("Failed to extend subscription:", error);
     return false;
   }
 }

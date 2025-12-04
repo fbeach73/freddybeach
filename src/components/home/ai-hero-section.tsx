@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Sparkles, ArrowDown, ImageIcon } from "lucide-react";
+import { Sparkles, ArrowDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/auth-dialog";
+import Image from "next/image";
 
 export function AIHeroSection() {
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -87,9 +88,15 @@ export function AIHeroSection() {
             {/* Decorative gradient background */}
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent" />
 
-            {/* Hero visual placeholder */}
-            <div className="relative rounded-3xl overflow-hidden border border-border/50 shadow-2xl bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 aspect-square flex items-center justify-center">
-              <ImageIcon className="h-24 w-24 text-primary/40" />
+            {/* Hero visual */}
+            <div className="relative rounded-3xl overflow-hidden border border-border/50 shadow-2xl aspect-square">
+              <Image
+                src="/images/hero-beach.webp"
+                alt="FreddyBeach - Fredericton business directory and AI tools"
+                fill
+                className="object-cover"
+                priority
+              />
             </div>
 
             {/* Floating badges for social proof */}

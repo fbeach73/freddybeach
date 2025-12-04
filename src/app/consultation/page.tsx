@@ -1,8 +1,8 @@
 import { BookingSection } from "@/components/marketing/booking-section";
-import { ConsultationCard } from "@/components/marketing/consultation-card";
+// import { ConsultationCard } from "@/components/marketing/consultation-card";
 import { SectionHero } from "@/components/marketing/section-hero";
 import { TrustSignals } from "@/components/marketing/trust-signals";
-import { consultationPackages } from "@/lib/data/packages";
+// import { consultationPackages } from "@/lib/data/packages";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -59,13 +59,9 @@ export default function ConsultationPage() {
           text: "Book Free Consultation",
           href: "#booking",
         }}
-        secondaryCTA={{
-          text: "View Packages",
-          href: "#packages",
-        }}
       />
 
-      {/* Packages Section */}
+      {/* Packages Section - Hidden for now, keeping for future use
       <section id="packages" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
@@ -78,7 +74,6 @@ export default function ConsultationPage() {
             </p>
           </div>
 
-          {/* Three-column grid of ConsultationCard components */}
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {consultationPackages.map((pkg) => (
               <ConsultationCard key={pkg.id} package_={pkg} />
@@ -86,6 +81,7 @@ export default function ConsultationPage() {
           </div>
         </div>
       </section>
+      */}
 
       {/* Booking Section */}
       <section

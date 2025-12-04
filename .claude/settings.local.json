@@ -36,7 +36,8 @@
       "Bash(pnpm exec tsc:*)",
       "WebFetch(domain:ai.google.dev)",
       "Bash(pnpm db:generate:*)",
-      "Bash(pnpm db:migrate:*)"
+      "Bash(pnpm db:migrate:*)",
+      "mcp__playwright__browser_snapshot"
     ],
     "deny": [],
     "ask": [],

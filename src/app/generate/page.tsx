@@ -101,7 +101,7 @@ export default async function GeneratePage() {
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               {session ? (
                 <Button size="lg" asChild>
-                  <Link href="/dashboard/ai-tools/image-generator">
+                  <Link href="/ai-tools/image-generator">
                     <Sparkles className="mr-2 h-5 w-5" />
                     Go to Generator
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -219,7 +219,7 @@ export default async function GeneratePage() {
                 </div>
                 {session ? (
                   <Button className="w-full" asChild>
-                    <Link href="/dashboard/ai-tools/image-generator">
+                    <Link href="/ai-tools/image-generator">
                       Start Generating
                     </Link>
                   </Button>

@@ -22,7 +22,7 @@ import { aiTools, getToolBySlug } from "@/lib/data/ai-tools";
 import { db } from "@/lib/db";
 import { creditTransaction } from "@/lib/schema";
 import { eq, and, or, count } from "drizzle-orm";
-import { getSubscriptionInfo, hasOwnApiKey, checkSoftCap } from "@/lib/services/token-system";
+import { getSubscriptionInfo, hasOwnApiKey, checkSoftCap, getUserCredits } from "@/lib/services/token-system";
 
 // Map icon names to Lucide components
 const iconMap: Record<string, LucideIcon> = {
@@ -51,12 +51,12 @@ export async function generateMetadata({
 
   if (!tool) {
     return {
-      title: "Tool Not Found | Dashboard",
+      title: "Tool Not Found | AI Tools",
     };
   }
 
   return {
-    title: `${tool.name} | Dashboard`,
+    title: `${tool.name} | AI Tools`,
     description: tool.shortDescription,
   };
 }
@@ -70,7 +70,7 @@ export default async function AIToolPage({
 
   // Redirect image-generator to its dedicated page
   if (slug === "image-generator") {
-    redirect("/dashboard/ai-tools/image-generator");
+    redirect("/ai-tools/image-generator");
   }
 
   const tool = getToolBySlug(slug);
@@ -88,23 +88,25 @@ export default async function AIToolPage({
   // Show sign-in prompt for unauthenticated users
   if (!session) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="rounded-full bg-muted p-4">
-          <Lock className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <h1 className="mt-4 text-2xl font-bold">Protected Page</h1>
-        <p className="mt-2 text-muted-foreground">
-          You need to sign in to access this AI tool
-        </p>
-        <div className="mt-6">
-          <UserProfile />
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="rounded-full bg-muted p-4">
+            <Lock className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h1 className="mt-4 text-2xl font-bold">Sign In Required</h1>
+          <p className="mt-2 text-muted-foreground">
+            You need to sign in to access this AI tool
+          </p>
+          <div className="mt-6">
+            <UserProfile />
+          </div>
         </div>
       </div>
     );
   }
 
   // Fetch actual usage and subscription data
-  const [aiToolUsageResult, subscriptionInfo, hasByok, softCapStatus] = await Promise.all([
+  const [aiToolUsageResult, subscriptionInfo, hasByok, softCapStatus, userCredits] = await Promise.all([
     db
       .select({ count: count() })
       .from(creditTransaction)
@@ -120,6 +122,7 @@ export default async function AIToolPage({
     getSubscriptionInfo(session.user.id),
     hasOwnApiKey(session.user.id),
     checkSoftCap(session.user.id),
+    getUserCredits(session.user.id),
   ]);
 
   const usageCount = aiToolUsageResult[0]?.count || 0;
@@ -147,10 +150,10 @@ export default async function AIToolPage({
   const Icon = iconMap[tool.icon] || MessageSquareText;
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-8 space-y-6">
       {/* Back Navigation */}
       <Button variant="ghost" size="sm" asChild className="-ml-2">
-        <Link href="/dashboard/ai-tools">
+        <Link href="/ai-tools">
           <ArrowLeft className="mr-1.5 h-4 w-4" />
           Back to AI Tools
         </Link>
@@ -194,7 +197,7 @@ export default async function AIToolPage({
       {isLocked ? (
         <PremiumToolGate tool={tool} />
       ) : (
-        <AIToolInterface tool={tool} userTier={userTier} />
+        <AIToolInterface tool={tool} userTier={userTier} initialCredits={userCredits} />
       )}
     </div>
   );
@@ -223,7 +226,7 @@ function PremiumToolGate({ tool }: { tool: { name: string; tier: string; example
                 <Link href="/ai-tools#pricing">View Plans</Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link href="/dashboard/ai-tools">Browse Free Tools</Link>
+                <Link href="/ai-tools">Browse Free Tools</Link>
               </Button>
             </div>
           </div>

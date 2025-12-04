@@ -9,6 +9,10 @@ import {
   sendVerificationEmail,
   sendPasswordResetEmail,
 } from "./services/email"
+import { addCredits } from "./services/token-system"
+
+// Number of free credits granted to new users
+const FREE_SIGNUP_CREDITS = 10
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -49,6 +53,20 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
+          // Grant free credits to new users
+          try {
+            await addCredits(
+              user.id,
+              FREE_SIGNUP_CREDITS,
+              "admin_grant",
+              "Welcome bonus: 10 free AI credits"
+            )
+            console.log(`Granted ${FREE_SIGNUP_CREDITS} free credits to new user ${user.id}`)
+          } catch (error) {
+            console.error("Failed to grant signup credits:", error)
+            // Don't throw - user creation should still succeed
+          }
+
           // Send welcome email to new users
           await sendWelcomeEmail({
             email: user.email,

@@ -189,7 +189,7 @@ export default async function DashboardPage() {
           title="AI Tools"
           action={
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/dashboard/ai-tools">
+              <Link href="/ai-tools">
                 View All
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>

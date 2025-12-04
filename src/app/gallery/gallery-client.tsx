@@ -33,7 +33,7 @@ export function GalleryClient() {
           {images.length > 0 && `Showing ${images.length} images`}
         </p>
         <Button asChild>
-          <Link href="/dashboard/ai-tools/image-generator">
+          <Link href="/ai-tools/image-generator">
             <Sparkles className="mr-2 h-4 w-4" />
             Create Your Own
             <ArrowRight className="ml-2 h-4 w-4" />

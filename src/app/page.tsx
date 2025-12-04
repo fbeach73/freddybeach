@@ -1,30 +1,33 @@
-import { HeroSection } from "@/components/home/hero-section";
-import { FeaturedBusinessesWrapper } from "@/components/home/featured-businesses-wrapper";
-import { CategoryGrid } from "@/components/home/category-grid";
-import { AIToolsTeaser } from "@/components/home/ai-tools-teaser";
-import { TestimonialSection } from "@/components/home/testimonial-section";
-import { SEOContent } from "@/components/home/seo-content";
+import { AIHeroSection } from "@/components/home/ai-hero-section";
+import { FeaturedBusinessesSection } from "@/components/home/featured-businesses-section";
+import { AIToolsGrid } from "@/components/home/ai-tools-grid";
+import { TestimonialsSlider } from "@/components/home/testimonials-slider";
+import { ConsultationCTA } from "@/components/home/consultation-cta";
 import { getFeaturedBusinessesFromDb } from "@/lib/data/businesses-db";
-import { getCategoriesWithCounts } from "@/lib/data/categories-db";
 
 // Revalidate homepage every 60 seconds to pick up changes
 export const revalidate = 60;
 
 export default async function Home() {
-  // Fetch featured businesses and categories with counts from database
-  const [featuredBusinesses, categoriesWithCounts] = await Promise.all([
-    getFeaturedBusinessesFromDb(),
-    getCategoriesWithCounts(),
-  ]);
+  // Fetch featured businesses from database
+  const featuredBusinesses = await getFeaturedBusinessesFromDb();
 
   return (
-    <div className="flex-1 container mx-auto px-4 pb-8">
-      <HeroSection />
-      <FeaturedBusinessesWrapper businesses={featuredBusinesses} />
-      <CategoryGrid categories={categoriesWithCounts} />
-      <AIToolsTeaser />
-      <TestimonialSection />
-      <SEOContent />
+    <div className="flex-1">
+      {/* Hero Section - Full Width */}
+      <div className="container mx-auto px-4">
+        <AIHeroSection />
+      </div>
+
+      {/* Main Content Sections */}
+      <div className="container mx-auto px-4">
+        <FeaturedBusinessesSection businesses={featuredBusinesses} />
+        <AIToolsGrid />
+        <TestimonialsSlider />
+      </div>
+
+      {/* Consultation CTA - Full Width */}
+      <ConsultationCTA />
     </div>
   );
 }

@@ -42,7 +42,7 @@ const navItems = [
   {
     label: "AI Tools",
     icon: Sparkles,
-    href: "/dashboard/ai-tools",
+    href: "/ai-tools",
   },
   {
     label: "Analytics",

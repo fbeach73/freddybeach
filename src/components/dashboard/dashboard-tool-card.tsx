@@ -76,7 +76,7 @@ export function DashboardToolCard({
             </Button>
           ) : (
             <Button size="sm" className="w-full" asChild>
-              <Link href={`/dashboard/ai-tools/${tool.slug}`}>Launch</Link>
+              <Link href={`/ai-tools/${tool.slug}`}>Launch</Link>
             </Button>
           )}
         </div>

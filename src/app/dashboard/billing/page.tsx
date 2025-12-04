@@ -13,10 +13,9 @@ import {
   Clock,
   HelpCircle,
   Key,
-  Zap,
   ImageIcon,
 } from "lucide-react";
-import { PurchaseCreditsButton, ApiKeySection, SubscribeByokButton } from "@/components/billing";
+import { PurchaseCreditsButton, ApiKeySection } from "@/components/billing";
 import { UserProfile } from "@/components/auth/user-profile";
 import { PageHeader, SectionHeader } from "@/components/shared/page-header";
 import { ComingSoon } from "@/components/dashboard/coming-soon";
@@ -31,7 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { creditPackages, subscriptionPlans, byokProPlan } from "@/lib/data/packages";
+import { creditPackages, byokOption } from "@/lib/data/packages";
 import {
   getUserCredits,
   getSubscriptionInfo,
@@ -303,34 +302,14 @@ export default async function BillingPage() {
               ) : (
                 <>
                   <p className="mt-4 text-sm text-muted-foreground">
-                    Get unlimited AI generations with a subscription. Cancel
-                    anytime.
+                    Use credits for pay-as-you-go generation, or add your own API key for unlimited free access.
                   </p>
-
-                  <div className="mt-4 space-y-2">
-                    {subscriptionPlans.map((plan) => (
-                      <div
-                        key={plan.id}
-                        className="flex items-center justify-between text-sm"
-                      >
-                        <span className="font-medium">{plan.name}</span>
-                        <span className="text-muted-foreground">
-                          {plan.priceLabel}/{plan.period}
-                          {plan.yearlyEquivalent && (
-                            <span className="ml-1 text-green-600">
-                              ({plan.yearlyEquivalent})
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
 
                   <div className="mt-4">
                     <Button className="w-full" asChild>
                       <Link href="/ai-tools#pricing">
                         <Sparkles className="mr-2 h-4 w-4" />
-                        Subscribe Now
+                        View Pricing Options
                       </Link>
                     </Button>
                   </div>
@@ -394,48 +373,54 @@ export default async function BillingPage() {
         </div>
       </section>
 
-      {/* BYOK Pro Subscription */}
-      <section className="space-y-4">
+      {/* FREE BYOK - Limited Time Offer */}
+      <section className="space-y-4" id="api-key">
         <SectionHeader
-          title="BYOK Pro"
+          title="Bring Your Own Key"
           description="Unlimited generations with your own API key"
         />
-        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-white dark:border-purple-900 dark:from-purple-950/30 dark:to-background">
+        <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-white dark:border-emerald-900 dark:from-emerald-950/30 dark:to-background">
           <CardContent className="p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-4 lg:max-w-xl">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/50">
-                    <Key className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+                    <Key className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold">{byokProPlan.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xl font-bold">{byokOption.name}</h3>
+                      <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                        <Clock className="mr-1 h-3 w-3" />
+                        Limited Time
+                      </Badge>
+                    </div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                        {byokProPlan.priceLabel}
+                      <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                        {byokOption.priceLabel}
                       </span>
-                      <span className="text-muted-foreground">/{byokProPlan.period}</span>
+                      <span className="text-muted-foreground">forever</span>
                     </div>
                   </div>
                 </div>
 
-                <p className="text-muted-foreground">{byokProPlan.description}</p>
+                <p className="text-muted-foreground">{byokOption.description}</p>
 
                 <ul className="grid gap-2 sm:grid-cols-2">
-                  {byokProPlan.features.map((feature, i) => (
+                  {byokOption.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-purple-600 dark:text-purple-400" />
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="flex items-start gap-2 rounded-lg bg-purple-100/50 p-3 text-sm dark:bg-purple-900/20">
-                  <Zap className="mt-0.5 h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm dark:bg-amber-950/30 dark:border-amber-800">
+                  <AlertCircle className="mt-0.5 h-4 w-4 text-amber-600 dark:text-amber-400" />
                   <div>
-                    <strong>Requirements:</strong>
-                    <ul className="mt-1 list-inside list-disc text-muted-foreground">
-                      {byokProPlan.requirements.map((req, i) => (
+                    <strong className="text-amber-800 dark:text-amber-300">Requirements:</strong>
+                    <ul className="mt-1 list-inside list-disc text-amber-700 dark:text-amber-400">
+                      {byokOption.requirements.map((req, i) => (
                         <li key={i}>{req}</li>
                       ))}
                     </ul>
@@ -444,34 +429,27 @@ export default async function BillingPage() {
               </div>
 
               <div className="flex flex-col gap-3 lg:min-w-[200px]">
-                {subscriptionInfo.tier === "byok" ? (
-                  <Badge className="w-fit bg-purple-600">
-                    <Check className="mr-1 h-3 w-3" />
-                    Active Subscription
-                  </Badge>
-                ) : hasByok ? (
+                {hasByok ? (
                   <div className="space-y-2">
-                    <Badge variant="outline" className="w-fit text-purple-600">
-                      <Key className="mr-1 h-3 w-3" />
-                      API Key Configured
+                    <Badge className="w-fit bg-emerald-600">
+                      <Check className="mr-1 h-3 w-3" />
+                      API Key Connected
                     </Badge>
                     <p className="text-xs text-muted-foreground">
-                      Subscribe to BYOK Pro for priority processing and premium support.
+                      You have unlimited free access to AI tools with your own API key.
                     </p>
-                    <SubscribeByokButton className="w-full">
-                      <Key className="mr-2 h-4 w-4" />
-                      Upgrade to BYOK Pro
-                    </SubscribeByokButton>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     <p className="text-xs text-muted-foreground">
-                      Add your API key first, then subscribe for premium features.
+                      Add your Google Gemini API key below to unlock unlimited free generations.
                     </p>
-                    <SubscribeByokButton className="w-full">
-                      <Key className="mr-2 h-4 w-4" />
-                      Subscribe for {byokProPlan.priceLabel}/mo
-                    </SubscribeByokButton>
+                    <Button asChild className="w-full bg-emerald-600 hover:bg-emerald-700">
+                      <a href="#api-key-section">
+                        <Key className="mr-2 h-4 w-4" />
+                        Add Your API Key
+                      </a>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -481,7 +459,7 @@ export default async function BillingPage() {
       </section>
 
       {/* API Key Management */}
-      <section className="space-y-4">
+      <section className="space-y-4" id="api-key-section">
         <SectionHeader
           title="API Key"
           description="Use your own Google API key for unlimited AI generations"

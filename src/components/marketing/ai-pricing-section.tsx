@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,162 +11,107 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Check, Coins, Crown, Key, AlertCircle } from "lucide-react";
+import { Check, Coins, Key, AlertCircle, Clock } from "lucide-react";
 import Link from "next/link";
-import {
-  creditPackages,
-  subscriptionPlans,
-  byokOption,
-} from "@/lib/data/packages";
+import { creditPackages, byokOption } from "@/lib/data/packages";
 
 interface AIPricingSectionProps {
   className?: string;
 }
 
 export function AIPricingSection({ className }: AIPricingSectionProps) {
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
-    "yearly"
-  );
-
-  const creditPackage = creditPackages[0]; // 100 credits for $10
-  const selectedPlan = subscriptionPlans.find(
-    (plan) => plan.period === billingPeriod
-  );
-
   return (
     <div className={cn("space-y-8", className)}>
-      {/* Three-column pricing grid */}
-      <div className="grid gap-6 md:grid-cols-3 md:items-stretch">
-        {/* Left Column: Credit Package */}
-        <Card className="relative flex flex-col">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-              <Coins className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+      {/* Two-column pricing grid */}
+      <div className="grid gap-6 md:grid-cols-2 md:items-start">
+        {/* Left Column: Credit Packs */}
+        <div className="space-y-4">
+          <div className="mb-4 flex items-center gap-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+              <Coins className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
-            <CardTitle className="text-xl">{creditPackage.name}</CardTitle>
-            <div className="mt-4">
-              <span className="text-4xl font-bold">
-                {creditPackage.priceLabel}
-              </span>
-              <span className="text-muted-foreground"> one-time</span>
+            <div>
+              <h3 className="font-semibold">Credit Packs</h3>
+              <p className="text-sm text-muted-foreground">
+                Pay as you go - credits never expire
+              </p>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {creditPackage.pricePerCredit} per credit
-            </p>
-            <CardDescription className="mt-2">
-              {creditPackage.description}
-            </CardDescription>
-          </CardHeader>
+          </div>
 
-          <CardContent className="flex-1">
-            <ul className="space-y-3">
-              {creditPackage.features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
+          {creditPackages.map((pack) => (
+            <Card
+              key={pack.id}
+              className={cn(
+                "relative",
+                pack.isPopular &&
+                  "border-primary shadow-md ring-2 ring-primary/20"
+              )}
+            >
+              {pack.isPopular && (
+                <Badge className="absolute -top-2.5 left-4">Most Popular</Badge>
+              )}
 
-          <CardFooter>
-            <Button asChild className="w-full" variant="outline" size="lg">
-              <Link href="/dashboard/billing?purchase=credits">
-                Buy Credits
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{pack.name}</CardTitle>
+                    <CardDescription className="mt-1">
+                      {pack.credits} credits · {pack.pricePerCredit}/credit
+                    </CardDescription>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold">{pack.priceLabel}</span>
+                    <p className="text-xs text-muted-foreground">one-time</p>
+                  </div>
+                </div>
+              </CardHeader>
 
-        {/* Center Column: Subscription (Featured) */}
-        <Card className="relative flex flex-col border-primary shadow-lg ring-2 ring-primary/20 md:-mt-4 md:mb-4">
-          <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-            Best Value
+              <CardContent className="pb-3">
+                <ul className="grid gap-1.5 text-sm">
+                  {pack.features.slice(0, 3).map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <Check className="h-4 w-4 shrink-0 text-primary" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+
+              <CardFooter>
+                <Button
+                  asChild
+                  className="w-full"
+                  variant={pack.isPopular ? "default" : "outline"}
+                  size="sm"
+                >
+                  <Link href={`/dashboard/billing?purchase=${pack.id}`}>
+                    Buy {pack.credits} Credits
+                  </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+
+        {/* Right Column: FREE BYOK (Limited Time Promotion) */}
+        <Card className="relative flex flex-col border-emerald-200 bg-gradient-to-br from-emerald-50/50 to-white dark:border-emerald-900 dark:from-emerald-950/30 dark:to-background">
+          <Badge
+            variant="secondary"
+            className="absolute -top-2.5 left-4 bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
+          >
+            <Clock className="mr-1 h-3 w-3" />
+            Limited Time Offer
           </Badge>
 
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <Crown className="h-6 w-6 text-primary" />
-            </div>
-            <CardTitle className="text-xl">Unlimited Access</CardTitle>
-
-            {/* Billing Period Toggle */}
-            <div className="mx-auto mt-4 flex items-center rounded-full border bg-muted/50 p-1">
-              <button
-                type="button"
-                onClick={() => setBillingPeriod("monthly")}
-                className={cn(
-                  "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-                  billingPeriod === "monthly"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Monthly
-              </button>
-              <button
-                type="button"
-                onClick={() => setBillingPeriod("yearly")}
-                className={cn(
-                  "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-                  billingPeriod === "yearly"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Yearly
-              </button>
-            </div>
-
-            <div className="mt-4">
-              <span className="text-4xl font-bold">
-                {selectedPlan?.priceLabel}
-              </span>
-              <span className="text-muted-foreground">
-                /{billingPeriod === "monthly" ? "mo" : "yr"}
-              </span>
-            </div>
-            {billingPeriod === "yearly" && selectedPlan?.yearlyEquivalent && (
-              <p className="mt-1 text-sm text-green-600 dark:text-green-400">
-                {selectedPlan.yearlyEquivalent} &middot; Save 43%
-              </p>
-            )}
-            <CardDescription className="mt-2">
-              {selectedPlan?.description}
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="flex-1">
-            <ul className="space-y-3">
-              {selectedPlan?.features.map((feature, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-
-          <CardFooter>
-            <Button asChild className="w-full" size="lg">
-              <Link
-                href={`/dashboard/billing?subscribe=${billingPeriod}`}
-              >
-                Subscribe Now
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
-
-        {/* Right Column: BYOK (Bring Your Own Key) */}
-        <Card className="relative flex flex-col">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
               <Key className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <CardTitle className="text-xl">{byokOption.name}</CardTitle>
             <div className="mt-4">
-              <span className="text-4xl font-bold">{byokOption.priceLabel}</span>
+              <span className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
+                {byokOption.priceLabel}
+              </span>
               <span className="text-muted-foreground"> forever</span>
             </div>
             <CardDescription className="mt-2">
@@ -179,7 +123,7 @@ export function AIPricingSection({ className }: AIPricingSectionProps) {
             <ul className="space-y-3">
               {byokOption.features.map((feature, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                   <span className="text-sm">{feature}</span>
                 </li>
               ))}
@@ -208,10 +152,12 @@ export function AIPricingSection({ className }: AIPricingSectionProps) {
           </CardContent>
 
           <CardFooter>
-            <Button asChild className="w-full" variant="outline" size="lg">
-              <Link href="/dashboard/settings?tab=api-keys">
-                Configure API Key
-              </Link>
+            <Button
+              asChild
+              className="w-full bg-emerald-600 hover:bg-emerald-700"
+              size="lg"
+            >
+              <Link href="/dashboard/billing#api-key">Configure API Key</Link>
             </Button>
           </CardFooter>
         </Card>

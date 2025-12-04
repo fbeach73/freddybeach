@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, memo, useCallback } from "react";
 import Link from "next/link";
-import { Copy, RefreshCw, Lock, CheckCircle2 } from "lucide-react";
+import { Copy, RefreshCw, Lock, CheckCircle2, AlertCircle, Coins } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,11 +15,15 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import type { AITool } from "@/lib/types";
 
 interface AIToolInterfaceProps {
   tool: AITool;
   userTier?: "free" | "enhanced" | "featured";
+  initialCredits?: number;
+  onCreditsUpdate?: (newCredits: number) => void;
 }
 
 // Tool-specific control options
@@ -64,7 +68,12 @@ const toolControls: Record<
   },
 };
 
-export const AIToolInterface = memo(function AIToolInterface({ tool, userTier = "free" }: AIToolInterfaceProps) {
+export const AIToolInterface = memo(function AIToolInterface({
+  tool,
+  userTier = "free",
+  initialCredits,
+  onCreditsUpdate,
+}: AIToolInterfaceProps) {
   const [input, setInput] = useState(tool.exampleInput);
   const [output, setOutput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -72,23 +81,61 @@ export const AIToolInterface = memo(function AIToolInterface({ tool, userTier = 
     toolControls[tool.slug]?.options[0]?.value || ""
   );
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [credits, setCredits] = useState<number | undefined>(initialCredits);
+  const [usageCount, setUsageCount] = useState(0);
 
   const isLocked = tool.tier !== "free" && userTier === "free";
   const controls = toolControls[tool.slug];
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     if (isLocked || !input.trim()) return;
 
     setIsGenerating(true);
     setOutput("");
+    setError(null);
 
-    // Simulate AI generation delay (1.5s)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const response = await fetch("/api/ai-tools/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          toolSlug: tool.slug,
+          input: input.trim(),
+          option: controlValue,
+        }),
+      });
 
-    // Use example output for mock
-    setOutput(tool.exampleOutput);
-    setIsGenerating(false);
-  };
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 402) {
+          setError("You've run out of credits. Purchase more or upgrade to continue using AI tools.");
+        } else if (response.status === 401) {
+          setError("Please sign in to use AI tools.");
+        } else {
+          setError(data.error || "Failed to generate content. Please try again.");
+        }
+        return;
+      }
+
+      setOutput(data.output);
+      setUsageCount((prev) => prev + 1);
+
+      // Update credits
+      if (typeof data.creditsRemaining === "number") {
+        setCredits(data.creditsRemaining);
+        onCreditsUpdate?.(data.creditsRemaining);
+      }
+    } catch (err) {
+      console.error("Generation error:", err);
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [isLocked, input, tool.slug, controlValue, onCreditsUpdate]);
 
   const handleRegenerate = () => {
     handleGenerate();
@@ -106,9 +153,32 @@ export const AIToolInterface = memo(function AIToolInterface({ tool, userTier = 
       {/* Input Panel */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg">Input</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Input</CardTitle>
+            <div className="flex items-center gap-2">
+              {credits !== undefined && (
+                <Badge variant="secondary" className="text-xs">
+                  <Coins className="mr-1 h-3 w-3" />
+                  {credits} credits
+                </Badge>
+              )}
+              {usageCount > 0 && (
+                <Badge variant="outline" className="text-xs">
+                  Used {usageCount} {usageCount === 1 ? "time" : "times"}
+                </Badge>
+              )}
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="input-textarea">
               {tool.slug === "review-responder" && "Customer Review"}
@@ -156,7 +226,7 @@ export const AIToolInterface = memo(function AIToolInterface({ tool, userTier = 
 
           <Button
             onClick={handleGenerate}
-            disabled={isGenerating || isLocked || !input.trim()}
+            disabled={isGenerating || isLocked || !input.trim() || credits === 0}
             className="w-full"
           >
             {isGenerating ? (
@@ -164,10 +234,20 @@ export const AIToolInterface = memo(function AIToolInterface({ tool, userTier = 
                 <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                 Generating...
               </>
+            ) : credits === 0 ? (
+              "No Credits Remaining"
             ) : (
-              "Generate"
+              "Generate (1 credit)"
             )}
           </Button>
+
+          {credits === 0 && (
+            <div className="text-center">
+              <Button variant="link" asChild className="text-sm">
+                <Link href="/ai-tools#pricing">Get more credits</Link>
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

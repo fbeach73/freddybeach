@@ -185,8 +185,10 @@ export function PreviewGenerate({
   const handleLoadPreset = useCallback(
     (presetId: string) => {
       const preset = presets.find((p) => p.id === presetId);
-      if (preset && onLoadPreset) {
-        onLoadPreset(preset);
+      if (preset) {
+        // Notify parent if callback provided (optional)
+        onLoadPreset?.(preset);
+        // Always apply the preset settings
         onSettingsChange({
           resolution: preset.settings.resolution,
           aspectRatio: preset.settings.aspectRatio,
@@ -481,7 +483,7 @@ export function PreviewGenerate({
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="flex-1">
-                  <Link href="/dashboard/ai-tools/image-generator?tab=settings">
+                  <Link href="/ai-tools/image-generator?tab=settings">
                     <User className="mr-2 h-4 w-4" />
                     Add API Key
                   </Link>

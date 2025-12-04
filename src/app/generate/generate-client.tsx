@@ -130,7 +130,7 @@ export function GenerateClientSection({
             </p>
           </div>
           <Button asChild>
-            <Link href="/dashboard/ai-tools/image-generator">
+            <Link href="/ai-tools/image-generator">
               <Sparkles className="mr-2 h-4 w-4" />
               Start Creating
               <ArrowRight className="ml-2 h-4 w-4" />

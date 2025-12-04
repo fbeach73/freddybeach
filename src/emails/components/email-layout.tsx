@@ -33,8 +33,8 @@ export function EmailLayout({
             <Img
               src="https://freddybeach.com/logo.png"
               alt="FreddyBeach"
-              width={180}
-              height={40}
+              width={60}
+              height={60}
               style={styles.logo}
             />
           </Section>

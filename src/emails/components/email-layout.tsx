@@ -31,7 +31,7 @@ export function EmailLayout({
           {/* Header */}
           <Section style={styles.header}>
             <Img
-              src="https://freddybeach.com/logo.png"
+              src="https://fbeach.vercel.app/logo.png"
               alt="FreddyBeach"
               width={60}
               height={60}

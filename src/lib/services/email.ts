@@ -7,9 +7,11 @@
  * - MAILGUN_API_KEY: Your Mailgun API key (from https://app.mailgun.com/app/sending/domains)
  * - MAILGUN_DOMAIN: Your verified sending domain (e.g., "mg.freddybeach.com")
  * - EMAIL_FROM: Default sender address (e.g., "FreddyBeach <noreply@freddybeach.com>")
+ * - FORCE_SEND_EMAILS: Set to "true" to send real emails even in development mode
  *
  * ## Development Mode
  * When NODE_ENV === 'development', emails are logged to the console instead of being sent.
+ * Set FORCE_SEND_EMAILS=true to override this and send real emails in development.
  * Use the email preview route at /api/email-preview/[template] to visually preview emails.
  *
  * ## Available Email Templates
@@ -125,6 +127,14 @@ function isDevelopment() {
   return process.env.NODE_ENV === "development";
 }
 
+function shouldSkipSending() {
+  // Allow forcing email sending in development with FORCE_SEND_EMAILS=true
+  if (process.env.FORCE_SEND_EMAILS === "true") {
+    return false;
+  }
+  return isDevelopment();
+}
+
 export interface EmailAttachment {
   filename: string;
   data: Buffer | string;
@@ -142,14 +152,15 @@ export interface SendEmailOptions {
 /**
  * Send an email using Mailgun
  * In development mode, logs the email instead of sending
+ * Set FORCE_SEND_EMAILS=true to send real emails in development
  */
 export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
   const { to, subject, html, text, attachments } = options;
 
-  // Development mode - log instead of sending
-  if (isDevelopment()) {
+  // Development mode - log instead of sending (unless FORCE_SEND_EMAILS=true)
+  if (shouldSkipSending()) {
     console.log("========================================");
-    console.log("[EMAIL] Development Mode - Not Sent");
+    console.log("[EMAIL] Development Mode - Not Sent (set FORCE_SEND_EMAILS=true to send)");
     console.log("========================================");
     console.log(`To: ${Array.isArray(to) ? to.join(", ") : to}`);
     console.log(`Subject: ${subject}`);

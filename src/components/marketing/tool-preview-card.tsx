@@ -58,7 +58,7 @@ export function ToolPreviewCard({ tool, className }: ToolPreviewCardProps) {
               </Badge>
             ) : isAvailable ? (
               <Badge variant="default" className="bg-green-600 text-white hover:bg-green-700">
-                Available Now
+                Live
               </Badge>
             ) : null}
           </div>
@@ -68,9 +68,11 @@ export function ToolPreviewCard({ tool, className }: ToolPreviewCardProps) {
       </CardHeader>
 
       <CardContent className="flex-1">
-        <div className="text-xs text-muted-foreground">
-          {tool.usageCount.toLocaleString()} uses
-        </div>
+        {isAvailable && (
+          <div className="text-xs text-muted-foreground">
+            {tool.usageCount.toLocaleString()} uses
+          </div>
+        )}
       </CardContent>
 
       <CardFooter>

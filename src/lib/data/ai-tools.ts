@@ -10,8 +10,8 @@ export const aiTools: AITool[] = [
     shortDescription: "AI-powered review response generator",
     icon: "MessageSquareText",
     tier: "free",
-    status: "coming-soon",
-    usageCount: 12847,
+    status: "available",
+    usageCount: 587,
     exampleInput:
       "Great food and atmosphere! The salmon was cooked perfectly and our server Alex was fantastic. Only giving 4 stars because the wait for a table was over 30 minutes even with a reservation. Will definitely come back though!",
     exampleOutput: `Thank you so much for your wonderful feedback! We're thrilled to hear that you enjoyed the salmon and that Alex took such great care of you - we'll be sure to pass along your kind words to him!
@@ -39,8 +39,8 @@ The Isaac's Way Team`,
     shortDescription: "Create engaging social media content instantly",
     icon: "Share2",
     tier: "free",
-    status: "coming-soon",
-    usageCount: 8932,
+    status: "available",
+    usageCount: 412,
     exampleInput:
       "We're a local coffee shop that just started carrying a new single-origin Ethiopian coffee. We want to announce it on Instagram.",
     exampleOutput: `NEW ARRIVAL ALERT! ☕✨
@@ -77,7 +77,7 @@ Stop by this weekend and taste what everyone's talking about. Your new favorite 
     icon: "PenLine",
     tier: "enhanced",
     status: "coming-soon",
-    usageCount: 4521,
+    usageCount: 0,
     exampleInput:
       "We're a yoga studio in downtown Fredericton. We offer classes for all levels, from beginner to advanced. We have hot yoga, vinyasa, restorative, and prenatal classes. Our studio has been open for 5 years.",
     exampleOutput: `**The Yoga Loft - Your Downtown Fredericton Yoga Sanctuary**
@@ -114,7 +114,7 @@ Drop in anytime or explore our unlimited monthly membership for the full Yoga Lo
     icon: "Mail",
     tier: "enhanced",
     status: "coming-soon",
-    usageCount: 3187,
+    usageCount: 0,
     exampleInput:
       "I need an appointment reminder email for my dental clinic. The appointment is tomorrow and I want to remind them to arrive 10 minutes early.",
     exampleOutput: `**Subject: Your Appointment Tomorrow at Downtown Family Dental**
@@ -162,7 +162,7 @@ The Downtown Family Dental Team
     icon: "Image",
     tier: "free",
     status: "available",
-    usageCount: 2156,
+    usageCount: 653,
     exampleInput:
       "A cozy coffee shop interior in downtown Fredericton, warm lighting, exposed brick walls, customers enjoying their drinks, autumn leaves visible through the window",
     exampleOutput:

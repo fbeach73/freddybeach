@@ -628,8 +628,9 @@ export const pageView = pgTable(
     botName: text("bot_name"), // e.g., "Googlebot", "Bingbot"
     // Session tracking (for return visits)
     sessionId: text("session_id"),
-    // Geographic info (optional, from IP)
+    // Geographic info (from Vercel geo headers)
     country: text("country"),
+    region: text("region"), // State/province code
     city: text("city"),
     // Device info
     deviceType: text("device_type"), // "mobile" | "tablet" | "desktop"

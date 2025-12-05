@@ -1,0 +1,1 @@
+ALTER TABLE "page_view" ADD COLUMN "region" text;

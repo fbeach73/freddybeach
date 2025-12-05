@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Bot, Users, Globe, ArrowUpRight, Clock } from "lucide-react";
+import { Eye, Bot, Users, Globe, ArrowUpRight, Clock, MapPin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 export const metadata = {
@@ -130,6 +130,64 @@ export default async function AdminAnalyticsPage() {
     .groupBy(pageView.browser)
     .orderBy(desc(sql`count(*)`));
 
+  // Country breakdown (last 30 days, humans only)
+  const countryBreakdown = await db
+    .select({
+      country: pageView.country,
+      views: sql<number>`count(*)::int`,
+      uniqueVisitors: sql<number>`count(distinct ${pageView.visitorHash})::int`,
+    })
+    .from(pageView)
+    .where(
+      and(
+        gte(pageView.createdAt, monthAgo),
+        eq(pageView.isBot, false),
+        sql`${pageView.country} is not null`
+      )
+    )
+    .groupBy(pageView.country)
+    .orderBy(desc(sql`count(*)`))
+    .limit(10);
+
+  // Region breakdown (last 30 days, humans only, Canada focus)
+  const regionBreakdown = await db
+    .select({
+      country: pageView.country,
+      region: pageView.region,
+      views: sql<number>`count(*)::int`,
+    })
+    .from(pageView)
+    .where(
+      and(
+        gte(pageView.createdAt, monthAgo),
+        eq(pageView.isBot, false),
+        sql`${pageView.region} is not null`
+      )
+    )
+    .groupBy(pageView.country, pageView.region)
+    .orderBy(desc(sql`count(*)`))
+    .limit(10);
+
+  // City breakdown (last 30 days, humans only)
+  const cityBreakdown = await db
+    .select({
+      city: pageView.city,
+      region: pageView.region,
+      country: pageView.country,
+      views: sql<number>`count(*)::int`,
+    })
+    .from(pageView)
+    .where(
+      and(
+        gte(pageView.createdAt, monthAgo),
+        eq(pageView.isBot, false),
+        sql`${pageView.city} is not null`
+      )
+    )
+    .groupBy(pageView.city, pageView.region, pageView.country)
+    .orderBy(desc(sql`count(*)`))
+    .limit(10);
+
   // Recent page views
   const recentViews = await db
     .select({
@@ -139,6 +197,9 @@ export default async function AdminAnalyticsPage() {
       browser: pageView.browser,
       deviceType: pageView.deviceType,
       referrer: pageView.referrer,
+      country: pageView.country,
+      region: pageView.region,
+      city: pageView.city,
       createdAt: pageView.createdAt,
     })
     .from(pageView)
@@ -448,6 +509,120 @@ export default async function AdminAnalyticsPage() {
         </Card>
       </div>
 
+      {/* Geographic Section */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Country Breakdown */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Countries
+            </CardTitle>
+            <CardDescription>Visitor locations (last 30 days)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Country</TableHead>
+                  <TableHead className="text-right">Views</TableHead>
+                  <TableHead className="text-right">Visitors</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {countryBreakdown.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      No geo data yet
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  countryBreakdown.map((item, i) => (
+                    <TableRow key={i}>
+                      <TableCell>{item.country || "Unknown"}</TableCell>
+                      <TableCell className="text-right">{item.views}</TableCell>
+                      <TableCell className="text-right">{item.uniqueVisitors}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* Region Breakdown */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Provinces / States</CardTitle>
+            <CardDescription>Regional breakdown (last 30 days)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Region</TableHead>
+                  <TableHead className="text-right">Views</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {regionBreakdown.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center text-muted-foreground">
+                      No geo data yet
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  regionBreakdown.map((item, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        {item.region}, {item.country}
+                      </TableCell>
+                      <TableCell className="text-right">{item.views}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* City Breakdown */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Cities</CardTitle>
+            <CardDescription>City-level data (last 30 days)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>City</TableHead>
+                  <TableHead className="text-right">Views</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {cityBreakdown.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center text-muted-foreground">
+                      No geo data yet
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  cityBreakdown.map((item, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        {item.city}{item.region ? `, ${item.region}` : ""}
+                      </TableCell>
+                      <TableCell className="text-right">{item.views}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Recent Activity */}
       <Card>
         <CardHeader>
@@ -460,8 +635,8 @@ export default async function AdminAnalyticsPage() {
               <TableRow>
                 <TableHead>Page</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Location</TableHead>
                 <TableHead>Device</TableHead>
-                <TableHead>Browser</TableHead>
                 <TableHead>Referrer</TableHead>
                 <TableHead className="text-right">Time</TableHead>
               </TableRow>
@@ -486,8 +661,12 @@ export default async function AdminAnalyticsPage() {
                         <Badge variant="outline">Human</Badge>
                       )}
                     </TableCell>
+                    <TableCell className="text-sm">
+                      {view.city || view.region || view.country
+                        ? [view.city, view.region, view.country].filter(Boolean).join(", ")
+                        : "-"}
+                    </TableCell>
                     <TableCell className="capitalize">{view.deviceType || "-"}</TableCell>
-                    <TableCell>{view.browser || "-"}</TableCell>
                     <TableCell className="text-sm truncate max-w-[100px]">
                       {view.referrer ? new URL(view.referrer).hostname : "-"}
                     </TableCell>

@@ -14,6 +14,9 @@ interface TrackingData {
   deviceType?: string | null;
   browser?: string | null;
   os?: string | null;
+  country?: string | null;
+  region?: string | null;
+  city?: string | null;
 }
 
 export async function POST(request: NextRequest) {
@@ -33,6 +36,9 @@ export async function POST(request: NextRequest) {
       deviceType: data.deviceType || null,
       browser: data.browser || null,
       os: data.os || null,
+      country: data.country || null,
+      region: data.region || null,
+      city: data.city || null,
     });
 
     return NextResponse.json({ success: true });

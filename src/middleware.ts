@@ -140,6 +140,11 @@ export async function middleware(request: NextRequest) {
              request.headers.get("x-real-ip") ||
              "unknown";
 
+  // Get Vercel geo headers (free with Vercel deployment)
+  const country = request.headers.get("x-vercel-ip-country") || null;
+  const region = request.headers.get("x-vercel-ip-country-region") || null;
+  const city = request.headers.get("x-vercel-ip-city") || null;
+
   // Detect bot
   const { isBot, botName } = detectBot(userAgent);
 
@@ -172,6 +177,9 @@ export async function middleware(request: NextRequest) {
     deviceType: getDeviceType(userAgent),
     browser: getBrowser(userAgent),
     os: getOS(userAgent),
+    country,
+    region,
+    city,
   };
 
   // Fire and forget - don't await

@@ -6,7 +6,6 @@ import { MapPin, Sparkles, Search, Calendar } from "lucide-react";
 import { UserProfile } from "@/components/auth/user-profile";
 import { ModeToggle } from "./ui/mode-toggle";
 import { MobileNav } from "./layout/mobile-nav";
-import { Button } from "./ui/button";
 import { LiquidButton } from "./ui/liquid-button";
 import { cn } from "@/lib/utils";
 
@@ -77,19 +76,6 @@ export function SiteHeader() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">
-            {/* Search Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="hidden sm:flex"
-            >
-              <Link href="/search">
-                <Search className="h-5 w-5" />
-                <span className="sr-only">Search</span>
-              </Link>
-            </Button>
-
             {/* User Profile */}
             <UserProfile />
 

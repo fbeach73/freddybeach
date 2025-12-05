@@ -2,7 +2,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import { Oxanium, Merriweather, Fira_Code } from "next/font/google";
 import { Toaster } from "sonner";
-import Script from "next/script";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -62,29 +61,31 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <Script
-        id="gtm-script"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      <head>
+        {/* Google Tag Manager */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-T6ZSDXK7');`,
-        }}
-      />
+          }}
+        />
+        {/* End Google Tag Manager */}
+      </head>
       <body
         className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-T6ZSDXK7"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          />
-        </noscript>
+        {/* Google Tag Manager (noscript) */}
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T6ZSDXK7"
+height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
+          }}
+        />
+        {/* End Google Tag Manager (noscript) */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

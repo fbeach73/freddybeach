@@ -8,7 +8,7 @@ interface BookingConfirmationUserProps {
   userName: string;
   businessName: string;
   selectedDateTime: string;
-  preferredPackage: string;
+  primaryNeed: string;
   googleCalendarUrl: string;
 }
 
@@ -16,7 +16,7 @@ export function BookingConfirmationUser({
   userName,
   businessName,
   selectedDateTime,
-  preferredPackage,
+  primaryNeed,
   googleCalendarUrl,
 }: BookingConfirmationUserProps) {
   const firstName = userName.split(" ")[0];
@@ -55,11 +55,11 @@ export function BookingConfirmationUser({
 
         <Row style={styles.detailRow}>
           <Column style={styles.detailIconColumn}>
-            <Text style={styles.detailIcon}>📦</Text>
+            <Text style={styles.detailIcon}>🎯</Text>
           </Column>
           <Column style={styles.detailTextColumn}>
-            <Text style={styles.detailLabel}>Package</Text>
-            <Text style={styles.detailValue}>{preferredPackage}</Text>
+            <Text style={styles.detailLabel}>Primary Need</Text>
+            <Text style={styles.detailValue}>{primaryNeed}</Text>
           </Column>
         </Row>
 

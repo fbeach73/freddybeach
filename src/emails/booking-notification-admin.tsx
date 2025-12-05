@@ -7,7 +7,7 @@ interface BookingNotificationAdminProps {
   customerName: string;
   customerEmail: string;
   businessName: string;
-  preferredPackage: string;
+  primaryNeed: string;
   challenge: string;
   submittedAt: string;
   selectedDateTime?: string;
@@ -17,7 +17,7 @@ export function BookingNotificationAdmin({
   customerName,
   customerEmail,
   businessName,
-  preferredPackage,
+  primaryNeed,
   challenge,
   submittedAt,
   selectedDateTime,
@@ -74,10 +74,10 @@ export function BookingNotificationAdmin({
 
         <Row style={styles.detailRow}>
           <Column style={styles.labelColumn}>
-            <Text style={styles.label}>Package</Text>
+            <Text style={styles.label}>Primary Need</Text>
           </Column>
           <Column style={styles.valueColumn}>
-            <Text style={styles.valueBadge}>{preferredPackage}</Text>
+            <Text style={styles.valueBadge}>{primaryNeed}</Text>
           </Column>
         </Row>
 

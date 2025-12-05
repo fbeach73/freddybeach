@@ -38,7 +38,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { consultationPackages } from "@/lib/data/packages";
 import { cn } from "@/lib/utils";
 import { Calendar, Check, Loader2, MessageSquare } from "lucide-react";
 
@@ -56,7 +55,7 @@ const contactFormSchema = z.object({
     .string()
     .min(20, "Please describe your challenge in at least 20 characters")
     .max(1000, "Description must be less than 1000 characters"),
-  preferredPackage: z.string().min(1, "Please select a package"),
+  primaryNeed: z.string().min(1, "Please select what you need help with"),
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -86,7 +85,7 @@ export function ContactForm({
       email: "",
       businessName: "",
       challenge: "",
-      preferredPackage: "",
+      primaryNeed: "",
     },
   });
 
@@ -222,33 +221,42 @@ export function ContactForm({
 
               <FormField
                 control={form.control}
-                name="preferredPackage"
+                name="primaryNeed"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Preferred Package</FormLabel>
+                    <FormLabel>What do you need most help with?</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a consultation package" />
+                          <SelectValue placeholder="Select your primary need" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {consultationPackages.map((pkg) => (
-                          <SelectItem key={pkg.id} value={pkg.id}>
-                            {pkg.name} - {pkg.priceLabel}
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="not-sure">
-                          Not sure yet - help me decide
+                        <SelectItem value="time-saving-automation">
+                          Time Saving Automation
+                        </SelectItem>
+                        <SelectItem value="mundane-task-handling">
+                          Mundane Task Handling
+                        </SelectItem>
+                        <SelectItem value="ai-agents-live-chat">
+                          AI Agents / Live Chat
+                        </SelectItem>
+                        <SelectItem value="voice-agents">
+                          Voice Agents
+                        </SelectItem>
+                        <SelectItem value="all-of-the-above">
+                          All of the Above
+                        </SelectItem>
+                        <SelectItem value="other">
+                          Other
                         </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      Select the package that best fits your needs, or let us
-                      help you decide.
+                      Let us know what would help your business the most.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

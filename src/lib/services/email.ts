@@ -703,7 +703,7 @@ export interface BookingNotificationAdminData {
   customerName: string;
   customerEmail: string;
   businessName: string;
-  preferredPackage: string;
+  primaryNeed: string;
   challenge: string;
   selectedDateTime?: string;
 }
@@ -729,7 +729,7 @@ export async function sendBookingNotificationToAdmin(
       customerName: data.customerName,
       customerEmail: data.customerEmail,
       businessName: data.businessName,
-      preferredPackage: data.preferredPackage,
+      primaryNeed: data.primaryNeed,
       challenge: data.challenge,
       submittedAt,
       selectedDateTime: data.selectedDateTime,
@@ -749,7 +749,7 @@ CUSTOMER INFORMATION
 Name: ${data.customerName}
 Email: ${data.customerEmail}
 Business: ${data.businessName}
-Package: ${data.preferredPackage}${dateTimeText}
+Primary Need: ${data.primaryNeed}${dateTimeText}
 
 CHALLENGE DESCRIPTION
 --------------------
@@ -775,7 +775,7 @@ export interface BookingConfirmationUserData {
   userName: string;
   businessName: string;
   selectedDateTime: string;
-  preferredPackage: string;
+  primaryNeed: string;
   consultationDate: Date;
   consultationEndDate: Date;
 }
@@ -791,7 +791,7 @@ export async function sendBookingConfirmationToUser(
     title: "FreddyBeach Consultation",
     startDate: data.consultationDate,
     endDate: data.consultationEndDate,
-    description: `Consultation with FreddyBeach for ${data.businessName}.\n\nPackage: ${data.preferredPackage}\n\nWe'll send you a calendar invite with the video meeting link once your booking is confirmed.`,
+    description: `Consultation with FreddyBeach for ${data.businessName}.\n\nPrimary Need: ${data.primaryNeed}\n\nWe'll send you a calendar invite with the video meeting link once your booking is confirmed.`,
   });
 
   const html = await render(
@@ -799,7 +799,7 @@ export async function sendBookingConfirmationToUser(
       userName: data.userName,
       businessName: data.businessName,
       selectedDateTime: data.selectedDateTime,
-      preferredPackage: data.preferredPackage,
+      primaryNeed: data.primaryNeed,
       googleCalendarUrl,
     })
   );
@@ -811,7 +811,7 @@ Thank you for your consultation request! We've received your booking and will be
 YOUR REQUEST DETAILS
 --------------------
 Requested Time: ${data.selectedDateTime} (Atlantic Time)
-Package: ${data.preferredPackage}
+Primary Need: ${data.primaryNeed}
 Business: ${data.businessName}
 
 ADD TO YOUR CALENDAR

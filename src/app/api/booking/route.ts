@@ -4,11 +4,20 @@ import {
   sendBookingNotificationToAdmin,
   sendBookingConfirmationToUser,
 } from "@/lib/services/email";
-import { consultationPackages } from "@/lib/data/packages";
 import { formatDate, formatTime } from "@/lib/data/booking-slots";
 
 // Admin email for booking notifications
 const ADMIN_EMAIL = "kyle@freddybeach.com";
+
+// Map primary need values to human-readable labels
+const PRIMARY_NEED_LABELS: Record<string, string> = {
+  "time-saving-automation": "Time Saving Automation",
+  "mundane-task-handling": "Mundane Task Handling",
+  "ai-agents-live-chat": "AI Agents / Live Chat",
+  "voice-agents": "Voice Agents",
+  "all-of-the-above": "All of the Above",
+  "other": "Other",
+};
 
 // Validation schema matching the contact form
 const bookingSchema = z.object({
@@ -25,7 +34,7 @@ const bookingSchema = z.object({
     .string()
     .min(20, "Please describe your challenge in at least 20 characters")
     .max(1000, "Description must be less than 1000 characters"),
-  preferredPackage: z.string().min(1, "Please select a package"),
+  primaryNeed: z.string().min(1, "Please select what you need help with"),
   selectedDate: z.string().min(1, "Please select a date"),
   selectedTime: z.string().min(1, "Please select a time"),
 });
@@ -45,16 +54,8 @@ export async function POST(request: NextRequest) {
 
     const data = result.data;
 
-    // Map package ID to human-readable name
-    let packageName = data.preferredPackage;
-    if (data.preferredPackage === "not-sure") {
-      packageName = "Not sure yet - help me decide";
-    } else {
-      const pkg = consultationPackages.find((p) => p.id === data.preferredPackage);
-      if (pkg) {
-        packageName = `${pkg.name} - ${pkg.priceLabel}`;
-      }
-    }
+    // Map primary need value to human-readable label
+    const primaryNeedLabel = PRIMARY_NEED_LABELS[data.primaryNeed] || data.primaryNeed;
 
     // Format the selected date/time
     const selectedDateTime = `${formatDate(data.selectedDate)} at ${formatTime(data.selectedTime)}`;
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       customerName: data.name,
       customerEmail: data.email,
       businessName: data.businessName,
-      preferredPackage: packageName,
+      primaryNeed: primaryNeedLabel,
       challenge: data.challenge,
       selectedDateTime,
     });
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
       userName: data.name,
       businessName: data.businessName,
       selectedDateTime,
-      preferredPackage: packageName,
+      primaryNeed: primaryNeedLabel,
       consultationDate,
       consultationEndDate,
     });

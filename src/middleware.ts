@@ -114,6 +114,53 @@ const EXCLUDED_PATHS = [
   "/.well-known", // Well-known URIs
 ];
 
+// All valid category slugs from src/lib/data/categories.ts
+const VALID_CATEGORIES = new Set([
+  "restaurants",
+  "cafes-bakeries",
+  "retail-shopping",
+  "professional-services",
+  "healthcare-wellness",
+  "plumbing",
+  "electrical",
+  "hvac-heating",
+  "general-contractors",
+  "roofing",
+  "landscaping-lawn-care",
+  "cleaning-services",
+  "pest-control",
+  "arts-entertainment",
+  "automotive",
+  "beauty-personal-care",
+  "fitness-sports",
+  "hotels-accommodations",
+  "nightlife-bars",
+  "pets-veterinary",
+  "real-estate",
+  "fb-catch-all",
+]);
+
+// Known top-level routes in the Next.js app
+const KNOWN_ROUTES = new Set([
+  "privacy",
+  "chat",
+  "auth",
+  "gallery",
+  "terms",
+  "admin",
+  "consultation",
+  "blog",
+  "search",
+  "dashboard",
+  "ai-tools",
+  "profile",
+  "success-stories",
+  "generate",
+  "api",
+  "refund",
+  "images",
+]);
+
 // File extensions to exclude
 const EXCLUDED_EXTENSIONS = [
   ".js", ".css", ".map", ".json", ".xml", ".txt", ".ico", ".png", ".jpg",
@@ -131,6 +178,16 @@ export async function middleware(request: NextRequest) {
   // Skip file extensions
   if (EXCLUDED_EXTENSIONS.some(ext => pathname.endsWith(ext))) {
     return NextResponse.next();
+  }
+
+  // Check for old WordPress URLs - redirect unknown paths to blog subdomain
+  if (pathname !== "/") {
+    const firstSegment = pathname.split("/")[1];
+
+    // If it's NOT a known route or valid category, redirect to blog subdomain
+    if (!KNOWN_ROUTES.has(firstSegment) && !VALID_CATEGORIES.has(firstSegment)) {
+      return NextResponse.redirect(`https://blog.freddybeach.com${pathname}`, 301);
+    }
   }
 
   // Get request info

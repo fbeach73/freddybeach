@@ -13,6 +13,7 @@ import {
   FileText,
   PenSquare,
   Sparkles,
+  BarChart3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,6 +34,11 @@ const navItems = [
     label: "Overview",
     icon: LayoutDashboard,
     href: "/admin",
+  },
+  {
+    label: "Analytics",
+    icon: BarChart3,
+    href: "/admin/analytics",
   },
   {
     label: "Users",

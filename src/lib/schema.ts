@@ -607,3 +607,47 @@ export const creditTransaction = pgTable(
     index("credit_transaction_created_idx").on(table.createdAt),
   ]
 );
+
+// =============================================
+// Analytics Tables
+// =============================================
+
+// Page views - tracks all page requests for analytics
+export const pageView = pgTable(
+  "page_view",
+  {
+    id: text("id").primaryKey(),
+    // Request info
+    path: text("path").notNull(),
+    referrer: text("referrer"),
+    userAgent: text("user_agent"),
+    // Visitor identification (hashed IP for privacy)
+    visitorHash: text("visitor_hash"),
+    // Bot detection
+    isBot: boolean("is_bot").default(false).notNull(),
+    botName: text("bot_name"), // e.g., "Googlebot", "Bingbot"
+    // Session tracking (for return visits)
+    sessionId: text("session_id"),
+    // Geographic info (optional, from IP)
+    country: text("country"),
+    city: text("city"),
+    // Device info
+    deviceType: text("device_type"), // "mobile" | "tablet" | "desktop"
+    browser: text("browser"),
+    os: text("os"),
+    // Timestamp
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    // Index for time-based queries
+    index("page_view_created_idx").on(table.createdAt),
+    // Index for path-based analytics
+    index("page_view_path_idx").on(table.path),
+    // Index for bot filtering
+    index("page_view_is_bot_idx").on(table.isBot),
+    // Index for session-based queries
+    index("page_view_session_idx").on(table.sessionId),
+    // Index for referrer analysis
+    index("page_view_referrer_idx").on(table.referrer),
+  ]
+);

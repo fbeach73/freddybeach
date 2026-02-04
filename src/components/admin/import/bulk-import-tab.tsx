@@ -106,16 +106,16 @@ export function BulkImportTab() {
           </Select>
 
           {selectedCategoryData && (
-            <div className="rounded-lg border bg-muted/50 p-4">
+            <div className="border-2 border-nb-border bg-muted/50 p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <div className="flex h-10 w-10 items-center justify-center bg-nb-blue/20 border-2 border-nb-border">
                   <DynamicIcon
                     name={selectedCategoryData.icon}
-                    className="h-5 w-5 text-primary"
+                    className="h-5 w-5 text-nb-blue"
                   />
                 </div>
                 <div>
-                  <p className="font-medium">{selectedCategoryData.name}</p>
+                  <p className="font-bold">{selectedCategoryData.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {selectedCategoryData.description}
                   </p>
@@ -124,14 +124,14 @@ export function BulkImportTab() {
             </div>
           )}
 
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/50">
+          <div className="border-2 border-nb-orange bg-nb-orange/10 p-4">
             <div className="flex gap-3">
-              <AlertCircle className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-500" />
+              <AlertCircle className="h-5 w-5 shrink-0 text-nb-orange" />
               <div className="space-y-1 text-sm">
-                <p className="font-medium text-amber-800 dark:text-amber-400">
+                <p className="font-bold">
                   Import Criteria
                 </p>
-                <ul className="list-inside list-disc text-amber-700 dark:text-amber-300">
+                <ul className="list-inside list-disc text-muted-foreground">
                   <li>Rating: 4.0 stars or higher</li>
                   <li>Reviews: 10+ user ratings</li>
                   <li>Location: Fredericton, NB area</li>
@@ -178,19 +178,19 @@ export function BulkImportTab() {
           <CardContent className="space-y-4">
             {/* Summary Stats */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-lg border bg-green-50 p-4 dark:bg-green-950/50">
-                <p className="text-2xl font-bold text-green-700 dark:text-green-400">
+              <div className="border-2 border-nb-border bg-nb-green/10 p-4">
+                <p className="text-2xl font-bold text-nb-green">
                   {importResult.imported}
                 </p>
-                <p className="text-sm text-green-600 dark:text-green-500">
+                <p className="text-sm font-bold">
                   Imported
                 </p>
               </div>
-              <div className="rounded-lg border bg-amber-50 p-4 dark:bg-amber-950/50">
-                <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">
+              <div className="border-2 border-nb-border bg-nb-orange/10 p-4">
+                <p className="text-2xl font-bold text-nb-orange">
                   {importResult.skipped}
                 </p>
-                <p className="text-sm text-amber-600 dark:text-amber-500">
+                <p className="text-sm font-bold">
                   Skipped
                 </p>
               </div>
@@ -199,8 +199,8 @@ export function BulkImportTab() {
             {/* Imported Businesses */}
             {importResult.importedBusinesses.length > 0 && (
               <div>
-                <h4 className="mb-2 flex items-center gap-2 font-medium">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                <h4 className="mb-2 flex items-center gap-2 font-bold">
+                  <CheckCircle className="h-4 w-4 text-nb-green" />
                   Imported Businesses
                 </h4>
                 <ScrollArea className="h-[200px] rounded-md border">
@@ -208,9 +208,9 @@ export function BulkImportTab() {
                     {importResult.importedBusinesses.map((biz) => (
                       <div
                         key={biz.id}
-                        className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
+                        className="flex items-center justify-between border-2 border-nb-border/20 bg-muted/50 px-3 py-2"
                       >
-                        <span className="text-sm font-medium">{biz.name}</span>
+                        <span className="text-sm font-bold">{biz.name}</span>
                         <Badge variant="outline" className="text-xs">
                           Draft
                         </Badge>
@@ -224,8 +224,8 @@ export function BulkImportTab() {
             {/* Skipped Businesses */}
             {importResult.skippedPlaces.length > 0 && (
               <div>
-                <h4 className="mb-2 flex items-center gap-2 font-medium">
-                  <XCircle className="h-4 w-4 text-amber-600" />
+                <h4 className="mb-2 flex items-center gap-2 font-bold">
+                  <XCircle className="h-4 w-4 text-nb-orange" />
                   Skipped Businesses
                 </h4>
                 <ScrollArea className="h-[200px] rounded-md border">
@@ -233,7 +233,7 @@ export function BulkImportTab() {
                     {importResult.skippedPlaces.map((place) => (
                       <div
                         key={place.googlePlaceId || `skipped-${place.name}`}
-                        className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
+                        className="flex items-center justify-between border-2 border-nb-border/20 bg-muted/50 px-3 py-2"
                       >
                         <span className="text-sm">{place.name}</span>
                         <Badge variant="secondary" className="text-xs">
@@ -252,7 +252,7 @@ export function BulkImportTab() {
 
             {/* Empty State */}
             {importResult.imported === 0 && importResult.skipped === 0 && (
-              <div className="rounded-lg border border-dashed p-8 text-center">
+              <div className="border-2 border-dashed border-nb-border/30 p-8 text-center">
                 <AlertCircle className="mx-auto h-8 w-8 text-muted-foreground" />
                 <p className="mt-2 text-sm text-muted-foreground">
                   No businesses found matching the quality criteria.

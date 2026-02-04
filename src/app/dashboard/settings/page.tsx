@@ -5,7 +5,7 @@ import { Lock, Mail, HelpCircle } from "lucide-react";
 import { UserProfile } from "@/components/auth/user-profile";
 import { PageHeader } from "@/components/shared/page-header";
 import { ComingSoon } from "@/components/dashboard/coming-soon";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
@@ -23,10 +23,10 @@ export default async function SettingsPage() {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="rounded-full bg-muted p-4">
-          <Lock className="h-8 w-8 text-muted-foreground" />
+        <div className="flex h-16 w-16 items-center justify-center bg-nb-pink/20 border-2 border-nb-border">
+          <Lock className="h-8 w-8 text-nb-pink" />
         </div>
-        <h1 className="mt-4 text-2xl font-bold">Protected Page</h1>
+        <h1 className="mt-4 text-2xl font-bold uppercase tracking-tight">Protected Page</h1>
         <p className="mt-2 text-muted-foreground">
           You need to sign in to access Settings
         </p>
@@ -66,13 +66,14 @@ export default async function SettingsPage() {
 
       {/* Support Section */}
       <section>
-        <Card>
+        <div className="nb-card bg-card">
+          <div className="h-2 bg-nb-green border-b-2 border-nb-border" />
           <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:text-left">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <HelpCircle className="h-6 w-6 text-primary" />
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center bg-nb-green/20 border-2 border-nb-border">
+              <HelpCircle className="h-6 w-6 text-nb-green" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold">Need Help?</h3>
+              <h3 className="font-bold">Need Help?</h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 Have questions about your account or need assistance? Our
                 support team is here to help.
@@ -85,7 +86,7 @@ export default async function SettingsPage() {
               </Link>
             </Button>
           </CardContent>
-        </Card>
+        </div>
       </section>
     </div>
   );

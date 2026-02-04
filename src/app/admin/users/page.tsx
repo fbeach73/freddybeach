@@ -84,24 +84,24 @@ export default function UsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
+        <h1 className="text-2xl font-bold uppercase tracking-tight">User Management</h1>
         <p className="text-muted-foreground">
           View and manage all registered users, change roles, and moderate accounts.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight">Total Users</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{mockUsers.length}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Clients</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight">Clients</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -109,9 +109,9 @@ export default function UsersPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Basic Users</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight">Basic Users</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -121,9 +121,9 @@ export default function UsersPage() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="nb-card bg-card">
         <CardHeader>
-          <CardTitle>All Users</CardTitle>
+          <CardTitle className="uppercase tracking-tight">All Users</CardTitle>
           <CardDescription>
             A list of all registered users and their current roles.
           </CardDescription>
@@ -154,7 +154,7 @@ export default function UsersPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{user.name}</p>
+                        <p className="font-bold">{user.name}</p>
                         <p className="text-sm text-muted-foreground">{user.email}</p>
                       </div>
                     </div>

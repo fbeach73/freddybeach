@@ -46,18 +46,18 @@ export function SEOAnalyzer({ analysis }: SEOAnalyzerProps) {
 
   // Get score color based on value
   const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-600";
-    if (score >= 70) return "text-yellow-600";
-    if (score >= 50) return "text-orange-500";
-    return "text-red-500";
+    if (score >= 90) return "text-nb-green";
+    if (score >= 70) return "text-nb-yellow";
+    if (score >= 50) return "text-nb-orange";
+    return "text-nb-pink";
   };
 
   // Get score progress color
   const getProgressColor = (score: number) => {
-    if (score >= 90) return "bg-green-600";
-    if (score >= 70) return "bg-yellow-500";
-    if (score >= 50) return "bg-orange-500";
-    return "bg-red-500";
+    if (score >= 90) return "bg-nb-green";
+    if (score >= 70) return "bg-nb-yellow";
+    if (score >= 50) return "bg-nb-orange";
+    return "bg-nb-pink";
   };
 
   // Get score label
@@ -102,7 +102,7 @@ export function SEOAnalyzer({ analysis }: SEOAnalyzerProps) {
                 </div>
                 <Badge
                   variant={analysis.score >= 70 ? "default" : "secondary"}
-                  className={analysis.score >= 70 ? "bg-green-600" : ""}
+                  className={analysis.score >= 70 ? "bg-nb-green text-black border-nb-border" : ""}
                 >
                   {getScoreLabel(analysis.score)}
                 </Badge>
@@ -248,11 +248,11 @@ export function SEOAnalyzer({ analysis }: SEOAnalyzerProps) {
                 {analysis.linkOpportunities.map((link, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start justify-between gap-4 p-3 rounded-lg border bg-muted/50"
+                    className="flex items-start justify-between gap-4 p-3 border-2 border-nb-border/20 bg-muted/50"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{link.businessName}</span>
+                        <span className="font-bold">{link.businessName}</span>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -307,7 +307,7 @@ export function SEOAnalyzer({ analysis }: SEOAnalyzerProps) {
               <ul className="space-y-2">
                 {analysis.suggestions.map((suggestion, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-sm">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center bg-nb-blue/20 border border-nb-border text-nb-blue text-xs font-bold">
                       {idx + 1}
                     </span>
                     <span>{suggestion}</span>

@@ -63,7 +63,7 @@ export default async function EditMyBusinessPage({ params }: PageProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <BusinessEditForm business={biz} redirectTo="/dashboard/my-businesses" />
+          <BusinessEditForm business={biz} redirectTo="/dashboard/my-businesses" isAdmin={false} />
         </CardContent>
       </Card>
     </div>

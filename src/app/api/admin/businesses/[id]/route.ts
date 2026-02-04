@@ -113,6 +113,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       postalCode: string;
       hours: BusinessHours[];
       categoryId: string;
+      imageUrl: string | null;
       isFeatured: boolean;
       displayOrder: number;
       badges: BusinessBadge[];
@@ -129,6 +130,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (body.postalCode !== undefined) updateData.postalCode = body.postalCode;
     if (body.hours !== undefined) updateData.hours = body.hours;
     if (body.categoryId !== undefined) updateData.categoryId = body.categoryId;
+    if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl;
 
     // Admin-only fields: isFeatured, displayOrder, badges
     if (session.user.role === "admin") {

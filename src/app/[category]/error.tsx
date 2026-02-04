@@ -19,14 +19,16 @@ export default function CategoryError({
   return (
     <div className="container mx-auto flex min-h-[50vh] flex-col items-center justify-center px-4 py-16">
       <div className="text-center">
-        <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
-        <h2 className="mt-4 text-2xl font-bold">Something went wrong</h2>
+        <div className="mx-auto w-fit rounded-none border-2 border-nb-border bg-nb-pink p-3 mb-4">
+          <AlertCircle className="h-12 w-12 text-black" />
+        </div>
+        <h2 className="mt-4 text-2xl font-bold uppercase tracking-tight">Something went wrong</h2>
         <p className="mt-2 text-muted-foreground">
           We couldn&apos;t load this category. Please try again.
         </p>
         <div className="mt-6 flex gap-4 justify-center">
-          <Button onClick={reset}>Try again</Button>
-          <Button variant="outline" asChild>
+          <Button onClick={reset} className="nb-btn">Try again</Button>
+          <Button variant="outline" asChild className="nb-btn">
             <Link href="/">Go home</Link>
           </Button>
         </div>

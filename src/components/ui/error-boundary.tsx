@@ -42,10 +42,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center">
-          <AlertTriangle className="mb-3 h-10 w-10 text-destructive" />
-          <h3 className="text-lg font-semibold text-foreground">Something went wrong</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+        <div className="flex flex-col items-center justify-center rounded-none border-2 border-nb-border bg-nb-pink/10 p-6 text-center shadow-nb-md">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center border-2 border-nb-border bg-nb-pink">
+            <AlertTriangle className="h-6 w-6 text-nb-border" />
+          </div>
+          <h3 className="text-lg font-bold uppercase tracking-tight text-foreground">Something went wrong</h3>
+          <p className="mt-1 text-sm font-medium text-muted-foreground">
             {this.props.name
               ? `An error occurred in ${this.props.name}.`
               : "An unexpected error occurred."}
@@ -54,7 +56,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             variant="outline"
             size="sm"
             onClick={this.handleReset}
-            className="mt-4"
+            className="nb-btn mt-4"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Try Again

@@ -21,7 +21,7 @@ function SidebarSkeleton() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-4 mb-4">
-            <Skeleton className="h-12 w-12 rounded-full" />
+            <Skeleton className="h-12 w-12 rounded-none" />
             <div className="space-y-2">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-3 w-32" />
@@ -40,7 +40,7 @@ function SidebarSkeleton() {
         <CardContent className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="flex gap-3">
-              <Skeleton className="h-16 w-16 rounded-md flex-shrink-0" />
+              <Skeleton className="h-16 w-16 rounded-none flex-shrink-0" />
               <div className="space-y-2 flex-1">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-3 w-1/2" />
@@ -62,7 +62,7 @@ export default function BlogPostLoading() {
           {/* Header Skeleton */}
           <div className="mb-8">
             {/* Category Badge */}
-            <Skeleton className="h-6 w-20 rounded-full mb-4" />
+            <Skeleton className="h-6 w-20 rounded-none mb-4" />
 
             {/* Title */}
             <Skeleton className="h-10 w-full mb-2" />
@@ -70,7 +70,7 @@ export default function BlogPostLoading() {
 
             {/* Meta Info */}
             <div className="flex items-center gap-4 mb-6">
-              <Skeleton className="h-10 w-10 rounded-full" />
+              <Skeleton className="h-10 w-10 rounded-none" />
               <div className="space-y-2">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-3 w-48" />
@@ -78,7 +78,7 @@ export default function BlogPostLoading() {
             </div>
 
             {/* Featured Image */}
-            <Skeleton className="aspect-video w-full rounded-lg" />
+            <Skeleton className="aspect-video w-full rounded-none" />
           </div>
 
           {/* Content Skeleton */}
@@ -112,7 +112,7 @@ export default function BlogPostLoading() {
             <Skeleton className="h-4 w-20" />
             <div className="flex gap-2">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-9 w-9 rounded-md" />
+                <Skeleton key={i} className="h-9 w-9 rounded-none" />
               ))}
             </div>
           </div>

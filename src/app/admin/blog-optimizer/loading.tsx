@@ -26,7 +26,7 @@ export default function BlogOptimizerLoading() {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Content Input Area */}
-          <Skeleton className="h-64 w-full rounded-md" />
+          <Skeleton className="h-64 w-full rounded-none" />
 
           {/* Action Buttons */}
           <div className="flex gap-2">

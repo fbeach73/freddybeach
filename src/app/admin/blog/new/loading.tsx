@@ -34,13 +34,13 @@ export default function NewPostLoading() {
             </CardHeader>
             <CardContent>
               {/* Editor Toolbar */}
-              <div className="flex gap-1 mb-4 p-2 border rounded-md">
+              <div className="flex gap-1 mb-4 p-2 border rounded-none">
                 {Array.from({ length: 10 }).map((_, i) => (
                   <Skeleton key={i} className="h-8 w-8" />
                 ))}
               </div>
               {/* Editor Content Area */}
-              <Skeleton className="h-96 w-full rounded-md" />
+              <Skeleton className="h-96 w-full rounded-none" />
             </CardContent>
           </Card>
         </div>
@@ -73,7 +73,7 @@ export default function NewPostLoading() {
               <Skeleton className="h-5 w-28" />
             </CardHeader>
             <CardContent className="space-y-4">
-              <Skeleton className="aspect-video w-full rounded-md" />
+              <Skeleton className="aspect-video w-full rounded-none" />
               <Skeleton className="h-4 w-16 mb-1" />
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />

@@ -205,15 +205,6 @@
 
 @layer base {
   * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-@layer base {
-  * {
     @apply border-border outline-ring/50;
   }
   body {
@@ -294,4 +285,48 @@
 
 .legal-content a {
   @apply text-primary underline underline-offset-4 hover:text-primary/80;
+}
+
+/* Neo-brutalism Sonner toast overrides */
+[data-sonner-toaster] [data-sonner-toast] {
+  --normal-bg: var(--card);
+  --normal-text: var(--card-foreground);
+  border-radius: 0 !important;
+  border: 2px solid var(--nb-border) !important;
+  box-shadow: var(--nb-shadow-md) !important;
+  font-weight: 700;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] {
+  border-left: 6px solid var(--nb-green) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+  border-left: 6px solid var(--nb-pink) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="warning"] {
+  border-left: 6px solid var(--nb-orange) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="info"] {
+  border-left: 6px solid var(--nb-blue) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+  border-radius: 0 !important;
+  border: 2px solid var(--nb-border) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-title] {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-button] {
+  border-radius: 0 !important;
+  border: 2px solid var(--nb-border) !important;
+  font-weight: 700;
+  text-transform: uppercase;
 }

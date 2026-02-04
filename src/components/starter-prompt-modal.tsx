@@ -154,7 +154,7 @@ export function StarterPromptModal() {
           <div>
             <label
               htmlFor="project-description"
-              className="text-sm font-medium mb-2 block"
+              className="text-sm font-bold mb-2 block"
             >
               Describe your project (optional)
             </label>
@@ -163,7 +163,7 @@ export function StarterPromptModal() {
               placeholder="e.g., A task management app for teams with real-time collaboration, project timelines, and AI-powered task prioritization..."
               value={projectDescription}
               onChange={(e) => setProjectDescription(e.target.value)}
-              className="w-full h-24 px-3 py-2 border rounded-md resize-none text-sm"
+              className="w-full h-24 px-3 py-2 border-2 border-nb-border rounded-none resize-none text-sm focus:border-nb-blue focus:outline-none focus:shadow-nb-sm"
             />
             <p className="text-xs text-muted-foreground mt-1">
               Optional: Add details about your project to get a more tailored
@@ -190,7 +190,7 @@ export function StarterPromptModal() {
             </Button>
           </div>
 
-          <div className="text-xs text-muted-foreground border-t pt-3">
+          <div className="text-xs text-muted-foreground border-t-2 border-nb-border/20 pt-3">
             <strong>How to use:</strong> Copy this prompt and paste it into
             Claude Code, Cursor, or any AI coding assistant to get started with
             your project.

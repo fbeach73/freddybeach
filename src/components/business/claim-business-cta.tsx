@@ -233,7 +233,7 @@ export function ClaimBusinessCta({
                   </SelectContent>
                 </Select>
                 {errors.role && (
-                  <p className="text-sm text-destructive">{errors.role}</p>
+                  <p className="text-sm font-bold text-nb-pink">{errors.role}</p>
                 )}
               </div>
 
@@ -250,7 +250,7 @@ export function ClaimBusinessCta({
                   className="rounded-none border-2 border-nb-border"
                 />
                 {errors.phone && (
-                  <p className="text-sm text-destructive">{errors.phone}</p>
+                  <p className="text-sm font-bold text-nb-pink">{errors.phone}</p>
                 )}
                 <p className="text-xs text-muted-foreground">
                   We may contact you to verify your claim
@@ -271,7 +271,7 @@ export function ClaimBusinessCta({
                   className="rounded-none border-2 border-nb-border"
                 />
                 {errors.description && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm font-bold text-nb-pink">
                     {errors.description}
                   </p>
                 )}

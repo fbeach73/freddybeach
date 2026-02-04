@@ -190,7 +190,7 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Basic Information */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Basic Information</h3>
+        <h3 className="nb-form-section">Basic Information</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="name">Business Name</Label>
@@ -232,13 +232,13 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
       {/* Featured & Badges - Admin only */}
       {isAdmin && (
         <div className="space-y-4">
-          <h3 className="flex items-center gap-2 text-lg font-medium">
+          <h3 className="flex items-center gap-2 nb-form-section">
             <Sparkles className="h-5 w-5 text-yellow-500" />
             Featured & Badges
           </h3>
 
           {/* Featured Toggle */}
-          <div className="flex items-center justify-between rounded-lg border p-4">
+          <div className="flex items-center justify-between rounded-none border-2 border-nb-border p-4">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-yellow-500" />
@@ -285,7 +285,7 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
               {AVAILABLE_BADGES.map((badge) => (
                 <div
                   key={badge.value}
-                  className="flex items-start space-x-3 rounded-lg border p-3"
+                  className="flex items-start space-x-3 rounded-none border-2 border-nb-border p-3"
                 >
                   <Checkbox
                     id={`badge-${badge.value}`}
@@ -313,14 +313,14 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
       {/* Featured Image */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-medium">Featured Image</h3>
+          <h3 className="nb-form-section">Featured Image</h3>
           <p className="text-sm text-muted-foreground">
             Upload a photo of your business. Images are auto-optimized to WebP.
           </p>
         </div>
         {imagePreview || imageUrl ? (
           <div className="relative w-full max-w-md">
-            <div className="relative aspect-video overflow-hidden rounded-lg border bg-muted">
+            <div className="relative aspect-video overflow-hidden rounded-none border-2 border-nb-border bg-muted">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imagePreview || imageUrl || ""}
@@ -355,10 +355,10 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
               if (file) handleImageFile(file);
             }}
             onClick={() => fileInputRef.current?.click()}
-            className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+            className={`cursor-pointer rounded-none border-2 border-dashed border-nb-border p-8 text-center transition-colors ${
               isDragging
-                ? "border-primary bg-primary/5"
-                : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
+                ? "border-nb-blue bg-nb-blue/5"
+                : "hover:border-nb-blue/50 hover:bg-muted/50"
             }`}
           >
             <input
@@ -372,7 +372,7 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
               className="hidden"
             />
             <div className="flex flex-col items-center gap-3">
-              <div className="rounded-full bg-muted p-3">
+              <div className="bg-nb-yellow/20 border-2 border-nb-border/20 p-3">
                 <Upload className="h-6 w-6 text-muted-foreground" />
               </div>
               <div>
@@ -390,7 +390,7 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
 
       {/* Contact Information */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Contact Information</h3>
+        <h3 className="nb-form-section">Contact Information</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>
@@ -427,7 +427,7 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
 
       {/* Address */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Address</h3>
+        <h3 className="nb-form-section">Address</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="address">Street Address</Label>
@@ -470,7 +470,7 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
 
       {/* Business Hours */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Business Hours</h3>
+        <h3 className="nb-form-section">Business Hours</h3>
         <div className="space-y-3">
           {DAYS.map((day, index) => {
             const dayHours = hours.find((h) => h.day === index);
@@ -516,7 +516,7 @@ export function BusinessEditForm({ business, redirectTo = "/admin/businesses", i
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSaving}>
+        <Button type="submit" disabled={isSaving} className="bg-nb-green text-black hover:bg-nb-green">
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -272,7 +272,7 @@ export function ReviewsSection({
               </div>
 
               {error && (
-                <div className="p-3 bg-destructive/10 border-2 border-destructive text-sm text-destructive font-bold">
+                <div className="nb-error-box">
                   {error}
                 </div>
               )}

@@ -173,7 +173,9 @@ export function AuthDialog({ children, defaultTab = "sign-in" }: AuthDialogProps
         {children || <Button>Sign In</Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+        {/* Accent bar */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-nb-blue border-b-2 border-nb-border" />
+        <DialogHeader className="pt-2">
           <DialogTitle>Welcome to Freddy Beach</DialogTitle>
           <DialogDescription>
             Sign in to claim your business, leave reviews, and access exclusive features.
@@ -223,10 +225,10 @@ export function AuthDialog({ children, defaultTab = "sign-in" }: AuthDialogProps
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+                <span className="w-full border-t-2 border-nb-border/20" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
+                <span className="bg-background px-2 text-muted-foreground font-bold">
                   Or continue with email
                 </span>
               </div>
@@ -258,10 +260,10 @@ export function AuthDialog({ children, defaultTab = "sign-in" }: AuthDialogProps
               </div>
 
               {error && (
-                <p className="text-sm text-destructive">{error}</p>
+                <div className="nb-error-box">{error}</div>
               )}
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-nb-blue text-black hover:bg-nb-blue" disabled={isLoading}>
                 {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -305,10 +307,10 @@ export function AuthDialog({ children, defaultTab = "sign-in" }: AuthDialogProps
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+                <span className="w-full border-t-2 border-nb-border/20" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
+                <span className="bg-background px-2 text-muted-foreground font-bold">
                   Or sign up with email
                 </span>
               </div>
@@ -363,14 +365,14 @@ export function AuthDialog({ children, defaultTab = "sign-in" }: AuthDialogProps
               </div>
 
               {error && (
-                <p className="text-sm text-destructive">{error}</p>
+                <div className="nb-error-box">{error}</div>
               )}
 
               {success && (
-                <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
+                <div className="nb-success-box">{success}</div>
               )}
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-nb-green text-black hover:bg-nb-green" disabled={isLoading}>
                 {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -382,11 +384,11 @@ export function AuthDialog({ children, defaultTab = "sign-in" }: AuthDialogProps
 
             <p className="text-xs text-muted-foreground text-center">
               By signing up, you agree to our{" "}
-              <Link href="/terms" className="underline hover:text-foreground">
+              <Link href="/terms" className="underline hover:text-foreground font-bold">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="underline hover:text-foreground">
+              <Link href="/privacy" className="underline hover:text-foreground font-bold">
                 Privacy Policy
               </Link>
               .

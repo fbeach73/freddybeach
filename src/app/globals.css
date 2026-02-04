@@ -240,6 +240,33 @@
   @apply border-2 border-nb-border rounded-none font-bold;
 }
 
+/* Neo-brutalism form states */
+.nb-error {
+  @apply border-nb-pink text-nb-pink font-bold;
+}
+
+.nb-success {
+  @apply border-nb-green font-bold;
+}
+
+.nb-error-box {
+  @apply p-3 bg-nb-pink/10 border-2 border-nb-pink text-sm font-bold;
+}
+
+.nb-success-box {
+  @apply p-3 bg-nb-green/10 border-2 border-nb-green text-sm font-bold;
+}
+
+/* Neo-brutalism form section headers */
+.nb-form-section {
+  @apply text-lg font-bold uppercase tracking-tight;
+}
+
+/* Neo-brutalism divider */
+.nb-divider {
+  @apply border-b-2 border-nb-border/10;
+}
+
 /* Legal content prose styling */
 .legal-content {
   @apply text-foreground leading-relaxed;

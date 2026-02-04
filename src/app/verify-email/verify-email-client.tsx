@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -64,22 +63,23 @@ export function VerifyEmailClient({ email, name }: VerifyEmailClientProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+      <div className="nb-card bg-card w-full max-w-md">
+        <div className="h-2 bg-nb-blue border-b-2 border-nb-border" />
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-            <Mail className="h-8 w-8 text-primary" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center bg-nb-blue/20 border-2 border-nb-border">
+            <Mail className="h-8 w-8 text-nb-blue" />
           </div>
-          <CardTitle className="text-2xl">Verify Your Email</CardTitle>
+          <CardTitle className="text-2xl uppercase tracking-tight">Verify Your Email</CardTitle>
           <CardDescription className="text-base">
             Hi {firstName}, please check your inbox
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="rounded-lg bg-muted/50 p-4 text-center">
+          <div className="border-2 border-nb-border bg-muted/50 p-4 text-center">
             <p className="text-sm text-muted-foreground">
               We sent a verification email to:
             </p>
-            <p className="mt-1 font-medium">{email}</p>
+            <p className="mt-1 font-bold">{email}</p>
           </div>
 
           <div className="space-y-2 text-sm text-muted-foreground">
@@ -94,14 +94,14 @@ export function VerifyEmailClient({ email, name }: VerifyEmailClientProps) {
           </div>
 
           {resendSuccess && (
-            <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950/30 dark:text-green-400">
+            <div className="nb-success-box flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               <span>Verification email sent! Check your inbox.</span>
             </div>
           )}
 
           {resendError && (
-            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            <div className="nb-error-box">
               {resendError}
             </div>
           )}
@@ -110,7 +110,7 @@ export function VerifyEmailClient({ email, name }: VerifyEmailClientProps) {
             <Button
               onClick={handleResendEmail}
               disabled={isResending}
-              className="w-full"
+              className="w-full bg-nb-blue text-black hover:bg-nb-blue"
             >
               {isResending ? (
                 <>
@@ -155,7 +155,7 @@ export function VerifyEmailClient({ email, name }: VerifyEmailClientProps) {
             </a>
           </p>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

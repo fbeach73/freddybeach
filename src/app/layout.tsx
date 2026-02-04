@@ -88,7 +88,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
         {/* End Google Tag Manager (noscript) */}
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >

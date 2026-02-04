@@ -67,11 +67,14 @@ export const auth = betterAuth({
             // Don't throw - user creation should still succeed
           }
 
-          // Send welcome email to new users
-          await sendWelcomeEmail({
-            email: user.email,
-            name: user.name || user.email,
-          })
+          // Only send separate welcome email for OAuth users (already verified)
+          // Email/password users get a combined welcome+verification email instead
+          if (user.emailVerified) {
+            await sendWelcomeEmail({
+              email: user.email,
+              name: user.name || user.email,
+            })
+          }
         },
       },
     },

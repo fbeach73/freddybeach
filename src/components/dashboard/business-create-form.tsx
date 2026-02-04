@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { categories } from "@/lib/data/categories";
 import type { BusinessHours } from "@/lib/schema";
-import { Loader2, Send, Info } from "lucide-react";
+import { Loader2, Send, Info, CheckCircle2, ArrowLeft } from "lucide-react";
 
 const DAYS = [
   "Sunday",
@@ -38,6 +39,7 @@ const DEFAULT_HOURS: BusinessHours[] = DAYS.map((_, i) => ({
 export function BusinessCreateForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   // Form state
   const [name, setName] = useState("");
@@ -72,6 +74,12 @@ export function BusinessCreateForm() {
         { day: dayIndex, open: "09:00", close: "17:00", [field]: value },
       ];
     });
+  };
+
+  const handleClosedToggle = (dayIndex: number, closed: boolean) => {
+    setHours((prev) =>
+      prev.map((h) => (h.day === dayIndex ? { ...h, closed } : h))
+    );
   };
 
   const validateForm = (): boolean => {
@@ -132,11 +140,8 @@ export function BusinessCreateForm() {
         throw new Error(data.error || "Failed to submit business");
       }
 
-      toast.success(
-        "Business submitted successfully! It will be reviewed by our team."
-      );
-      router.push("/dashboard/my-businesses");
-      router.refresh();
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to submit business"
@@ -145,6 +150,47 @@ export function BusinessCreateForm() {
       setIsSubmitting(false);
     }
   };
+
+  if (submitted) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center space-y-6">
+        <div className="rounded-full bg-green-100 p-4 dark:bg-green-950/40">
+          <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold">Business Submitted!</h2>
+          <p className="max-w-md text-muted-foreground">
+            Your listing for <span className="font-medium text-foreground">{name}</span> has
+            been submitted and is now under review by our team.
+          </p>
+        </div>
+        <Alert className="max-w-lg text-left">
+          <Info className="h-4 w-4" />
+          <AlertTitle>What happens next?</AlertTitle>
+          <AlertDescription>
+            <ul className="mt-2 list-disc list-inside space-y-1 text-sm">
+              <li>Our team will review your listing within 1-2 business days</li>
+              <li>You&apos;ll be notified once your listing is approved</li>
+              <li>Once approved, your business will appear in the directory</li>
+            </ul>
+          </AlertDescription>
+        </Alert>
+        <div className="flex gap-3">
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/my-businesses">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              My Businesses
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/dashboard">
+              Back to Dashboard
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -343,30 +389,46 @@ export function BusinessCreateForm() {
         <div className="space-y-3">
           {DAYS.map((day, index) => {
             const dayHours = hours.find((h) => h.day === index);
+            const isClosed = dayHours?.closed === true;
             return (
-              <div key={day} className="grid grid-cols-3 items-center gap-4">
+              <div key={day} className="grid grid-cols-[1fr_auto_1fr_1fr] items-center gap-3 sm:gap-4">
                 <Label className="font-normal">{day}</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="time"
-                    value={dayHours?.open || "09:00"}
-                    onChange={(e) =>
-                      handleHoursChange(index, "open", e.target.value)
-                    }
-                    className="w-full"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">to</span>
-                  <Input
-                    type="time"
-                    value={dayHours?.close || "17:00"}
-                    onChange={(e) =>
-                      handleHoursChange(index, "close", e.target.value)
-                    }
-                    className="w-full"
-                  />
-                </div>
+                <Button
+                  type="button"
+                  variant={isClosed ? "destructive" : "outline"}
+                  size="sm"
+                  className="text-xs w-[70px]"
+                  onClick={() => handleClosedToggle(index, !isClosed)}
+                >
+                  {isClosed ? "Closed" : "Open"}
+                </Button>
+                {isClosed ? (
+                  <span className="col-span-2 text-sm text-muted-foreground">
+                    Closed all day
+                  </span>
+                ) : (
+                  <>
+                    <Input
+                      type="time"
+                      value={dayHours?.open || "09:00"}
+                      onChange={(e) =>
+                        handleHoursChange(index, "open", e.target.value)
+                      }
+                      className="w-full"
+                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">to</span>
+                      <Input
+                        type="time"
+                        value={dayHours?.close || "17:00"}
+                        onChange={(e) =>
+                          handleHoursChange(index, "close", e.target.value)
+                        }
+                        className="w-full"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             );
           })}

@@ -10,6 +10,7 @@ import {
   CreditCard,
   Settings,
   Shield,
+  ChevronLeft,
 } from "lucide-react";
 import {
   Sidebar,
@@ -21,7 +22,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +66,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const user = session?.user;
+  const { toggleSidebar, open } = useSidebar();
 
   const isActive = (href: string) => {
     if (href === "/dashboard") {
@@ -151,7 +153,18 @@ export function DashboardSidebar() {
         </div>
       </SidebarFooter>
 
-      <SidebarRail />
+      {/* Floating collapse/expand toggle */}
+      <button
+        onClick={toggleSidebar}
+        className="absolute -right-3 top-18 z-20 hidden sm:flex h-6 w-6 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-accent transition-colors"
+        aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+      >
+        <ChevronLeft
+          className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${
+            open ? "" : "rotate-180"
+          }`}
+        />
+      </button>
     </Sidebar>
   );
 }

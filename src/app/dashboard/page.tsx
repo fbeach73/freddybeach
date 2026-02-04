@@ -44,11 +44,16 @@ export default async function DashboardPage() {
     );
   }
 
-  // Fetch real data from database
+  // Fetch businesses owned by or submitted by this user
   const ownedBusinesses = await db
     .select()
     .from(business)
-    .where(eq(business.ownerId, session.user.id));
+    .where(
+      or(
+        eq(business.ownerId, session.user.id),
+        eq(business.submittedById, session.user.id)
+      )
+    );
 
   // Fetch pending claims count for this user
   const pendingClaimsResult = await db

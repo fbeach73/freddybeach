@@ -37,13 +37,9 @@ function validateBusinessHours(hours: unknown): hours is BusinessHours[] {
   return hours.every((h) => {
     if (typeof h !== "object" || h === null) return false;
     const hour = h as Record<string, unknown>;
-    return (
-      typeof hour.day === "number" &&
-      hour.day >= 0 &&
-      hour.day <= 6 &&
-      typeof hour.open === "string" &&
-      typeof hour.close === "string"
-    );
+    if (typeof hour.day !== "number" || hour.day < 0 || hour.day > 6) return false;
+    if (hour.closed !== undefined && typeof hour.closed !== "boolean") return false;
+    return typeof hour.open === "string" && typeof hour.close === "string";
   });
 }
 

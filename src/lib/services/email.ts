@@ -366,19 +366,38 @@ export async function sendWelcomeEmail(data: WelcomeEmailData): Promise<boolean>
 }
 
 /**
- * Send an email verification link
+ * Send a combined welcome + email verification link
+ * This is sent on signup and combines the welcome message with verification
  */
 export async function sendVerificationEmail(
   data: VerificationEmailData
 ): Promise<boolean> {
+  const firstName = data.name.split(" ")[0];
   const html = await render(
     VerifyEmail({ name: data.name, verificationUrl: data.verificationUrl })
   );
-  const text = `Hi ${data.name.split(" ")[0]},\n\nPlease verify your email address by clicking the link below:\n\n${data.verificationUrl}\n\nThis link will expire in 24 hours.\n\nIf you didn't create an account on FreddyBeach, you can safely ignore this email.\n\n— The FreddyBeach Team`;
+  const text = `Hi ${firstName},
+
+Thanks for joining FreddyBeach.com! We're excited to have you as part of our community. FreddyBeach is your go-to guide for discovering the best local businesses, restaurants, and services in the Fredericton area.
+
+To get started, please verify your email address by clicking the link below:
+
+${data.verificationUrl}
+
+This link will expire in 24 hours.
+
+What You Can Do:
+1. Explore Local Businesses - Browse our directory to discover restaurants, shops, services, and more in Fredericton.
+2. Save Your Favorites - Create a list of your favorite spots so you can easily find them later.
+3. Share Your Experience - Leave reviews to help others discover great local businesses.
+
+If you didn't create an account on FreddyBeach, you can safely ignore this email.
+
+— The FreddyBeach Team`;
 
   return sendEmail({
     to: data.email,
-    subject: "Verify your email for FreddyBeach",
+    subject: `Welcome to FreddyBeach, ${firstName}! Please verify your email`,
     html,
     text,
   });

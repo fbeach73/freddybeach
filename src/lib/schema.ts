@@ -28,6 +28,14 @@ export const claimStatusEnum = pgEnum("claim_status", [
   "rejected",
 ]);
 
+// Booking status enum
+export const bookingStatusEnum = pgEnum("booking_status", [
+  "pending",
+  "confirmed",
+  "completed",
+  "cancelled",
+]);
+
 // Blog post status enum
 export const blogPostStatusEnum = pgEnum("blog_post_status", [
   "draft",
@@ -62,6 +70,7 @@ export interface BusinessHours {
   day: number; // 0-6 (Sunday-Saturday)
   open: string; // "09:00"
   close: string; // "17:00"
+  closed?: boolean;
 }
 
 // Type for Google Place data (raw API response)
@@ -313,6 +322,47 @@ export const claim = pgTable(
     index("claim_business_idx").on(table.businessId),
     // Index for finding claims by user
     index("claim_user_idx").on(table.userId),
+  ]
+);
+
+// Consultation bookings table - stores form submissions
+export const booking = pgTable(
+  "booking",
+  {
+    id: text("id").primaryKey(),
+    // Contact info
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    businessName: text("business_name").notNull(),
+    // Consultation details
+    primaryNeed: text("primary_need").notNull(),
+    challenge: text("challenge").notNull(),
+    // Scheduled time
+    selectedDate: text("selected_date").notNull(), // YYYY-MM-DD
+    selectedTime: text("selected_time").notNull(), // HH:MM
+    // Status tracking
+    status: bookingStatusEnum("status").default("pending").notNull(),
+    // Email delivery tracking
+    adminEmailSent: boolean("admin_email_sent").default(false).notNull(),
+    userEmailSent: boolean("user_email_sent").default(false).notNull(),
+    // Notes (for admin use)
+    adminNotes: text("admin_notes"),
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Index for finding bookings by status
+    index("booking_status_idx").on(table.status),
+    // Index for finding bookings by email
+    index("booking_email_idx").on(table.email),
+    // Index for finding bookings by date
+    index("booking_date_idx").on(table.selectedDate),
+    // Index for recent bookings
+    index("booking_created_idx").on(table.createdAt),
   ]
 );
 

@@ -1,12 +1,16 @@
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { Separator } from "@/components/ui/separator";
+import { requireEmailVerified } from "@/lib/auth/check-role";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Require authenticated user with verified email
+  await requireEmailVerified();
+
   return (
     <SidebarProvider defaultOpen={false}>
       <DashboardSidebar />

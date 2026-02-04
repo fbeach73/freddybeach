@@ -12,7 +12,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { OwnedBusinessCard } from "@/components/dashboard/owned-business-card";
 import { db } from "@/lib/db";
 import { business, claim } from "@/lib/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 
 export const metadata = {
   title: "My Businesses | FreddyBeach Directory",
@@ -29,11 +29,16 @@ export default async function MyBusinessesPage() {
     redirect("/");
   }
 
-  // Fetch businesses owned by this user
+  // Fetch businesses owned by or submitted by this user
   const ownedBusinesses = await db
     .select()
     .from(business)
-    .where(eq(business.ownerId, session.user.id));
+    .where(
+      or(
+        eq(business.ownerId, session.user.id),
+        eq(business.submittedById, session.user.id)
+      )
+    );
 
   // Fetch pending claims by this user (with business names)
   const pendingClaims = await db

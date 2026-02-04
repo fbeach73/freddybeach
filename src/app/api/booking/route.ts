@@ -5,6 +5,9 @@ import {
   sendBookingConfirmationToUser,
 } from "@/lib/services/email";
 import { formatDate, formatTime } from "@/lib/data/booking-slots";
+import { db } from "@/lib/db";
+import { booking } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 
 // Admin email for booking notifications
 const ADMIN_EMAIL = "kyle@freddybeach.com";
@@ -70,6 +73,26 @@ export async function POST(request: NextRequest) {
     const consultationDate = new Date(Date.UTC(year, month - 1, day, hours + 4, minutes));
     const consultationEndDate = new Date(consultationDate.getTime() + 60 * 60 * 1000); // 1 hour later
 
+    // Generate booking ID
+    const bookingId = crypto.randomUUID();
+
+    // Save booking to database FIRST (before sending emails)
+    await db.insert(booking).values({
+      id: bookingId,
+      name: data.name,
+      email: data.email,
+      businessName: data.businessName,
+      primaryNeed: data.primaryNeed,
+      challenge: data.challenge,
+      selectedDate: data.selectedDate,
+      selectedTime: data.selectedTime,
+      status: "pending",
+      adminEmailSent: false,
+      userEmailSent: false,
+    });
+
+    console.log(`[BOOKING] Saved booking ${bookingId} to database`);
+
     // Send notification email to admin
     const adminEmailSent = await sendBookingNotificationToAdmin({
       adminEmail: ADMIN_EMAIL,
@@ -81,7 +104,9 @@ export async function POST(request: NextRequest) {
       selectedDateTime,
     });
 
-    if (!adminEmailSent) {
+    if (adminEmailSent) {
+      await db.update(booking).set({ adminEmailSent: true }).where(eq(booking.id, bookingId));
+    } else {
       console.error("[BOOKING] Failed to send admin notification email");
     }
 
@@ -96,13 +121,16 @@ export async function POST(request: NextRequest) {
       consultationEndDate,
     });
 
-    if (!userEmailSent) {
+    if (userEmailSent) {
+      await db.update(booking).set({ userEmailSent: true }).where(eq(booking.id, bookingId));
+    } else {
       console.error("[BOOKING] Failed to send user confirmation email");
     }
 
     return NextResponse.json({
       success: true,
       message: "Booking request submitted successfully",
+      bookingId,
     });
   } catch (error) {
     console.error("[BOOKING] Error processing request:", error);

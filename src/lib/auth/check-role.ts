@@ -51,3 +51,23 @@ export async function isClient(): Promise<boolean> {
   const role = await getRole()
   return role === "client" || role === "admin"
 }
+
+export async function isEmailVerified(): Promise<boolean> {
+  const session = await getSession()
+  if (!session) return false
+  return session.user.emailVerified === true
+}
+
+export async function requireEmailVerified() {
+  const session = await getSession()
+
+  if (!session) {
+    redirect("/")
+  }
+
+  if (!session.user.emailVerified) {
+    redirect("/verify-email")
+  }
+
+  return session
+}

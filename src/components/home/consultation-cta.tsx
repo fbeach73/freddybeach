@@ -4,22 +4,19 @@ import { Button } from "@/components/ui/button";
 
 export function ConsultationCTA() {
   return (
-    <section className="relative py-20 overflow-hidden">
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent dark:from-primary/20 dark:via-primary/10 dark:to-transparent" />
-
+    <section className="relative py-20 overflow-hidden bg-nb-orange">
       <div className="relative mx-auto max-w-4xl text-center px-4">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+        <h2 className="text-3xl font-black tracking-tight md:text-4xl lg:text-5xl uppercase text-black">
           Ready to Transform Your Business with AI?
         </h2>
 
-        <p className="mt-6 text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto">
+        <p className="mt-6 text-lg text-black/80 font-medium md:text-xl max-w-2xl mx-auto">
           Book a free 30-minute consultation with our team. We&apos;ll show you
           how AI tools can save you time and grow your business.
         </p>
 
         <div className="mt-8">
-          <Button size="lg" asChild>
+          <Button size="lg" asChild className="nb-btn bg-black text-white border-white shadow-[4px_4px_0_0_#fff] px-10 py-6 text-lg hover:bg-black">
             <Link href="/consultation" className="gap-2">
               <Calendar className="h-4 w-4" />
               Book a Free Consultation
@@ -28,18 +25,18 @@ export function ConsultationCTA() {
         </div>
 
         {/* Trust Signals */}
-        <div className="mt-12 flex flex-wrap justify-center gap-8 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-primary" />
-            <span>30-minute session</span>
+        <div className="mt-12 flex flex-wrap justify-center gap-4">
+          <div className="flex items-center gap-2 border-2 border-black bg-white/90 px-4 py-2">
+            <Clock className="h-4 w-4 text-black" />
+            <span className="font-bold text-black">30-minute session</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-primary" />
-            <span>50+ local businesses helped</span>
+          <div className="flex items-center gap-2 border-2 border-black bg-white/90 px-4 py-2">
+            <Users className="h-4 w-4 text-black" />
+            <span className="font-bold text-black">50+ local businesses helped</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-primary" />
-            <span>No obligation</span>
+          <div className="flex items-center gap-2 border-2 border-black bg-white/90 px-4 py-2">
+            <Calendar className="h-4 w-4 text-black" />
+            <span className="font-bold text-black">No obligation</span>
           </div>
         </div>
       </div>

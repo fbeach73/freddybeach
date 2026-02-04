@@ -56,6 +56,19 @@
   --shadow-2xl: 0px 2px 3px 0px hsl(28 18% 25% / 0.45);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
+
+  /* Neo-brutalism accent colors */
+  --nb-yellow: #FACC15;
+  --nb-blue: #3B82F6;
+  --nb-pink: #EC4899;
+  --nb-green: #22C55E;
+  --nb-orange: #F97316;
+  --nb-border: #000;
+  --nb-bg: #FFFEF5;
+  --nb-shadow: #000;
+  --nb-shadow-sm: 3px 3px 0 0 #000;
+  --nb-shadow-md: 4px 4px 0 0 #000;
+  --nb-shadow-lg: 8px 8px 0 0 #000;
 }
 
 .dark {
@@ -109,6 +122,19 @@
   --shadow-lg: 0px 2px 3px 0px hsl(0 0% 5% / 0.18), 0px 4px 6px -1px hsl(0 0% 5% / 0.18);
   --shadow-xl: 0px 2px 3px 0px hsl(0 0% 5% / 0.18), 0px 8px 10px -1px hsl(0 0% 5% / 0.18);
   --shadow-2xl: 0px 2px 3px 0px hsl(0 0% 5% / 0.45);
+
+  /* Neo-brutalism dark mode */
+  --nb-yellow: #FDE047;
+  --nb-blue: #60A5FA;
+  --nb-pink: #F472B6;
+  --nb-green: #4ADE80;
+  --nb-orange: #FB923C;
+  --nb-border: #fff;
+  --nb-bg: #1a1a1a;
+  --nb-shadow: #fff;
+  --nb-shadow-sm: 3px 3px 0 0 #fff;
+  --nb-shadow-md: 4px 4px 0 0 #fff;
+  --nb-shadow-lg: 8px 8px 0 0 #fff;
 }
 
 @theme inline {
@@ -162,6 +188,19 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+
+  /* Neo-brutalism Tailwind tokens */
+  --color-nb-yellow: var(--nb-yellow);
+  --color-nb-blue: var(--nb-blue);
+  --color-nb-pink: var(--nb-pink);
+  --color-nb-green: var(--nb-green);
+  --color-nb-orange: var(--nb-orange);
+  --color-nb-border: var(--nb-border);
+  --color-nb-bg: var(--nb-bg);
+  --color-nb-shadow: var(--nb-shadow);
+  --shadow-nb-sm: var(--nb-shadow-sm);
+  --shadow-nb-md: var(--nb-shadow-md);
+  --shadow-nb-lg: var(--nb-shadow-lg);
 }
 
 @layer base {
@@ -180,6 +219,25 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Neo-brutalism utility classes */
+.nb-card {
+  @apply border-2 border-nb-border rounded-none shadow-nb-md transition-all duration-150 ease-out;
+}
+.nb-card:hover {
+  @apply translate-x-[2px] translate-y-[2px] shadow-none;
+}
+
+.nb-btn {
+  @apply border-2 border-nb-border rounded-none shadow-nb-sm font-bold uppercase tracking-wide transition-all duration-150 ease-out;
+}
+.nb-btn:hover {
+  @apply translate-x-[2px] translate-y-[2px] shadow-none;
+}
+
+.nb-badge {
+  @apply border-2 border-nb-border rounded-none font-bold;
 }
 
 /* Legal content prose styling */

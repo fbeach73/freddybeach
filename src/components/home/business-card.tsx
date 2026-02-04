@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Sparkles, Star, Heart, TrendingUp, BadgeCheck, Award } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TierBadge } from "@/components/shared/tier-badge";
 import { RatingStars } from "@/components/shared/rating-stars";
@@ -30,14 +30,14 @@ export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
 
   return (
     <Link href={`/${category}/${business.slug}`}>
-      <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-lg motion-reduce:transition-none">
-        <div className="relative aspect-video overflow-hidden bg-muted">
+      <div className="nb-card bg-card group h-full overflow-hidden">
+        <div className="relative aspect-video overflow-hidden bg-muted border-b-2 border-nb-border">
           {business.heroImage ? (
             <Image
               src={business.heroImage}
               alt={business.name}
               fill
-              className="object-cover transition-transform group-hover:scale-105"
+              className="object-cover"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
@@ -59,7 +59,7 @@ export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
                 if (!config) return null;
                 const Icon = config.icon;
                 return (
-                  <Badge key={badge} variant={config.variant} className={`${config.className} text-xs`}>
+                  <Badge key={badge} variant={config.variant} className={`nb-badge ${config.className} text-xs`}>
                     <Icon className="mr-1 h-3 w-3" />
                     {config.label}
                   </Badge>
@@ -75,7 +75,7 @@ export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
           )}
         </div>
         <CardContent className="p-5">
-          <h3 className="font-semibold line-clamp-1">{business.name}</h3>
+          <h3 className="font-bold line-clamp-1">{business.name}</h3>
           <div className="mt-1">
             <RatingStars
               rating={business.rating}
@@ -95,7 +95,7 @@ export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
             <OpenStatus hours={business.hours} size="sm" showNextOpen={false} />
           </div>
         </CardContent>
-      </Card>
+      </div>
     </Link>
   );
 }

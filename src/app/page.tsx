@@ -13,7 +13,7 @@ export default async function Home() {
   const featuredBusinesses = await getFeaturedBusinessesFromDb();
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 bg-nb-bg">
       {/* Hero Section - Full Width */}
       <div className="container mx-auto px-4">
         <AIHeroSection />

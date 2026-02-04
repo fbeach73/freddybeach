@@ -8,7 +8,6 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
-import { SectionHeader } from "@/components/shared/page-header";
 import { BusinessCard } from "@/components/home/business-card";
 import type { Business } from "@/lib/types";
 
@@ -25,10 +24,15 @@ export function FeaturedBusinessesSection({
 
   return (
     <section className="py-16">
-      <SectionHeader
-        title="Featured Local Businesses"
-        description="Discover top-rated businesses in Fredericton"
-      />
+      <div className="mb-8">
+        <div className="w-16 h-2 bg-nb-blue mb-4" />
+        <h2 className="text-2xl md:text-3xl font-black uppercase">
+          Featured Local Businesses
+        </h2>
+        <p className="mt-2 text-muted-foreground">
+          Discover top-rated businesses in Fredericton
+        </p>
+      </div>
 
       <div className="mt-8">
         <Carousel
@@ -48,13 +52,13 @@ export function FeaturedBusinessesSection({
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex left-0 -translate-x-1/2" />
-          <CarouselNext className="hidden sm:flex right-0 translate-x-1/2" />
+          <CarouselPrevious className="hidden sm:flex left-0 -translate-x-1/2 rounded-none border-2 border-nb-border shadow-nb-sm hover:translate-x-[calc(-50%+2px)] hover:translate-y-[2px] hover:shadow-none transition-all duration-150" />
+          <CarouselNext className="hidden sm:flex right-0 translate-x-1/2 rounded-none border-2 border-nb-border shadow-nb-sm hover:translate-x-[calc(50%+2px)] hover:translate-y-[2px] hover:shadow-none transition-all duration-150" />
         </Carousel>
       </div>
 
       <div className="mt-6 text-center">
-        <Button variant="outline" asChild>
+        <Button asChild className="nb-btn bg-nb-blue text-white hover:bg-nb-blue">
           <Link href="/search" className="gap-2">
             Explore the full directory
             <ArrowRight className="h-4 w-4" />

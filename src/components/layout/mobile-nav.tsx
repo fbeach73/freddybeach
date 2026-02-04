@@ -63,21 +63,21 @@ export function MobileNav() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="md:hidden rounded-none border-2 border-nb-border">
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-80 p-0">
-        <SheetHeader className="border-b px-6 py-4">
+      <SheetContent side="left" className="w-80 p-0 rounded-none border-r-4 border-nb-border">
+        <SheetHeader className="border-b-4 border-nb-border px-6 py-4">
           <SheetTitle className="text-left">
             <Link
               href="/"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                <MapPin className="h-4 w-4 text-primary" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-none bg-nb-yellow border-2 border-nb-border">
+                <MapPin className="h-4 w-4 text-black" />
               </div>
               <span className="font-bold text-primary">FreddyBeach</span>
             </Link>
@@ -92,7 +92,7 @@ export function MobileNav() {
                 return (
                   <React.Fragment key={item.title}>
                     <div className="pt-2">
-                      <span className="text-xs font-medium uppercase text-muted-foreground">
+                      <span className="text-xs font-black uppercase tracking-wide text-muted-foreground">
                         {item.title}
                       </span>
                     </div>
@@ -104,8 +104,10 @@ export function MobileNav() {
                           href={`/${category.slug}`}
                           onClick={() => setOpen(false)}
                           className={cn(
-                            "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent",
-                            pathname === `/${category.slug}` && "bg-accent"
+                            "flex items-center gap-2 rounded-none px-3 py-2 text-sm font-bold transition-all duration-150 border-2",
+                            pathname === `/${category.slug}`
+                              ? "bg-nb-yellow text-black border-nb-border"
+                              : "border-transparent hover:bg-nb-yellow hover:text-black hover:border-nb-border"
                           )}
                         >
                           {category.name}
@@ -119,7 +121,7 @@ export function MobileNav() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="w-full justify-between px-3 py-2 text-sm font-normal text-muted-foreground hover:text-foreground"
+                            className="w-full justify-between px-3 py-2 text-sm font-normal text-muted-foreground hover:text-foreground nb-btn rounded-none border-2 border-nb-border"
                           >
                             More Categories
                             <ChevronDown
@@ -131,7 +133,7 @@ export function MobileNav() {
                           </Button>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
-                          <div className="max-h-48 overflow-y-auto rounded-lg border bg-muted/30">
+                          <div className="max-h-48 overflow-y-auto rounded-none border-2 border-nb-border bg-muted/30">
                             <div className="flex flex-col gap-1 p-2">
                               {moreCategories.map((category) => (
                                 <Link
@@ -139,8 +141,10 @@ export function MobileNav() {
                                   href={`/${category.slug}`}
                                   onClick={() => setOpen(false)}
                                   className={cn(
-                                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent",
-                                    pathname === `/${category.slug}` && "bg-accent"
+                                    "flex items-center gap-2 rounded-none px-3 py-2 text-sm font-bold transition-all duration-150 border-2",
+                                    pathname === `/${category.slug}`
+                                      ? "bg-nb-yellow text-black border-nb-border"
+                                      : "border-transparent hover:bg-nb-yellow hover:text-black hover:border-nb-border"
                                   )}
                                 >
                                   {category.name}
@@ -161,8 +165,10 @@ export function MobileNav() {
                   href={item.href}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-accent",
-                    pathname === item.href && "bg-accent"
+                    "flex items-center gap-3 rounded-none px-3 py-2 font-bold transition-all duration-150 border-2",
+                    pathname === item.href
+                      ? "bg-nb-yellow text-black border-nb-border"
+                      : "border-transparent hover:bg-nb-yellow hover:text-black hover:border-nb-border"
                   )}
                 >
                   <item.icon className="h-5 w-5 text-muted-foreground" />
@@ -179,15 +185,15 @@ export function MobileNav() {
             })}
           </nav>
 
-          <Separator />
+          <div className="border-t-2 border-nb-border" />
 
           {/* CTA */}
-          <div className="rounded-lg bg-primary/5 p-4">
-            <h4 className="font-medium">Own a Local Business?</h4>
+          <div className="rounded-none border-2 border-nb-border bg-nb-green/10 p-4">
+            <h4 className="font-bold uppercase">Own a Local Business?</h4>
             <p className="mt-1 text-sm text-muted-foreground">
               Claim your listing and unlock free AI tools.
             </p>
-            <Button asChild className="mt-3 w-full" size="sm">
+            <Button asChild className="mt-3 w-full nb-btn bg-nb-green text-black hover:bg-nb-green" size="sm">
               <Link href="/ai-tools" onClick={() => setOpen(false)}>
                 Get Started Free
               </Link>

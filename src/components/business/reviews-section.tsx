@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,7 +58,7 @@ function StarRatingInput({
           <Star
             className={`h-8 w-8 transition-colors ${
               star <= (hoverValue || value)
-                ? "fill-yellow-400 text-yellow-400"
+                ? "fill-nb-yellow text-nb-yellow"
                 : "text-muted-foreground"
             }`}
           />
@@ -71,11 +70,11 @@ function StarRatingInput({
 
 function ReviewCard({ review }: { review: Review }) {
   return (
-    <div className="border-b pb-6 last:border-b-0 last:pb-0">
+    <div className="border-b-2 border-nb-border/10 pb-6 last:border-b-0 last:pb-0">
       <div className="flex items-start gap-4">
-        <Avatar className="h-10 w-10">
+        <Avatar className="h-10 w-10 border-2 border-nb-border">
           <AvatarImage src={review.user.image || undefined} />
-          <AvatarFallback>
+          <AvatarFallback className="font-bold text-sm">
             {review.user.name
               .split(" ")
               .map((n) => n[0])
@@ -86,7 +85,7 @@ function ReviewCard({ review }: { review: Review }) {
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium">{review.user.name}</p>
+              <p className="font-bold">{review.user.name}</p>
               <div className="flex items-center gap-2">
                 <RatingStars rating={review.rating} size="sm" />
                 <span className="text-sm text-muted-foreground">
@@ -98,14 +97,14 @@ function ReviewCard({ review }: { review: Review }) {
             </div>
           </div>
           {review.title && (
-            <h4 className="mt-2 font-medium">{review.title}</h4>
+            <h4 className="mt-2 font-bold">{review.title}</h4>
           )}
           <p className="mt-2 text-muted-foreground">{review.content}</p>
 
           {/* Owner Response */}
           {review.ownerResponse && (
-            <div className="mt-4 rounded-lg bg-muted/50 p-4">
-              <div className="flex items-center gap-2 text-sm font-medium">
+            <div className="mt-4 p-4 bg-nb-yellow/10 border-2 border-nb-border/20">
+              <div className="flex items-center gap-2 text-sm font-bold uppercase">
                 <MessageSquare className="h-4 w-4" />
                 Response from owner
               </div>
@@ -192,110 +191,141 @@ export function ReviewsSection({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
+    <div className="nb-card bg-card">
+      <div className="h-2 bg-nb-yellow border-b-2 border-nb-border" />
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <CardTitle>Reviews</CardTitle>
-            <div className="mt-1 flex items-center gap-2">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="flex h-9 w-9 items-center justify-center bg-nb-yellow border-2 border-nb-border">
+                <Star className="h-4 w-4 text-black fill-black" />
+              </div>
+              <h3 className="text-lg font-bold uppercase tracking-tight">Reviews</h3>
+            </div>
+            <div className="mt-2 flex items-center gap-2 ml-12">
               <RatingStars rating={averageRating} size="sm" showValue />
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground font-bold">
                 ({totalReviews} {totalReviews === 1 ? "review" : "reviews"})
               </span>
             </div>
           </div>
           {session && !userHasReviewed && !showForm && !success && (
-            <Button onClick={() => setShowForm(true)}>Write a Review</Button>
+            <Button
+              onClick={() => setShowForm(true)}
+              className="nb-btn bg-nb-blue text-black hover:bg-nb-blue"
+            >
+              Write a Review
+            </Button>
           )}
           {!session && (
             <AuthDialog>
-              <Button>Sign in to Review</Button>
+              <Button className="nb-btn bg-nb-blue text-black hover:bg-nb-blue">
+                Sign in to Review
+              </Button>
             </AuthDialog>
           )}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Success Message */}
-        {success && (
-          <div className="rounded-lg bg-green-50 p-4 text-green-800 dark:bg-green-900/20 dark:text-green-400">
-            Thank you! Your review has been submitted.
-          </div>
-        )}
 
-        {/* Review Form */}
-        {showForm && (
-          <form onSubmit={handleSubmit} className="space-y-4 border-b pb-6">
-            <div>
-              <Label className="mb-2 block">Your Rating</Label>
-              <StarRatingInput value={rating} onChange={setRating} />
+        <div className="border-b-2 border-nb-border/10 mb-5" />
+
+        <div className="space-y-6">
+          {/* Success Message */}
+          {success && (
+            <div className="p-4 bg-nb-green/20 border-2 border-nb-border font-bold text-sm">
+              Thank you! Your review has been submitted.
             </div>
-            <div>
-              <Label htmlFor="review-title">Title (optional)</Label>
-              <Input
-                id="review-title"
-                placeholder="Summarize your experience"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={100}
-              />
+          )}
+
+          {/* Review Form */}
+          {showForm && (
+            <form onSubmit={handleSubmit} className="space-y-4 border-b-2 border-nb-border/10 pb-6">
+              <div>
+                <Label className="mb-2 block font-bold uppercase text-sm">Your Rating</Label>
+                <StarRatingInput value={rating} onChange={setRating} />
+              </div>
+              <div>
+                <Label htmlFor="review-title" className="font-bold uppercase text-sm">Title (optional)</Label>
+                <Input
+                  id="review-title"
+                  placeholder="Summarize your experience"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={100}
+                  className="rounded-none border-2 border-nb-border mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="review-content" className="font-bold uppercase text-sm">Your Review</Label>
+                <Textarea
+                  id="review-content"
+                  placeholder={`Share your experience with ${businessName}...`}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  rows={4}
+                  required
+                  minLength={10}
+                  className="rounded-none border-2 border-nb-border mt-1"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Minimum 10 characters
+                </p>
+              </div>
+
+              {error && (
+                <div className="p-3 bg-destructive/10 border-2 border-destructive text-sm text-destructive font-bold">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="nb-btn bg-nb-green text-black hover:bg-nb-green"
+                >
+                  {isSubmitting && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Submit Review
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowForm(false)}
+                  className="nb-btn bg-card text-foreground hover:bg-card"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {/* Already Reviewed Message */}
+          {userHasReviewed && !success && (
+            <div className="p-4 bg-nb-blue/10 border-2 border-nb-border/20 text-center text-sm text-muted-foreground font-bold">
+              You have already reviewed this business.
             </div>
-            <div>
-              <Label htmlFor="review-content">Your Review</Label>
-              <Textarea
-                id="review-content"
-                placeholder={`Share your experience with ${businessName}...`}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={4}
-                required
-                minLength={10}
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Minimum 10 characters
+          )}
+
+          {/* Reviews List */}
+          {reviews.length > 0 ? (
+            <div className="space-y-6">
+              {reviews.map((review) => (
+                <ReviewCard key={review.id} review={review} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="flex h-16 w-16 mx-auto items-center justify-center bg-nb-yellow/20 border-2 border-nb-border/20">
+                <MessageSquare className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <p className="mt-3 font-bold text-muted-foreground">
+                No reviews yet. Be the first to review {businessName}!
               </p>
             </div>
-
-            {error && <p className="text-sm text-destructive">{error}</p>}
-
-            <div className="flex gap-2">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Submit Review
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowForm(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        )}
-
-        {/* Already Reviewed Message */}
-        {userHasReviewed && !success && (
-          <div className="rounded-lg bg-muted p-4 text-center text-sm text-muted-foreground">
-            You have already reviewed this business.
-          </div>
-        )}
-
-        {/* Reviews List */}
-        {reviews.length > 0 ? (
-          <div className="space-y-6">
-            {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <MessageSquare className="mx-auto h-12 w-12 mb-3 opacity-50" />
-            <p>No reviews yet. Be the first to review {businessName}!</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

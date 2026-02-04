@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface BusinessMapProps {
@@ -31,29 +30,10 @@ export function BusinessMap({
     const staticMapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(`${name}, ${address}`)}&output=embed`;
 
     return (
-      <Card className={cn("", className)}>
-        <CardContent className="p-0 overflow-hidden rounded-lg">
-          <iframe
-            src={staticMapUrl}
-            width="100%"
-            height="250"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title={`Map showing ${name}`}
-            className="w-full"
-          />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className={cn("", className)}>
-      <CardContent className="p-0 overflow-hidden rounded-lg">
+      <div className={cn("nb-card overflow-hidden", className)}>
+        <div className="h-2 bg-nb-orange border-b-2 border-nb-border" />
         <iframe
-          src={mapUrl}
+          src={staticMapUrl}
           width="100%"
           height="250"
           style={{ border: 0 }}
@@ -61,9 +41,26 @@ export function BusinessMap({
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
           title={`Map showing ${name}`}
-          className="w-full"
+          className="w-full border-b-0"
         />
-      </CardContent>
-    </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("nb-card overflow-hidden", className)}>
+      <div className="h-2 bg-nb-orange border-b-2 border-nb-border" />
+      <iframe
+        src={mapUrl}
+        width="100%"
+        height="250"
+        style={{ border: 0 }}
+        allowFullScreen
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title={`Map showing ${name}`}
+        className="w-full"
+      />
+    </div>
   );
 }

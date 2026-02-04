@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -8,13 +7,14 @@ interface BusinessMapPlaceholderProps {
 
 export function BusinessMapPlaceholder({ className }: BusinessMapPlaceholderProps) {
   return (
-    <Card className={cn("", className)}>
-      <CardContent className="p-0">
-        <div className="aspect-video flex flex-col items-center justify-center bg-muted/50 rounded-lg border-2 border-dashed border-muted-foreground/20">
-          <MapPin className="h-12 w-12 text-muted-foreground/40 mb-2" />
-          <p className="text-sm text-muted-foreground">Map coming soon</p>
+    <div className={cn("nb-card overflow-hidden", className)}>
+      <div className="h-2 bg-nb-orange border-b-2 border-nb-border" />
+      <div className="aspect-video flex flex-col items-center justify-center bg-muted/50">
+        <div className="flex h-12 w-12 items-center justify-center bg-nb-orange/20 border-2 border-nb-border/20">
+          <MapPin className="h-6 w-6 text-muted-foreground" />
         </div>
-      </CardContent>
-    </Card>
+        <p className="mt-2 text-sm font-bold text-muted-foreground">Map coming soon</p>
+      </div>
+    </div>
   );
 }

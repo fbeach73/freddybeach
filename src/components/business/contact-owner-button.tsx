@@ -19,7 +19,7 @@ export function ContactOwnerButton({
     <Button
       variant="outline"
       size="lg"
-      className={cn("w-full", className)}
+      className={cn("nb-btn w-full bg-card text-foreground hover:bg-card", className)}
       disabled
     >
       <MessageSquare className="mr-2 h-5 w-5" />

@@ -58,7 +58,7 @@ export function BusinessPhotoGallery({
             <button
               key={index}
               onClick={() => openLightbox(index)}
-              className="relative aspect-square overflow-hidden group cursor-pointer focus:outline-none border-4 border-nb-border shadow-nb-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150"
+              className="relative aspect-square overflow-hidden group cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-nb-yellow focus-visible:ring-offset-2 border-4 border-nb-border shadow-nb-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150"
             >
               <Image
                 src={image}

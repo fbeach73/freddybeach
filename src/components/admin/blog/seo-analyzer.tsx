@@ -34,39 +34,42 @@ import {
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { SEOAnalysis } from "@/types/blog";
 
 interface SEOAnalyzerProps {
   analysis: SEOAnalysis;
 }
 
+// Pure helper functions (outside component for React Compiler compatibility)
+function getScoreColor(score: number) {
+  if (score >= 90) return "text-nb-green";
+  if (score >= 70) return "text-nb-yellow";
+  if (score >= 50) return "text-nb-orange";
+  return "text-nb-pink";
+}
+
+function getProgressColor(score: number) {
+  if (score >= 90) return "bg-nb-green";
+  if (score >= 70) return "bg-nb-yellow";
+  if (score >= 50) return "bg-nb-orange";
+  return "bg-nb-pink";
+}
+
+function getScoreLabel(score: number) {
+  if (score >= 90) return "Excellent";
+  if (score >= 70) return "Good";
+  if (score >= 50) return "Average";
+  return "Needs Work";
+}
+
 export function SEOAnalyzer({ analysis }: SEOAnalyzerProps) {
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
-  // Get score color based on value
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-nb-green";
-    if (score >= 70) return "text-nb-yellow";
-    if (score >= 50) return "text-nb-orange";
-    return "text-nb-pink";
-  };
-
-  // Get score progress color
-  const getProgressColor = (score: number) => {
-    if (score >= 90) return "bg-nb-green";
-    if (score >= 70) return "bg-nb-yellow";
-    if (score >= 50) return "bg-nb-orange";
-    return "bg-nb-pink";
-  };
-
-  // Get score label
-  const getScoreLabel = (score: number) => {
-    if (score >= 90) return "Excellent";
-    if (score >= 70) return "Good";
-    if (score >= 50) return "Average";
-    return "Needs Work";
-  };
+  const progressStyle = useMemo(
+    () => ({ "--progress-background": getProgressColor(analysis.score) }) as React.CSSProperties,
+    [analysis.score]
+  );
 
   // Copy link to clipboard
   const copyLink = async (slug: string) => {
@@ -113,9 +116,7 @@ export function SEOAnalyzer({ analysis }: SEOAnalyzerProps) {
             <Progress
               value={analysis.score}
               className="h-3"
-              style={
-                { "--progress-background": getProgressColor(analysis.score) } as React.CSSProperties
-              }
+              style={progressStyle}
             />
           </CardContent>
         </Card>

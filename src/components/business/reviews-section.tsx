@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -134,6 +135,7 @@ export function ReviewsSection({
   totalReviews,
   userHasReviewed,
 }: ReviewsSectionProps) {
+  const router = useRouter();
   const { data: session } = useSession();
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -182,7 +184,7 @@ export function ReviewsSection({
       setTitle("");
       setContent("");
       // Reload to show new review
-      window.location.reload();
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit review");
     } finally {

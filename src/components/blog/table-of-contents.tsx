@@ -68,7 +68,7 @@ export function TableOfContents({ items, className }: TableOfContentsProps) {
                   element.scrollIntoView({ behavior: "smooth" });
                   setActiveId(item.id);
                   // Update URL without scroll
-                  window.history.pushState(null, "", `#${item.id}`);
+                  window.history.replaceState(null, "", `#${item.id}`);
                 }
               }}
             >

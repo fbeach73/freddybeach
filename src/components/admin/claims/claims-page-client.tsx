@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -135,9 +135,9 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
   const [rejectionReason, setRejectionReason] = useState("");
 
   // Filter claims by status
-  const pendingClaims = claims.filter((c) => c.status === "pending");
-  const approvedClaims = claims.filter((c) => c.status === "approved");
-  const rejectedClaims = claims.filter((c) => c.status === "rejected");
+  const pendingClaims = useMemo(() => claims.filter((c) => c.status === "pending"), [claims]);
+  const approvedClaims = useMemo(() => claims.filter((c) => c.status === "approved"), [claims]);
+  const rejectedClaims = useMemo(() => claims.filter((c) => c.status === "rejected"), [claims]);
 
   const getBusinessUrl = (claim: Claim) => {
     const category = claim.businessCategoryId

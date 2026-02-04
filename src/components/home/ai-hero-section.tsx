@@ -99,7 +99,7 @@ export function AIHeroSection() {
             {/* Floating badges for social proof */}
             <div className="relative mt-4 sm:absolute sm:mt-0 sm:-bottom-4 sm:-left-4 rounded-none bg-nb-yellow border-2 border-nb-border shadow-nb-md px-4 py-3 block">
               <p className="text-sm font-bold text-black">2,000+ images generated</p>
-              <p className="text-xs text-black/70">by local businesses</p>
+              <p className="text-xs text-black">by local businesses</p>
             </div>
           </div>
         </div>

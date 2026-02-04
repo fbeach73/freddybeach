@@ -30,7 +30,7 @@ export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
 
   return (
     <Link href={`/${category}/${business.slug}`}>
-      <Card className="group h-full overflow-hidden transition-shadow hover:shadow-md">
+      <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-lg motion-reduce:transition-none">
         <div className="relative aspect-video overflow-hidden bg-muted">
           {business.heroImage ? (
             <Image
@@ -74,7 +74,7 @@ export function BusinessCard({ business, categorySlug }: BusinessCardProps) {
             </div>
           )}
         </div>
-        <CardContent className="p-4">
+        <CardContent className="p-5">
           <h3 className="font-semibold line-clamp-1">{business.name}</h3>
           <div className="mt-1">
             <RatingStars

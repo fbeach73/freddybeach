@@ -11,12 +11,14 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
   return (
     <Card>
       <CardContent className="p-6">
-        <Quote className="h-8 w-8 text-primary/20" />
+        <div className="relative">
+          <Quote className="absolute -top-2 -left-2 h-12 w-12 text-primary/15" />
+        </div>
         <blockquote className="mt-4 text-lg leading-relaxed">
           &ldquo;{testimonial.quote}&rdquo;
         </blockquote>
         <div className="mt-6 flex items-center gap-4">
-          <div className="relative h-12 w-12 overflow-hidden rounded-full">
+          <div className="relative h-12 w-12 overflow-hidden rounded-full border-2 border-border">
             <Image
               src={testimonial.personImage}
               alt={testimonial.personName}

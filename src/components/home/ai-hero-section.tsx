@@ -56,7 +56,7 @@ export function AIHeroSection() {
             Create Stunning AI Images for Your Business
           </h1>
 
-          <p className="text-lg text-muted-foreground md:text-xl">
+          <p className="mt-2 text-lg text-muted-foreground md:text-xl">
             Generate professional marketing images, social media graphics, and
             promotional content with our AI tools. Designed specifically for
             Fredericton businesses.
@@ -100,7 +100,7 @@ export function AIHeroSection() {
             </div>
 
             {/* Floating badges for social proof */}
-            <div className="absolute -bottom-4 -left-4 rounded-xl bg-background border shadow-lg px-4 py-3 hidden sm:block">
+            <div className="relative mt-4 sm:absolute sm:mt-0 sm:-bottom-4 sm:-left-4 rounded-xl bg-background border shadow-lg px-4 py-3 block">
               <p className="text-sm font-medium">2,000+ images generated</p>
               <p className="text-xs text-muted-foreground">by local businesses</p>
             </div>

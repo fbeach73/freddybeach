@@ -77,11 +77,11 @@ export function SearchPagination({
       <div className="flex items-center gap-1">
         {/* Previous Button */}
         <Button
-          variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           aria-label="Go to previous page"
+          className="nb-btn bg-card text-foreground hover:bg-card disabled:opacity-50 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 h-10 w-10"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -92,18 +92,23 @@ export function SearchPagination({
             page === "ellipsis" ? (
               <span
                 key={`ellipsis-${index}`}
-                className="px-3 py-2 text-muted-foreground"
+                className="px-3 py-2 font-bold text-muted-foreground"
               >
                 ...
               </span>
             ) : (
               <Button
                 key={page}
-                variant={currentPage === page ? "default" : "outline"}
                 size="icon"
                 onClick={() => onPageChange(page)}
                 aria-label={`Go to page ${page}`}
                 aria-current={currentPage === page ? "page" : undefined}
+                className={cn(
+                  "h-10 w-10 border-2 border-nb-border rounded-none font-bold transition-all duration-150",
+                  currentPage === page
+                    ? "bg-nb-yellow text-black shadow-none translate-x-[2px] translate-y-[2px]"
+                    : "bg-card text-foreground shadow-nb-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+                )}
               >
                 {page}
               </Button>
@@ -113,18 +118,18 @@ export function SearchPagination({
 
         {/* Next Button */}
         <Button
-          variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           aria-label="Go to next page"
+          className="nb-btn bg-card text-foreground hover:bg-card disabled:opacity-50 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 h-10 w-10"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Page X of Y */}
-      <p className="text-sm text-muted-foreground">
+      <p className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
         Page {currentPage} of {totalPages}
       </p>
     </nav>

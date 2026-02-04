@@ -399,13 +399,13 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           {debouncedQuery ? (
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-lg font-bold uppercase">
               Showing results for &quot;{debouncedQuery}&quot;
             </h2>
           ) : (
-            <h2 className="text-lg font-semibold">Browse All Businesses</h2>
+            <h2 className="text-lg font-bold uppercase">Browse All Businesses</h2>
           )}
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-bold">
             {sortedBusinesses.length}{" "}
             {sortedBusinesses.length === 1 ? "business" : "businesses"} found
           </p>
@@ -414,14 +414,13 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
         <div className="flex items-center gap-3">
           {/* Mobile Filters Button */}
           <Button
-            variant="outline"
-            className="lg:hidden"
+            className="nb-btn bg-card text-foreground hover:bg-card lg:hidden"
             onClick={() => setIsFiltersOpen(true)}
           >
             <SlidersHorizontal className="mr-2 h-4 w-4" />
             Filters
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="ml-2">
+              <Badge className="nb-badge bg-nb-pink text-black ml-2">
                 {activeFilterCount}
               </Badge>
             )}
@@ -429,10 +428,10 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
 
           {/* Sort Dropdown */}
           <Select value={sortBy} onValueChange={handleSortChange}>
-            <SelectTrigger className="w-[160px]">
+            <SelectTrigger className="w-[160px] border-2 border-nb-border rounded-none font-bold">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-2 border-nb-border rounded-none">
               {sortOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -447,8 +446,8 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
       <div className="flex gap-8">
         {/* Desktop Filters Sidebar */}
         <aside className="hidden w-64 shrink-0 lg:block">
-          <div className="sticky top-24 rounded-lg border bg-card p-6">
-            <h3 className="mb-4 font-semibold">Filters</h3>
+          <div className="sticky top-24 border-2 border-nb-border bg-card p-6">
+            <h3 className="mb-4 font-bold uppercase tracking-wide">Filters</h3>
             <SearchFilters
               filters={filters}
               categories={categories}
@@ -489,7 +488,7 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
       <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
         <SheetContent side="left" className="overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
+            <SheetTitle className="font-bold uppercase tracking-wide">Filters</SheetTitle>
           </SheetHeader>
           <div className="py-4">
             <SearchFilters
@@ -504,7 +503,7 @@ export function SearchClient({ businesses, categories }: SearchClientProps) {
           </div>
           <SheetFooter>
             <SheetClose asChild>
-              <Button className="w-full">
+              <Button className="nb-btn w-full bg-nb-green text-black hover:bg-nb-green">
                 Apply Filters
                 {activeFilterCount > 0 && ` (${activeFilterCount})`}
               </Button>

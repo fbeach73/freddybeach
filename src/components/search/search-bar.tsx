@@ -60,7 +60,7 @@ export function SearchBar({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className={cn(
-          "pr-10",
+          "pr-10 border-2 border-nb-border rounded-none font-bold shadow-nb-sm focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all duration-150",
           size === "lg"
             ? "h-12 pl-11 text-lg md:h-14 md:text-xl"
             : "h-10 pl-10"

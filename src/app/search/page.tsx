@@ -23,7 +23,7 @@ function SearchLoading() {
   return (
     <div className="space-y-6">
       {/* Search Bar Skeleton */}
-      <Skeleton className="h-14 w-full" />
+      <Skeleton className="h-14 w-full border-2 border-nb-border rounded-none" />
 
       {/* Results Header Skeleton */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -32,8 +32,8 @@ function SearchLoading() {
           <Skeleton className="mt-2 h-4 w-32" />
         </div>
         <div className="flex gap-3">
-          <Skeleton className="h-10 w-24 lg:hidden" />
-          <Skeleton className="h-10 w-40" />
+          <Skeleton className="h-10 w-24 border-2 border-nb-border rounded-none lg:hidden" />
+          <Skeleton className="h-10 w-40 border-2 border-nb-border rounded-none" />
         </div>
       </div>
 
@@ -41,14 +41,22 @@ function SearchLoading() {
       <div className="flex gap-8">
         {/* Sidebar Skeleton */}
         <div className="hidden w-64 shrink-0 lg:block">
-          <Skeleton className="h-96 w-full rounded-lg" />
+          <Skeleton className="h-96 w-full border-2 border-nb-border rounded-none" />
         </div>
 
         {/* Grid Skeleton */}
         <div className="flex-1">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={`skeleton-${i}`} className="aspect-[4/5] w-full rounded-lg" />
+              <div key={`skeleton-${i}`} className="nb-card bg-card overflow-hidden">
+                <Skeleton className="aspect-video w-full border-b-2 border-nb-border" />
+                <div className="p-5">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="mt-2 h-4 w-1/2" />
+                  <Skeleton className="mt-3 h-4 w-full" />
+                  <Skeleton className="mt-2 h-4 w-2/3" />
+                </div>
+              </div>
             ))}
           </div>
         </div>

@@ -82,17 +82,16 @@ export function CategoryPageClient({
       )}
 
       {filteredAndSortedBusinesses.length === 0 && hasActiveFilters ? (
-        <section role="status" aria-live="polite" className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="rounded-full bg-muted p-4">
-            <SearchX className="h-8 w-8 text-muted-foreground" />
+        <section role="status" aria-live="polite" className="nb-card bg-card p-12 flex flex-col items-center justify-center text-center">
+          <div className="flex h-16 w-16 items-center justify-center bg-nb-yellow border-2 border-nb-border">
+            <SearchX className="h-8 w-8 text-black" />
           </div>
-          <h3 className="mt-4 text-lg font-semibold">No businesses match your filters</h3>
+          <h3 className="mt-4 text-lg font-bold uppercase">No businesses match your filters</h3>
           <p className="mt-2 max-w-md text-sm text-muted-foreground">
             Try adjusting your filters to see more results.
           </p>
           <Button
-            variant="outline"
-            className="mt-4"
+            className="nb-btn mt-4 bg-nb-pink text-black hover:bg-nb-pink"
             onClick={handleRemoveOpenNowFilter}
           >
             Clear Filters

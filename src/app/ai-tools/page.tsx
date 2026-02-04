@@ -91,17 +91,17 @@ export default async function AIToolsPage() {
     <div className="flex-1">
       {/* Authenticated User Dashboard Section */}
       {isAuthenticated && usageData && (
-        <section className="border-b bg-muted/30 py-8">
+        <section className="border-b-2 border-nb-border bg-muted/30 py-8">
           <div className="container mx-auto space-y-6 px-4">
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold">AI Tools</h1>
+                <h1 className="text-2xl font-bold uppercase">AI Tools</h1>
                 <p className="text-muted-foreground">
                   Powerful AI-powered tools to grow your business
                 </p>
               </div>
-              <Badge variant="secondary" className="w-fit text-sm">
+              <Badge className="nb-badge bg-nb-yellow text-black w-fit text-sm">
                 <Zap className="mr-1.5 h-3.5 w-3.5" />
                 {usageData.isUnlimited
                   ? "Unlimited"
@@ -162,7 +162,7 @@ export default async function AIToolsPage() {
 
             {/* Quick Access Tools */}
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Quick Access</h2>
+              <h2 className="text-lg font-bold uppercase tracking-wide">Quick Access</h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {freeTools.slice(0, 4).map((tool) => (
                   <DashboardToolCard
@@ -196,7 +196,8 @@ export default async function AIToolsPage() {
       <section id="pricing" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl">
+            <div className="h-2 bg-nb-orange border-2 border-nb-border mb-6 mx-auto max-w-xs" />
+            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl uppercase">
               Simple, Flexible Pricing
             </h2>
             <p className="text-muted-foreground">

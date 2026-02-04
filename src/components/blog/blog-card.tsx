@@ -1,28 +1,41 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReadingTimeBadge } from "./reading-time-badge";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/format";
 import type { BlogPostCard } from "@/types/blog";
 
+const ACCENT_COLORS = [
+  "bg-nb-yellow",
+  "bg-nb-blue",
+  "bg-nb-pink",
+  "bg-nb-green",
+  "bg-nb-orange",
+];
+
 interface BlogCardProps {
   post: BlogPostCard;
+  index?: number;
   className?: string;
 }
 
-export function BlogCard({ post, className }: BlogCardProps) {
+export function BlogCard({ post, index = 0, className }: BlogCardProps) {
+  const accentColor = ACCENT_COLORS[index % ACCENT_COLORS.length];
+
   return (
     <Link href={`/blog/${post.slug}`} className="group">
-      <Card
+      <div
         className={cn(
-          "overflow-hidden transition-all hover:shadow-lg hover:border-primary/20",
+          "nb-card bg-card overflow-hidden flex flex-col h-full",
           className
         )}
       >
+        {/* Colored top bar */}
+        <div className={`h-2 ${accentColor} border-b-2 border-nb-border`} />
+
         {/* Featured Image */}
-        <div className="relative aspect-video overflow-hidden">
+        <div className="relative aspect-video overflow-hidden border-b-2 border-nb-border">
           <Image
             src={post.featuredImage}
             alt={post.featuredImageAlt}
@@ -32,15 +45,15 @@ export function BlogCard({ post, className }: BlogCardProps) {
           />
           {/* Category Badge */}
           {post.categoryName && (
-            <Badge className="absolute top-3 left-3" variant="default">
+            <Badge className="nb-badge bg-nb-yellow text-black absolute top-3 left-3">
               {post.categoryName}
             </Badge>
           )}
         </div>
 
-        <CardContent className="p-4">
+        <div className="p-4 flex flex-col flex-1">
           {/* Title */}
-          <h3 className="text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors mb-2">
+          <h3 className="text-lg font-bold line-clamp-2 group-hover:text-primary transition-colors mb-2">
             {post.title}
           </h3>
 
@@ -48,15 +61,15 @@ export function BlogCard({ post, className }: BlogCardProps) {
           <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
             {post.excerpt}
           </p>
-        </CardContent>
 
-        <CardFooter className="px-4 pb-4 pt-0 flex items-center justify-between text-xs text-muted-foreground">
-          <time dateTime={post.publishedAt.toISOString()}>
-            {formatDate(post.publishedAt)}
-          </time>
-          <ReadingTimeBadge minutes={post.readingTime} />
-        </CardFooter>
-      </Card>
+          <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground font-bold">
+            <time dateTime={post.publishedAt.toISOString()}>
+              {formatDate(post.publishedAt)}
+            </time>
+            <ReadingTimeBadge minutes={post.readingTime} />
+          </div>
+        </div>
+      </div>
     </Link>
   );
 }

@@ -18,6 +18,7 @@ interface EmptyStateProps {
     href?: string;
   };
   className?: string;
+  accentColor?: string;
 }
 
 export function EmptyState({
@@ -27,18 +28,19 @@ export function EmptyState({
   action,
   secondaryAction,
   className,
+  accentColor = "bg-nb-yellow",
 }: EmptyStateProps) {
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center py-12 text-center",
+        "nb-card bg-card p-12 flex flex-col items-center justify-center text-center",
         className
       )}
     >
-      <div className="rounded-full bg-muted p-4">
-        <Icon className="h-8 w-8 text-muted-foreground" />
+      <div className={`flex h-16 w-16 items-center justify-center ${accentColor} border-2 border-nb-border`}>
+        <Icon className="h-8 w-8 text-black" />
       </div>
-      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+      <h3 className="mt-4 text-lg font-bold uppercase">{title}</h3>
       {description && (
         <p className="mt-2 max-w-md text-sm text-muted-foreground">
           {description}
@@ -50,6 +52,7 @@ export function EmptyState({
             <Button
               onClick={action.onClick}
               asChild={!!action.href}
+              className="nb-btn bg-nb-green text-black hover:bg-nb-green"
             >
               {action.href ? (
                 <Link href={action.href}>{action.label}</Link>
@@ -60,9 +63,9 @@ export function EmptyState({
           )}
           {secondaryAction && (
             <Button
-              variant="outline"
               onClick={secondaryAction.onClick}
               asChild={!!secondaryAction.href}
+              className="nb-btn bg-card text-foreground hover:bg-card"
             >
               {secondaryAction.href ? (
                 <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
@@ -87,24 +90,24 @@ export function NoSearchResults({
   onSuggestionClick?: (suggestion: string) => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="rounded-full bg-muted p-4">
-        <Search className="h-8 w-8 text-muted-foreground" />
+    <div className="nb-card bg-card p-12 flex flex-col items-center justify-center text-center">
+      <div className="flex h-16 w-16 items-center justify-center bg-nb-pink border-2 border-nb-border">
+        <Search className="h-8 w-8 text-black" />
       </div>
-      <h3 className="mt-4 text-lg font-semibold">No results found</h3>
+      <h3 className="mt-4 text-lg font-bold uppercase">No results found</h3>
       <p className="mt-2 max-w-md text-sm text-muted-foreground">
         We couldn&apos;t find any businesses matching &quot;{query}&quot;
       </p>
       {suggestions && suggestions.length > 0 && (
         <div className="mt-4">
-          <p className="text-sm text-muted-foreground">Did you mean:</p>
+          <p className="text-sm font-bold uppercase tracking-wide text-muted-foreground">Did you mean:</p>
           <div className="mt-2 flex flex-wrap justify-center gap-2">
             {suggestions.map((suggestion) => (
               <Button
                 key={suggestion}
-                variant="outline"
                 size="sm"
                 onClick={() => onSuggestionClick?.(suggestion)}
+                className="nb-btn bg-nb-blue text-black hover:bg-nb-blue text-xs"
               >
                 {suggestion}
               </Button>
@@ -118,17 +121,17 @@ export function NoSearchResults({
 
 export function NoBusinesses({ categoryName }: { categoryName?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="rounded-full bg-muted p-4">
-        <Building2 className="h-8 w-8 text-muted-foreground" />
+    <div className="nb-card bg-card p-12 flex flex-col items-center justify-center text-center">
+      <div className="flex h-16 w-16 items-center justify-center bg-nb-orange border-2 border-nb-border">
+        <Building2 className="h-8 w-8 text-black" />
       </div>
-      <h3 className="mt-4 text-lg font-semibold">No businesses yet</h3>
+      <h3 className="mt-4 text-lg font-bold uppercase">No businesses yet</h3>
       <p className="mt-2 max-w-md text-sm text-muted-foreground">
         {categoryName
           ? `There are no businesses listed in ${categoryName} yet.`
           : "There are no businesses listed yet."}
       </p>
-      <Button className="mt-4" asChild>
+      <Button className="nb-btn mt-4 bg-nb-green text-black hover:bg-nb-green" asChild>
         <Link href="/consultation">Add Your Business</Link>
       </Button>
     </div>

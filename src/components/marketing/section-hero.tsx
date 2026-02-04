@@ -35,7 +35,7 @@ export function SectionHero({
   return (
     <section
       className={cn(
-        "relative py-16 md:py-24 lg:py-32",
+        "relative py-16 md:py-24 lg:py-32 border-b-2 border-nb-border",
         gradient &&
           "bg-gradient-to-br from-primary/5 via-background to-secondary/5 dark:from-primary/10 dark:via-background dark:to-secondary/10",
         className
@@ -46,14 +46,14 @@ export function SectionHero({
           {badges && badges.length > 0 && (
             <div className="mb-6 flex flex-wrap justify-center gap-2">
               {badges.map((badge, index) => (
-                <Badge key={index} variant="secondary">
+                <Badge key={index} className="nb-badge bg-nb-yellow text-black">
                   {badge}
                 </Badge>
               ))}
             </div>
           )}
 
-          <h1 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+          <h1 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl uppercase">
             {title}
           </h1>
 
@@ -66,7 +66,7 @@ export function SectionHero({
           {(primaryCTA || secondaryCTA) && (
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               {primaryCTA && (
-                <Button asChild size="lg" variant={primaryCTA.variant || "default"}>
+                <Button asChild size="lg" className="nb-btn bg-nb-green text-black hover:bg-nb-green">
                   <Link href={primaryCTA.href}>{primaryCTA.text}</Link>
                 </Button>
               )}
@@ -74,7 +74,7 @@ export function SectionHero({
                 <Button
                   asChild
                   size="lg"
-                  variant={secondaryCTA.variant || "outline"}
+                  className="nb-btn bg-card text-foreground hover:bg-card"
                 >
                   <Link href={secondaryCTA.href}>{secondaryCTA.text}</Link>
                 </Button>

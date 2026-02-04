@@ -13,10 +13,11 @@ export function AIToolsShowcase() {
   return (
     <>
       {/* Interactive Demos Section */}
-      <section className="bg-muted/30 py-16 md:py-24">
+      <section className="bg-muted/30 py-16 md:py-24 border-y-2 border-nb-border">
         <div className="container mx-auto px-4">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl">
+            <div className="h-2 bg-nb-blue border-2 border-nb-border mb-6 mx-auto max-w-xs" />
+            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl uppercase">
               See AI Tools in Action
             </h2>
             <p className="text-muted-foreground">
@@ -30,11 +31,11 @@ export function AIToolsShowcase() {
             {/* Mobile Tabs View */}
             <div className="md:hidden">
               <Tabs defaultValue="review-responder" className="w-full">
-                <TabsList className="mb-6 w-full">
-                  <TabsTrigger value="review-responder" className="flex-1">
+                <TabsList className="mb-6 w-full border-2 border-nb-border rounded-none">
+                  <TabsTrigger value="review-responder" className="flex-1 rounded-none font-bold">
                     Review Assistant
                   </TabsTrigger>
-                  <TabsTrigger value="social-post" className="flex-1">
+                  <TabsTrigger value="social-post" className="flex-1 rounded-none font-bold">
                     Social Posts
                   </TabsTrigger>
                 </TabsList>
@@ -62,7 +63,8 @@ export function AIToolsShowcase() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="mx-auto mb-12 max-w-2xl text-center">
-            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl">
+            <div className="h-2 bg-nb-green border-2 border-nb-border mb-6 mx-auto max-w-xs" />
+            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl uppercase">
               All AI Tools
             </h2>
             <p className="text-muted-foreground">

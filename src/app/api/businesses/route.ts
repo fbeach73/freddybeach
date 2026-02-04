@@ -62,6 +62,7 @@ interface CreateBusinessBody {
   email?: string;
   website?: string;
   hours: BusinessHours[];
+  imageUrl?: string;
 }
 
 /**
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
       email,
       website,
       hours,
+      imageUrl,
     } = body;
 
     // Validate required fields
@@ -148,6 +150,7 @@ export async function POST(request: NextRequest) {
         city: city.trim(),
         province: province.trim(),
         postalCode: postalCode?.trim() || null,
+        imageUrl: imageUrl || null,
         status: "pending_review",
         submittedById: session.user.id,
         hours,

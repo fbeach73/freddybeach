@@ -11,6 +11,7 @@ import {
   Settings,
   Shield,
   ChevronLeft,
+  Plus,
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,6 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 import { getInitials } from "@/lib/utils/format";
 
@@ -94,6 +96,18 @@ export function DashboardSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
+            <div className="px-2 pb-2 group-data-[collapsible=icon]:px-0">
+              <Button
+                asChild
+                size="sm"
+                className="w-full group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:p-0"
+              >
+                <Link href="/dashboard/my-businesses/new">
+                  <Plus className="h-4 w-4 group-data-[collapsible=icon]:mr-0 mr-1.5" />
+                  <span className="group-data-[collapsible=icon]:hidden">Add Business</span>
+                </Link>
+              </Button>
+            </div>
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>

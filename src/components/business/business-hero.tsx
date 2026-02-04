@@ -35,14 +35,14 @@ export function BusinessHero({ business, className }: BusinessHeroProps) {
             />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
       </div>
       <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <TierBadge tier={business.tier} size="md" />
           <OpenStatus hours={business.hours} showNextOpen={false} size="sm" />
         </div>
-        <h1 className="text-3xl font-bold mb-2 md:text-4xl lg:text-5xl">
+        <h1 className="text-3xl font-bold mb-2 md:text-4xl lg:text-5xl [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
           {business.name}
         </h1>
         <div className="flex items-center gap-4">

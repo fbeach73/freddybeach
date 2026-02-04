@@ -56,14 +56,14 @@ export function RatingStars({
       stars.push(
         <Star
           key={i}
-          className={cn(sizeClasses[size], "text-muted-foreground/40")}
+          className={cn(sizeClasses[size], "text-muted-foreground/55")}
         />
       );
     }
   }
 
   return (
-    <div className={cn("flex items-center gap-1", className)}>
+    <div className={cn("flex items-center gap-1.5", className)}>
       <div className="flex items-center gap-0.5">{stars}</div>
       {showValue && (
         <span className={cn("font-medium", textSizeClasses[size])}>

@@ -37,8 +37,8 @@ export function OpenStatus({
         className={cn(
           sizeClasses[size],
           open
-            ? "bg-green-500/10 text-green-600 hover:bg-green-500/20 dark:bg-green-500/20 dark:text-green-400"
-            : "bg-muted text-muted-foreground"
+            ? "border border-green-500/20 bg-green-500/15 text-green-600 hover:bg-green-500/25 dark:bg-green-500/20 dark:text-green-400"
+            : "border border-red-500/20 bg-red-500/10 text-red-600 hover:bg-red-500/15 dark:text-red-400"
         )}
       >
         <Clock className={cn("mr-1", size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5")} />

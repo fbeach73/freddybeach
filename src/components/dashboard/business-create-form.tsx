@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { categories } from "@/lib/data/categories";
 import type { BusinessHours } from "@/lib/schema";
-import { Loader2, Send, Info, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Loader2, Send, Info, CheckCircle2, ArrowLeft, Upload, X } from "lucide-react";
 
 const DAYS = [
   "Sunday",
@@ -35,6 +35,9 @@ const DEFAULT_HOURS: BusinessHours[] = DAYS.map((_, i) => ({
   open: "09:00",
   close: "17:00",
 }));
+
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function BusinessCreateForm() {
   const router = useRouter();
@@ -53,6 +56,32 @@ export function BusinessCreateForm() {
   const [postalCode, setPostalCode] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [hours, setHours] = useState<BusinessHours[]>(DEFAULT_HOURS);
+
+  // Image upload state
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageFile = useCallback((file: File) => {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast.error("Invalid file type. Accepted: JPG, PNG, WebP");
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error("File too large. Maximum size is 5MB");
+      return;
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }, []);
+
+  const handleImageRemove = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   // Validation state
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -116,6 +145,23 @@ export function BusinessCreateForm() {
     setIsSubmitting(true);
 
     try {
+      // Upload image first if one was selected
+      let imageUrl: string | undefined;
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        const imgRes = await fetch("/api/businesses/image", {
+          method: "POST",
+          body: formData,
+        });
+        if (!imgRes.ok) {
+          const imgData = await imgRes.json();
+          throw new Error(imgData.error || "Failed to upload image");
+        }
+        const imgData = await imgRes.json();
+        imageUrl = imgData.url;
+      }
+
       const response = await fetch("/api/businesses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -131,6 +177,7 @@ export function BusinessCreateForm() {
           province: province.trim(),
           postalCode: postalCode.trim() || undefined,
           hours,
+          imageUrl,
         }),
       });
 
@@ -376,6 +423,84 @@ export function BusinessCreateForm() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Featured Image */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-medium">Featured Image</h3>
+          <p className="text-sm text-muted-foreground">
+            Upload a photo of your business. Images are auto-optimized to WebP.
+          </p>
+        </div>
+        {imagePreview ? (
+          <div className="relative w-full max-w-md">
+            <div className="relative aspect-video overflow-hidden rounded-lg border bg-muted">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imagePreview}
+                alt="Business preview"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <Button
+              type="button"
+              variant="destructive"
+              size="icon"
+              className="absolute -right-2 -top-2 h-7 w-7"
+              onClick={handleImageRemove}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+              const file = e.dataTransfer.files[0];
+              if (file) handleImageFile(file);
+            }}
+            onClick={() => fileInputRef.current?.click()}
+            className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+              isDragging
+                ? "border-primary bg-primary/5"
+                : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
+            }`}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ALLOWED_IMAGE_TYPES.join(",")}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageFile(file);
+              }}
+              className="hidden"
+            />
+            <div className="flex flex-col items-center gap-3">
+              <div className="rounded-full bg-muted p-3">
+                <Upload className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="font-medium">
+                  Drop an image here or click to browse
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  JPG, PNG, or WebP up to 5MB
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Business Hours */}

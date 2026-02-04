@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { UserProfile } from "@/components/auth/user-profile";
-import { Lock, ArrowRight, Building2 } from "lucide-react";
+import { Lock, ArrowRight, Building2, Plus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -147,14 +147,22 @@ export default async function DashboardPage() {
         <SectionHeader
           title="My Businesses"
           action={
-            ownedBusinesses.length > 0 ? (
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/dashboard/my-businesses">
-                  View All
-                  <ArrowRight className="ml-1.5 h-4 w-4" />
+            <div className="flex items-center gap-2">
+              <Button size="sm" asChild>
+                <Link href="/dashboard/my-businesses/new">
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  Add Business
                 </Link>
               </Button>
-            ) : null
+              {ownedBusinesses.length > 0 && (
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/dashboard/my-businesses">
+                    View All
+                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
+            </div>
           }
         />
         {ownedBusinesses.length > 0 ? (

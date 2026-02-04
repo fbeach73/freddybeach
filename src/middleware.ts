@@ -159,6 +159,7 @@ const KNOWN_ROUTES = new Set([
   "api",
   "refund",
   "images",
+  "add-business",
 ]);
 
 // File extensions to exclude

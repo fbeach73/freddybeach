@@ -6,26 +6,12 @@ import { business, type BusinessHours } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { categories, getCategoryById } from "@/lib/data/categories";
+import { generateUniqueBusinessSlug } from "@/lib/slug";
 import {
   sendEmail,
   getBusinessSubmissionAdminEmailHtml,
   getBusinessSubmissionAdminEmailSubject,
 } from "@/lib/email";
-
-/**
- * Generate a URL-friendly slug from a business name
- */
-function generateSlug(name: string): string {
-  const baseSlug = name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
-    .replace(/-+/g, "-") // Replace multiple hyphens with single
-    .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
-
-  // Add a short random suffix to ensure uniqueness
-  return `${baseSlug}-${nanoid(6)}`;
-}
 
 /**
  * Validate business hours format
@@ -132,7 +118,7 @@ export async function POST(request: NextRequest) {
 
     // Generate ID and slug
     const id = nanoid();
-    const slug = generateSlug(name.trim());
+    const slug = await generateUniqueBusinessSlug(name);
 
     // Create the business with pending_review status
     const [newBusiness] = await db

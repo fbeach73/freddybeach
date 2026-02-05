@@ -6,6 +6,7 @@ import { business, type GooglePlaceData } from "@/lib/schema";
 import { inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import type { FormattedPlace } from "@/lib/services/google-places";
+import { generateUniqueBusinessSlug } from "@/lib/slug";
 import { uploadBusinessPhotos } from "@/lib/services/blob-storage";
 
 export interface PlaceToImport {
@@ -30,21 +31,6 @@ export interface ImportSummary {
     googlePlaceId: string;
     reason: string;
   }>;
-}
-
-/**
- * Generate a URL-friendly slug from a business name
- */
-function generateSlug(name: string): string {
-  const baseSlug = name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
-    .replace(/-+/g, "-") // Replace multiple hyphens with single
-    .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
-
-  // Add a short random suffix to ensure uniqueness
-  return `${baseSlug}-${nanoid(6)}`;
 }
 
 /**
@@ -206,7 +192,7 @@ export async function POST(request: Request) {
         await db.insert(business).values({
           id,
           name: placeData.name,
-          slug: generateSlug(placeData.name),
+          slug: await generateUniqueBusinessSlug(placeData.name),
           description: placeData.primaryTypeDisplay
             ? `${placeData.primaryTypeDisplay} in Fredericton`
             : null,

@@ -49,24 +49,24 @@ export function AIHeroSection() {
         <div className="space-y-6">
           <Badge className="nb-badge bg-nb-yellow text-black gap-1.5">
             <Sparkles className="h-3 w-3" />
-            AI-Powered Business Tools
+            Fredericton&apos;s Local Directory
           </Badge>
 
           <h1 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl uppercase">
-            Create Stunning AI Images for Your Business
+            Freddy Beach — Discover Local Businesses in Fredericton
           </h1>
 
           <p className="mt-2 text-lg text-foreground font-medium md:text-xl">
-            Generate professional marketing images, social media graphics, and
-            promotional content with our AI tools. Designed specifically for
-            Fredericton businesses.
+            Freddy Beach is your guide to the best restaurants, shops, and
+            services in Fredericton, NB. Explore local businesses, read reviews,
+            and support the Freddy Beach community.
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <AuthDialog defaultTab="sign-up">
               <Button size="lg" className="nb-btn bg-nb-yellow text-black px-8 py-6 gap-2 hover:bg-nb-yellow">
                 <Sparkles className="h-4 w-4" />
-                Get Started Free
+                Browse Directory
               </Button>
             </AuthDialog>
 
@@ -76,7 +76,7 @@ export function AIHeroSection() {
               className="nb-btn bg-background px-8 py-6 gap-2"
               onClick={scrollToTools}
             >
-              Explore Tools
+              Explore AI Tools
               <ArrowDown className="h-4 w-4" />
             </Button>
           </div>
@@ -89,7 +89,7 @@ export function AIHeroSection() {
             <div className="relative rounded-none overflow-hidden border-4 border-nb-border shadow-nb-lg aspect-square">
               <Image
                 src="/images/hero-beach.webp"
-                alt="FreddyBeach - Fredericton business directory and AI tools"
+                alt="Freddy Beach - Fredericton local business directory"
                 fill
                 className="object-cover"
                 priority

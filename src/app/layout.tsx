@@ -26,24 +26,29 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "FreddyBeach - Fredericton Business Directory",
+  title: {
+    default: "Freddy Beach — Fredericton's Local Business Directory | FreddyBeach.com",
+    template: "%s | Freddy Beach Directory",
+  },
   description:
-    "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach. Support local and explore what makes our community special.",
-  metadataBase: new URL("https://fbeach.vercel.app"),
+    "Freddy Beach is Fredericton's go-to local business directory. Discover restaurants, shops, and services in Freddy Beach, NB. Support local businesses in the Fredericton community.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://freddybeach.com"
+  ),
   openGraph: {
-    title: "FreddyBeach - Fredericton Business Directory",
+    title: "Freddy Beach — Fredericton's Local Business Directory",
     description:
-      "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach. Support local and explore what makes our community special.",
-    url: "https://fbeach.vercel.app",
-    siteName: "FreddyBeach",
+      "Freddy Beach is Fredericton's go-to local business directory. Discover restaurants, shops, and services in Freddy Beach, NB. Support local businesses in the Fredericton community.",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://freddybeach.com",
+    siteName: "Freddy Beach",
     locale: "en_CA",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "FreddyBeach - Fredericton Business Directory",
+    title: "Freddy Beach — Fredericton's Local Business Directory",
     description:
-      "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach.",
+      "Freddy Beach is Fredericton's go-to local business directory. Discover restaurants, shops, and services in Freddy Beach, NB.",
   },
   icons: {
     icon: [
@@ -60,7 +65,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en-CA" suppressHydrationWarning>
       <head>
         {/* Google Tag Manager */}
         <script

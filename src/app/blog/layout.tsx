@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | FreddyBeach Blog",
-    default: "Blog | FreddyBeach",
+    template: "%s | Freddy Beach Blog",
+    default: "Blog | Freddy Beach",
   },
   description:
-    "Discover local insights, business spotlights, and community stories from Fredericton. The FreddyBeach Blog brings you the best of Freddy Beach.",
+    "The Freddy Beach Blog covers local insights, business spotlights, and community stories from Fredericton, NB. Stay connected with everything happening in Freddy Beach.",
 };
 
 export default function BlogLayout({

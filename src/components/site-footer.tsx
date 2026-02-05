@@ -6,6 +6,7 @@ const directoryLinks = [
   { title: "Browse", href: "/search" },
   { title: "Categories", href: "/#categories" },
   { title: "Add Business", href: "/add-business" },
+  { title: "Blog", href: "/blog" },
 ];
 
 const companyLinks = [
@@ -35,8 +36,8 @@ export function SiteFooter() {
               <span className="text-lg font-black uppercase">FreddyBeach</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Discover and support local businesses in Fredericton, New
-              Brunswick. Your guide to the best of Freddy Beach.
+              Freddy Beach is your guide to discovering and supporting local
+              businesses in Fredericton, New Brunswick.
             </p>
           </div>
 

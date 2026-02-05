@@ -134,8 +134,8 @@ export function generateBlogHomeSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Blog",
-    name: `${SITE_NAME} Blog`,
-    description: "Local insights, community news, and tips for exploring Fredericton's best businesses and attractions.",
+    name: "Freddy Beach Blog",
+    description: "Local insights, community news, and tips for exploring Freddy Beach — Fredericton's best businesses and attractions.",
     url: `${SITE_URL}/blog`,
     publisher: {
       "@type": "Organization",
@@ -289,14 +289,16 @@ export function generateHomepageSchema() {
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      name: SITE_NAME,
+      name: "Freddy Beach",
+      alternateName: ["FreddyBeach", "FreddyBeach.com", "Freddy Beach Directory"],
       url: SITE_URL,
       logo: PUBLISHER_LOGO,
       description:
-        "Fredericton's local business directory. Discover restaurants, shops, services, and more in Freddy Beach, New Brunswick, Canada.",
+        "Freddy Beach is Fredericton's local business directory. Discover restaurants, shops, services, and more in Freddy Beach, Fredericton, New Brunswick, Canada.",
       areaServed: {
         "@type": "City",
         name: "Fredericton",
+        alternateName: "Freddy Beach",
         "@id": "https://en.wikipedia.org/wiki/Fredericton",
       },
       address: {
@@ -309,8 +311,11 @@ export function generateHomepageSchema() {
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      name: SITE_NAME,
+      name: "Freddy Beach",
+      alternateName: "FreddyBeach",
       url: SITE_URL,
+      description:
+        "Freddy Beach — Fredericton's go-to local business directory for restaurants, shops, and services.",
       potentialAction: {
         "@type": "SearchAction",
         target: {

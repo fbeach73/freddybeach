@@ -1,3 +1,4 @@
+import { generateHomepageSchema } from "@/lib/seo/json-ld";
 import { AIHeroSection } from "@/components/home/ai-hero-section";
 import { FeaturedBusinessesSection } from "@/components/home/featured-businesses-section";
 import { AIToolsGrid } from "@/components/home/ai-tools-grid";
@@ -12,8 +13,14 @@ export default async function Home() {
   // Fetch featured businesses from database
   const featuredBusinesses = await getFeaturedBusinessesFromDb();
 
+  const jsonLd = generateHomepageSchema();
+
   return (
     <div className="flex-1 bg-nb-bg">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
       {/* Hero Section - Full Width */}
       <div className="container mx-auto px-4">
         <AIHeroSection />

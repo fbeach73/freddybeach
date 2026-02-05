@@ -28,9 +28,19 @@ export async function generateMetadata({ params }: CategoryPageProps) {
     };
   }
 
+  const url = `${process.env.NEXT_PUBLIC_APP_URL || "https://freddybeach.com"}/${categorySlug}`;
+
   return {
     title: `${category.name} in Fredericton | Freddy Beach Directory`,
     description: category.description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: `${category.name} in Fredericton | Freddy Beach Directory`,
+      description: category.description,
+      url,
+    },
   };
 }
 

@@ -20,6 +20,7 @@ import {
   ContactOwnerButton,
   ReviewsSection,
 } from "@/components/business";
+import { generateBusinessPageJsonLd } from "@/lib/seo/json-ld";
 
 // Dynamic rendering - fetch fresh data from database
 export const dynamic = "force-dynamic";
@@ -41,9 +42,20 @@ export async function generateMetadata({ params }: BusinessPageProps) {
     };
   }
 
+  const url = `${process.env.NEXT_PUBLIC_APP_URL || "https://freddybeach.com"}/${category}/${slug}`;
+
   return {
     title: `${business.name} | Freddy Beach Directory`,
     description: business.shortDescription,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: `${business.name} | Freddy Beach Directory`,
+      description: business.shortDescription,
+      url,
+      ...(business.heroImage && { images: [business.heroImage] }),
+    },
   };
 }
 
@@ -73,8 +85,14 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
   const isLoggedIn = !!session;
   const fullAddress = `${business.address}, ${business.city}, ${business.province} ${business.postalCode}`;
 
+  const jsonLd = generateBusinessPageJsonLd(business, categoryData.name);
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-6xl">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd }}
+      />
       {/* Breadcrumb Navigation */}
       <div className="mb-6">
         <BusinessBreadcrumb

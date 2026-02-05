@@ -53,12 +53,12 @@ export function AIHeroSection() {
           </Badge>
 
           <h1 className="text-4xl font-black tracking-tight md:text-5xl lg:text-6xl uppercase">
-            Create Stunning AI Images for Your Business
+            Freddy Beach — Fredericton&apos;s Local Business Directory
           </h1>
 
           <p className="mt-2 text-lg text-foreground font-medium md:text-xl">
-            Generate professional marketing images, social media graphics, and
-            promotional content with our AI tools. Designed specifically for
+            Discover the best restaurants, shops, and services in Freddy Beach.
+            Plus, create AI-powered marketing images designed specifically for
             Fredericton businesses.
           </p>
 
@@ -89,7 +89,7 @@ export function AIHeroSection() {
             <div className="relative rounded-none overflow-hidden border-4 border-nb-border shadow-nb-lg aspect-square">
               <Image
                 src="/images/hero-beach.webp"
-                alt="FreddyBeach - Fredericton business directory and AI tools"
+                alt="Freddy Beach — Fredericton's local business directory"
                 fill
                 className="object-cover"
                 priority

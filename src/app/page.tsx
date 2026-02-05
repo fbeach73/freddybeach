@@ -4,6 +4,7 @@ import { FeaturedBusinessesSection } from "@/components/home/featured-businesses
 import { AIToolsGrid } from "@/components/home/ai-tools-grid";
 import { TestimonialsSlider } from "@/components/home/testimonials-slider";
 import { ConsultationCTA } from "@/components/home/consultation-cta";
+import { SEOContent } from "@/components/home/seo-content";
 import { getFeaturedBusinessesFromDb } from "@/lib/data/businesses-db";
 
 // Revalidate homepage every 60 seconds to pick up changes
@@ -31,6 +32,11 @@ export default async function Home() {
         <FeaturedBusinessesSection businesses={featuredBusinesses} />
         <AIToolsGrid />
         <TestimonialsSlider />
+      </div>
+
+      {/* SEO Content - Keyword-rich crawlable text */}
+      <div className="container mx-auto px-4">
+        <SEOContent />
       </div>
 
       {/* Consultation CTA - Full Width */}

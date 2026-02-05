@@ -27,10 +27,10 @@ export function FeaturedBusinessesSection({
       <div className="mb-8">
         <div className="w-16 h-2 bg-nb-blue mb-4" />
         <h2 className="text-2xl md:text-3xl font-black uppercase">
-          Featured Local Businesses
+          Featured Freddy Beach Businesses
         </h2>
         <p className="mt-2 text-muted-foreground">
-          Discover top-rated businesses in Fredericton
+          Discover top-rated local businesses in Freddy Beach, Fredericton
         </p>
       </div>
 

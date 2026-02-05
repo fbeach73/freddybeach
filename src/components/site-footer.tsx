@@ -3,9 +3,10 @@ import { MapPin } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const directoryLinks = [
-  { title: "Browse", href: "/search" },
+  { title: "Browse Freddy Beach", href: "/search" },
   { title: "Categories", href: "/#categories" },
   { title: "Add Business", href: "/add-business" },
+  { title: "Freddy Beach Blog", href: "/blog" },
 ];
 
 const companyLinks = [
@@ -35,8 +36,9 @@ export function SiteFooter() {
               <span className="text-lg font-black uppercase">FreddyBeach</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Discover and support local businesses in Fredericton, New
-              Brunswick. Your guide to the best of Freddy Beach.
+              Freddy Beach is Fredericton&apos;s local business directory.
+              Discover restaurants, shops, and services in Freddy Beach, New
+              Brunswick.
             </p>
           </div>
 

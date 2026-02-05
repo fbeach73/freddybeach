@@ -281,8 +281,9 @@ export function generateBusinessPageJsonLd(
 }
 
 /**
- * Generate Organization + WebSite schema for the homepage
+ * Generate Organization + WebSite + FAQPage schema for the homepage
  * @see https://developers.google.com/search/docs/appearance/structured-data/organization
+ * @see https://developers.google.com/search/docs/appearance/structured-data/faqpage
  */
 export function generateHomepageSchema() {
   return JSON.stringify([
@@ -290,13 +291,15 @@ export function generateHomepageSchema() {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: SITE_NAME,
+      alternateName: "Freddy Beach",
       url: SITE_URL,
       logo: PUBLISHER_LOGO,
       description:
-        "Fredericton's local business directory. Discover restaurants, shops, services, and more in Freddy Beach, New Brunswick, Canada.",
+        "Freddy Beach is Fredericton's local business directory. Discover restaurants, coffee shops, services, and more in Freddy Beach, New Brunswick, Canada.",
       areaServed: {
         "@type": "City",
         name: "Fredericton",
+        alternateName: "Freddy Beach",
         "@id": "https://en.wikipedia.org/wiki/Fredericton",
       },
       address: {
@@ -310,7 +313,10 @@ export function generateHomepageSchema() {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: SITE_NAME,
+      alternateName: "Freddy Beach",
       url: SITE_URL,
+      description:
+        "Freddy Beach — Fredericton's local business directory for restaurants, shops, and services.",
       potentialAction: {
         "@type": "SearchAction",
         target: {
@@ -319,6 +325,36 @@ export function generateHomepageSchema() {
         },
         "query-input": "required name=search_term_string",
       },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "What is Freddy Beach?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Freddy Beach is the popular nickname for Fredericton, New Brunswick, Canada. The name captures the relaxed, welcoming character of the city on the Saint John River. FreddyBeach.com is a local business directory that helps residents and visitors discover the best restaurants, shops, and services in Freddy Beach.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Why is Fredericton called Freddy Beach?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Fredericton earned the nickname Freddy Beach because of the city's riverside beaches along the Saint John River and its laid-back, friendly atmosphere. The name has been used by locals for decades and has become a term of endearment for New Brunswick's capital city.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How do I find local businesses in Freddy Beach?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "FreddyBeach.com is Fredericton's local business directory. You can browse by category — restaurants, cafes, retail, health and wellness, home services, and more — or search for a specific business. Every listing includes hours, location, reviews, and contact details.",
+          },
+        },
+      ],
     },
   ]);
 }

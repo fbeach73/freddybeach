@@ -26,14 +26,14 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "FreddyBeach - Fredericton Business Directory",
+  title: "Freddy Beach | Fredericton's Local Business Directory — FreddyBeach.com",
   description:
-    "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach. Support local and explore what makes our community special.",
+    "Freddy Beach is Fredericton's go-to local business directory. Find the best restaurants, coffee shops, services, and shops in Freddy Beach, New Brunswick. Discover, review, and support local.",
   metadataBase: new URL("https://fbeach.vercel.app"),
   openGraph: {
-    title: "FreddyBeach - Fredericton Business Directory",
+    title: "Freddy Beach | Fredericton's Local Business Directory",
     description:
-      "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach. Support local and explore what makes our community special.",
+      "Freddy Beach is Fredericton's go-to local business directory. Find the best restaurants, coffee shops, services, and shops in Freddy Beach, New Brunswick.",
     url: "https://fbeach.vercel.app",
     siteName: "FreddyBeach",
     locale: "en_CA",
@@ -41,9 +41,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FreddyBeach - Fredericton Business Directory",
+    title: "Freddy Beach | Fredericton's Local Business Directory",
     description:
-      "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach.",
+      "Freddy Beach is Fredericton's go-to local business directory. Find restaurants, shops, and services in Freddy Beach, NB.",
   },
   icons: {
     icon: [

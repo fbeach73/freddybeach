@@ -3,13 +3,13 @@ import { getAllPosts } from "@/lib/blog/get-posts";
 import { BlogGrid } from "@/components/blog/blog-grid";
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: "Freddy Beach Blog | Local Business Insights & Community Stories",
   description:
-    "Discover local insights, business spotlights, and community stories from Fredericton. The FreddyBeach Blog brings you the best of Freddy Beach.",
+    "The Freddy Beach Blog — local business spotlights, Fredericton guides, community stories, and insider tips. Explore what makes Freddy Beach, New Brunswick a great place to live and visit.",
   openGraph: {
-    title: "Blog | FreddyBeach",
+    title: "Freddy Beach Blog | Local Business Insights & Community Stories",
     description:
-      "Discover local insights, business spotlights, and community stories from Fredericton.",
+      "Local business spotlights, Fredericton guides, community stories, and insider tips from Freddy Beach, New Brunswick.",
     type: "website",
   },
 };
@@ -22,10 +22,10 @@ export default async function BlogPage() {
       {/* Page Header */}
       <div className="mb-8">
         <div className="h-2 bg-nb-orange border-2 border-nb-border mb-6" />
-        <h1 className="text-3xl md:text-4xl font-bold mb-2 uppercase">FreddyBeach Blog</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-2 uppercase">Freddy Beach Blog</h1>
         <p className="text-muted-foreground text-lg">
-          Local insights, business spotlights, and community stories from
-          Fredericton.
+          Local business insights, community stories, and guides to the best of
+          Freddy Beach, Fredericton.
         </p>
       </div>
 

@@ -47,17 +47,18 @@ export function TableOfContents({ items, className }: TableOfContentsProps) {
 
   return (
     <nav className={cn("space-y-1", className)} aria-label="Table of contents">
-      <h4 className="font-semibold text-sm mb-3">On this page</h4>
+      <h4 className="font-bold text-sm uppercase tracking-tight mb-3">On this page</h4>
+      <div className="border-b-2 border-nb-border/10 mb-2" />
       <ul className="space-y-1 text-sm">
         {items.map((item) => (
           <li key={item.id}>
             <a
               href={`#${item.id}`}
               className={cn(
-                "block py-1 transition-colors hover:text-foreground",
+                "block py-1 transition-colors hover:text-foreground font-medium",
                 item.level === 3 && "pl-4",
                 activeId === item.id
-                  ? "text-primary font-medium"
+                  ? "text-nb-blue font-bold"
                   : "text-muted-foreground"
               )}
               onClick={(e) => {
@@ -67,7 +68,7 @@ export function TableOfContents({ items, className }: TableOfContentsProps) {
                   element.scrollIntoView({ behavior: "smooth" });
                   setActiveId(item.id);
                   // Update URL without scroll
-                  window.history.pushState(null, "", `#${item.id}`);
+                  window.history.replaceState(null, "", `#${item.id}`);
                 }
               }}
             >

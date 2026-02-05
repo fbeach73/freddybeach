@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -154,31 +153,32 @@ export function ClaimBusinessCta({
   };
 
   return (
-    <Card
+    <div
       className={cn(
-        "border-2 border-dashed border-primary/30 bg-primary/5",
+        "nb-card bg-card",
         className
       )}
     >
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-full bg-primary/10">
-            <Building2 className="h-6 w-6 text-primary" />
+      {/* Accent bar */}
+      <div className="h-2 bg-nb-green border-b-2 border-nb-border" />
+      <div className="p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex h-10 w-10 items-center justify-center bg-nb-green border-2 border-nb-border">
+            <Building2 className="h-5 w-5 text-black" />
           </div>
-          <CardTitle className="text-lg">Is this your business?</CardTitle>
+          <h3 className="text-lg font-bold uppercase tracking-tight">Is this your business?</h3>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-muted-foreground">
+        <div className="border-b-2 border-nb-border/10 mb-4" />
+        <p className="text-muted-foreground mb-4">
           Claim{" "}
-          <span className="font-medium text-foreground">{businessName}</span> to
+          <span className="font-bold text-foreground">{businessName}</span> to
           manage your listing and unlock these benefits:
         </p>
-        <ul className="space-y-2">
+        <ul className="space-y-2 mb-5">
           {benefits.map((benefit, index) => (
             <li key={index} className="flex items-center gap-2 text-sm">
-              <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
-              <span>{benefit}</span>
+              <CheckCircle2 className="h-4 w-4 text-nb-green shrink-0" />
+              <span className="font-medium">{benefit}</span>
             </li>
           ))}
         </ul>
@@ -197,13 +197,17 @@ export function ClaimBusinessCta({
           }}
         >
           <DialogTrigger asChild>
-            <Button className="w-full" size="lg" onClick={handleButtonClick}>
+            <Button
+              className="nb-btn w-full bg-nb-green text-black hover:bg-nb-green"
+              size="lg"
+              onClick={handleButtonClick}
+            >
               Claim This Business
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md rounded-none border-4 border-nb-border">
             <DialogHeader>
-              <DialogTitle>Claim {businessName}</DialogTitle>
+              <DialogTitle className="font-bold uppercase">Claim {businessName}</DialogTitle>
               <DialogDescription>
                 Please provide information to verify your connection to this
                 business. Our team will review your claim within 1-2 business
@@ -217,7 +221,7 @@ export function ClaimBusinessCta({
                   Your Role <span className="text-destructive">*</span>
                 </Label>
                 <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger id="role">
+                  <SelectTrigger id="role" className="rounded-none border-2 border-nb-border">
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -229,7 +233,7 @@ export function ClaimBusinessCta({
                   </SelectContent>
                 </Select>
                 {errors.role && (
-                  <p className="text-sm text-destructive">{errors.role}</p>
+                  <p className="text-sm font-bold text-nb-pink">{errors.role}</p>
                 )}
               </div>
 
@@ -243,9 +247,10 @@ export function ClaimBusinessCta({
                   placeholder="(506) 555-1234"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  className="rounded-none border-2 border-nb-border"
                 />
                 {errors.phone && (
-                  <p className="text-sm text-destructive">{errors.phone}</p>
+                  <p className="text-sm font-bold text-nb-pink">{errors.phone}</p>
                 )}
                 <p className="text-xs text-muted-foreground">
                   We may contact you to verify your claim
@@ -263,9 +268,10 @@ export function ClaimBusinessCta({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={4}
+                  className="rounded-none border-2 border-nb-border"
                 />
                 {errors.description && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm font-bold text-nb-pink">
                     {errors.description}
                   </p>
                 )}
@@ -276,14 +282,14 @@ export function ClaimBusinessCta({
                   type="button"
                   variant="outline"
                   onClick={() => setOpen(false)}
-                  className="flex-1"
+                  className="nb-btn flex-1 bg-card text-foreground hover:bg-card"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1"
+                  className="nb-btn flex-1 bg-nb-green text-black hover:bg-nb-green"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -299,7 +305,7 @@ export function ClaimBusinessCta({
             </form>
           </DialogContent>
         </Dialog>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

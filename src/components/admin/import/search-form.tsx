@@ -44,7 +44,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Keyword Input */}
       <div className="space-y-2">
-        <Label htmlFor="query">Search Keyword</Label>
+        <Label htmlFor="query" className="uppercase tracking-wide text-sm">Search Keyword</Label>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -60,7 +60,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
 
       {/* Place Type Selector */}
       <div className="space-y-2">
-        <Label htmlFor="place-type">Google Place Type (Optional)</Label>
+        <Label htmlFor="place-type" className="uppercase tracking-wide text-sm">Google Place Type (Optional)</Label>
         <Select
           value={placeType}
           onValueChange={(value) => setPlaceType(value as PlaceType | "all")}
@@ -83,7 +83,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       {/* Radius Slider */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label>Search Radius</Label>
+          <Label className="uppercase tracking-wide text-sm">Search Radius</Label>
           <span className="text-sm text-muted-foreground">{radius} km</span>
         </div>
         <Slider
@@ -101,7 +101,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       </div>
 
       {/* Search Button */}
-      <Button type="submit" className="w-full" disabled={isLoading || !query.trim()}>
+      <Button type="submit" className="w-full bg-nb-blue text-black hover:bg-nb-blue" disabled={isLoading || !query.trim()}>
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

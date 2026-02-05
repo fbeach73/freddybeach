@@ -130,9 +130,10 @@ export function ContactForm({
 
   return (
     <>
-      <Card className={cn("", className)}>
+      <Card className={cn("nb-card bg-card", className)}>
+        <div className="h-2 bg-nb-orange border-b-2 border-nb-border" />
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 uppercase tracking-tight">
             <MessageSquare className="h-5 w-5" />
             Tell Us About Your Business
           </CardTitle>
@@ -150,7 +151,7 @@ export function ContactForm({
             >
               {/* Selected Time Slot Display */}
               {hasSelectedSlot ? (
-                <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950">
+                <div className="border-2 border-nb-green bg-nb-green/10 p-4">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <div>
@@ -164,8 +165,8 @@ export function ContactForm({
                   </div>
                 </div>
               ) : (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950">
-                  <p className="text-sm text-amber-800 dark:text-amber-200">
+                <div className="border-2 border-nb-yellow bg-nb-yellow/10 p-4">
+                  <p className="text-sm font-bold text-amber-800 dark:text-amber-200">
                     Please select a date and time from the calendar to complete your booking.
                   </p>
                 </div>
@@ -287,7 +288,7 @@ export function ContactForm({
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-nb-orange text-black hover:bg-nb-orange"
                 size="lg"
                 disabled={isSubmitting || !hasSelectedSlot}
               >
@@ -311,7 +312,7 @@ export function ContactForm({
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent>
           <DialogHeader>
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center bg-nb-green border-2 border-nb-border">
               <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <DialogTitle className="text-center">Booking Request Submitted!</DialogTitle>
@@ -323,7 +324,7 @@ export function ContactForm({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="sm:justify-center">
-            <Button onClick={handleDialogClose}>Done</Button>
+            <Button onClick={handleDialogClose} className="bg-nb-green text-black hover:bg-nb-green">Done</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -140,7 +140,7 @@ export function SceneSelectorModal({
         </div>
 
         {/* Custom Value Section */}
-        <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+        <div className="rounded-none border-2 border-nb-border bg-muted/30 p-3 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Custom Value</span>
             {isCustomSelected && (
@@ -189,12 +189,12 @@ export function SceneSelectorModal({
                   type="button"
                   onClick={() => handlePresetSelect(preset)}
                   className={cn(
-                    "relative text-left p-3 rounded-lg border transition-all",
-                    "hover:border-primary/50 hover:bg-accent/50",
-                    "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                    "relative text-left p-3 rounded-none border-2 border-nb-border transition-all",
+                    "hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none",
+                    "focus:outline-none focus:border-nb-blue",
                     isSelected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary"
-                      : "border-border bg-card"
+                      ? "border-nb-blue bg-nb-blue/5 shadow-none translate-x-[1px] translate-y-[1px]"
+                      : "bg-card shadow-nb-sm"
                   )}
                 >
                   {/* Selection Indicator */}
@@ -212,7 +212,7 @@ export function SceneSelectorModal({
                     <div className="text-xs text-muted-foreground line-clamp-2">
                       {preset.description}
                     </div>
-                    <div className="text-xs font-mono text-muted-foreground/70 bg-muted/50 rounded px-1.5 py-1 line-clamp-1">
+                    <div className="text-xs font-mono text-muted-foreground/70 bg-muted/50 rounded-none px-1.5 py-1 line-clamp-1 border border-nb-border/20">
                       {preset.promptText}
                     </div>
                   </div>
@@ -236,7 +236,7 @@ export function SceneSelectorModal({
         </div>
 
         {/* Footer - with background to prevent content bleed-through */}
-        <DialogFooter className="flex-row justify-between sm:justify-between gap-2 pt-4 border-t bg-background">
+        <DialogFooter className="flex-row justify-between sm:justify-between gap-2 pt-4 border-t-2 border-nb-border bg-background">
           <Button
             variant="ghost"
             onClick={handleClearSelection}

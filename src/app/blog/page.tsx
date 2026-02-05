@@ -21,7 +21,8 @@ export default async function BlogPage() {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">FreddyBeach Blog</h1>
+        <div className="h-2 bg-nb-orange border-2 border-nb-border mb-6" />
+        <h1 className="text-3xl md:text-4xl font-bold mb-2 uppercase">FreddyBeach Blog</h1>
         <p className="text-muted-foreground text-lg">
           Local insights, business spotlights, and community stories from
           Fredericton.

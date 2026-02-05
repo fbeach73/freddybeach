@@ -1,7 +1,6 @@
 // Blog Sidebar Component
 // Wrapper for sidebar content including TOC, featured businesses, and author info
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TableOfContents } from "./table-of-contents";
 import { FeaturedBusinessCard } from "./featured-business-card";
 import type { TOCItem } from "@/types/blog";
@@ -32,35 +31,40 @@ export function BlogSidebar({
     <div className="lg:sticky lg:top-24 space-y-6">
       {/* Table of Contents */}
       {hasToc && (
-        <Card>
-          <CardContent className="p-4">
+        <div className="nb-card bg-card">
+          <div className="h-2 bg-nb-blue border-b-2 border-nb-border" />
+          <div className="p-4">
             <TableOfContents items={tocItems} />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Featured Businesses */}
       {hasFeaturedBusinesses && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Featured Local Businesses</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3">
-            {featuredBusinesses.map((business) => (
-              <FeaturedBusinessCard key={business.id} business={business} />
-            ))}
-          </CardContent>
-        </Card>
+        <div className="nb-card bg-card">
+          <div className="h-2 bg-nb-orange border-b-2 border-nb-border" />
+          <div className="p-4">
+            <h4 className="text-sm font-bold uppercase tracking-tight mb-3">Featured Local Businesses</h4>
+            <div className="border-b-2 border-nb-border/10 mb-3" />
+            <div className="space-y-3">
+              {featuredBusinesses.map((business) => (
+                <FeaturedBusinessCard key={business.id} business={business} />
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Author Card */}
       {hasAuthor && (
-        <Card>
-          <CardContent className="p-4">
-            <h4 className="font-semibold text-sm mb-2">About the Author</h4>
+        <div className="nb-card bg-card">
+          <div className="h-2 bg-nb-pink border-b-2 border-nb-border" />
+          <div className="p-4">
+            <h4 className="font-bold text-sm uppercase tracking-tight mb-2">About the Author</h4>
+            <div className="border-b-2 border-nb-border/10 mb-2" />
             <p className="text-sm text-muted-foreground">{author.bio}</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   );

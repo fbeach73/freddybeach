@@ -60,10 +60,10 @@ export default async function BillingPage() {
   if (!session) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="rounded-full bg-muted p-4">
-          <Lock className="h-8 w-8 text-muted-foreground" />
+        <div className="flex h-16 w-16 items-center justify-center bg-nb-pink/20 border-2 border-nb-border">
+          <Lock className="h-8 w-8 text-nb-pink" />
         </div>
-        <h1 className="mt-4 text-2xl font-bold">Protected Page</h1>
+        <h1 className="mt-4 text-2xl font-bold uppercase tracking-tight">Protected Page</h1>
         <p className="mt-2 text-muted-foreground">
           You need to sign in to access Billing
         </p>
@@ -120,12 +120,12 @@ export default async function BillingPage() {
         <SectionHeader title="AI Tools Access" />
         <div className="grid gap-4 md:grid-cols-2">
           {/* Credit Balance Card */}
-          <Card>
+          <Card className="nb-card bg-card">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-                    <Coins className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  <div className="flex h-10 w-10 items-center justify-center bg-nb-yellow/20 border-2 border-nb-border">
+                    <Coins className="h-5 w-5 text-nb-yellow" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">
@@ -156,22 +156,22 @@ export default async function BillingPage() {
               </p>
 
               {/* Credit Cost Per Resolution Info */}
-              <div className="mt-4 rounded-lg bg-muted/50 p-3">
-                <div className="flex items-center gap-2 text-sm font-medium mb-2">
+              <div className="mt-4 border-2 border-nb-border/20 bg-muted/50 p-3">
+                <div className="flex items-center gap-2 text-sm font-bold mb-2">
                   <ImageIcon className="h-4 w-4" />
                   Credit Cost Per Image
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-xs">
                   <div className="text-center">
-                    <div className="font-semibold">{getCreditsForResolution("1K")}</div>
+                    <div className="font-bold">{getCreditsForResolution("1K")}</div>
                     <div className="text-muted-foreground">1K</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-semibold">{getCreditsForResolution("2K")}</div>
+                    <div className="font-bold">{getCreditsForResolution("2K")}</div>
                     <div className="text-muted-foreground">2K</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-semibold">{getCreditsForResolution("4K")}</div>
+                    <div className="font-bold">{getCreditsForResolution("4K")}</div>
                     <div className="text-muted-foreground">4K</div>
                   </div>
                 </div>
@@ -180,19 +180,19 @@ export default async function BillingPage() {
           </Card>
 
           {/* Subscription Status Card */}
-          <Card>
+          <Card className="nb-card bg-card">
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                    className={`flex h-10 w-10 items-center justify-center border-2 border-nb-border ${
                       subscriptionInfo.isActive
-                        ? "bg-green-100 dark:bg-green-900/30"
+                        ? "bg-nb-green/20"
                         : "bg-muted"
                     }`}
                   >
                     {subscriptionInfo.isActive ? (
-                      <Infinity className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <Infinity className="h-5 w-5 text-nb-green" />
                     ) : (
                       <Sparkles className="h-5 w-5 text-muted-foreground" />
                     )}
@@ -213,8 +213,8 @@ export default async function BillingPage() {
                     variant={subscriptionStatusText ? "outline" : "secondary"}
                     className={
                       subscriptionStatusText
-                        ? "text-amber-600"
-                        : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                        ? "text-nb-orange border-nb-orange"
+                        : "bg-nb-green/20 text-nb-green border-nb-green"
                     }
                   >
                     {subscriptionStatusText || "Active"}
@@ -330,10 +330,10 @@ export default async function BillingPage() {
           {creditPackages.map((pack) => (
             <Card
               key={pack.id}
-              className={pack.isPopular ? "border-primary ring-1 ring-primary" : ""}
+              className={`nb-card bg-card ${pack.isPopular ? "border-nb-yellow ring-2 ring-nb-yellow" : ""}`}
             >
               {pack.isPopular && (
-                <div className="bg-primary px-3 py-1 text-center text-xs font-medium text-primary-foreground">
+                <div className="bg-nb-yellow px-3 py-1 text-center text-xs font-bold text-black border-b-2 border-nb-border uppercase tracking-wide">
                   Most Popular
                 </div>
               )}
@@ -352,7 +352,7 @@ export default async function BillingPage() {
                 <ul className="space-y-2 text-sm">
                   {pack.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-nb-green" />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -379,24 +379,25 @@ export default async function BillingPage() {
           title="Bring Your Own Key"
           description="Unlimited generations with your own API key"
         />
-        <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-white dark:border-emerald-900 dark:from-emerald-950/30 dark:to-background">
+        <div className="nb-card bg-card">
+          <div className="h-2 bg-nb-green border-b-2 border-nb-border" />
           <CardContent className="p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="space-y-4 lg:max-w-xl">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
-                    <Key className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                  <div className="flex h-12 w-12 items-center justify-center bg-nb-green/20 border-2 border-nb-border">
+                    <Key className="h-6 w-6 text-nb-green" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-xl font-bold">{byokOption.name}</h3>
-                      <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                      <Badge variant="secondary" className="bg-nb-green/20 text-nb-green border-nb-green">
                         <Clock className="mr-1 h-3 w-3" />
                         Limited Time
                       </Badge>
                     </div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="text-2xl font-bold text-nb-green">
                         {byokOption.priceLabel}
                       </span>
                       <span className="text-muted-foreground">forever</span>
@@ -409,17 +410,17 @@ export default async function BillingPage() {
                 <ul className="grid gap-2 sm:grid-cols-2">
                   {byokOption.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-nb-green" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm dark:bg-amber-950/30 dark:border-amber-800">
-                  <AlertCircle className="mt-0.5 h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <div className="flex items-start gap-2 border-2 border-nb-orange bg-nb-orange/10 p-3 text-sm">
+                  <AlertCircle className="mt-0.5 h-4 w-4 text-nb-orange" />
                   <div>
-                    <strong className="text-amber-800 dark:text-amber-300">Requirements:</strong>
-                    <ul className="mt-1 list-inside list-disc text-amber-700 dark:text-amber-400">
+                    <strong className="font-bold">Requirements:</strong>
+                    <ul className="mt-1 list-inside list-disc text-muted-foreground">
                       {byokOption.requirements.map((req, i) => (
                         <li key={i}>{req}</li>
                       ))}
@@ -431,7 +432,7 @@ export default async function BillingPage() {
               <div className="flex flex-col gap-3 lg:min-w-[200px]">
                 {hasByok ? (
                   <div className="space-y-2">
-                    <Badge className="w-fit bg-emerald-600">
+                    <Badge className="w-fit bg-nb-green text-black border-nb-border">
                       <Check className="mr-1 h-3 w-3" />
                       API Key Connected
                     </Badge>
@@ -444,7 +445,7 @@ export default async function BillingPage() {
                     <p className="text-xs text-muted-foreground">
                       Add your Google Gemini API key below to unlock unlimited free generations.
                     </p>
-                    <Button asChild className="w-full bg-emerald-600 hover:bg-emerald-700">
+                    <Button asChild className="w-full bg-nb-green text-black hover:bg-nb-green/90">
                       <a href="#api-key-section">
                         <Key className="mr-2 h-4 w-4" />
                         Add Your API Key
@@ -455,7 +456,7 @@ export default async function BillingPage() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </div>
       </section>
 
       {/* API Key Management */}
@@ -470,15 +471,15 @@ export default async function BillingPage() {
       {/* Account Info */}
       <section className="space-y-4">
         <SectionHeader title="Account Info" />
-        <Card>
+        <Card className="nb-card bg-card">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                <Clock className="h-5 w-5 text-muted-foreground" />
+              <div className="flex h-10 w-10 items-center justify-center bg-nb-blue/20 border-2 border-nb-border">
+                <Clock className="h-5 w-5 text-nb-blue" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Member since</p>
-                <p className="font-medium">
+                <p className="font-bold">
                   {memberSince.toLocaleDateString("en-US", {
                     month: "long",
                     year: "numeric",

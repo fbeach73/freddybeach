@@ -17,7 +17,7 @@ export function ReadingTimeBadge({
   return (
     <Badge
       variant="secondary"
-      className={cn("font-normal text-muted-foreground", className)}
+      className={cn("nb-badge bg-nb-blue/10 text-nb-blue font-bold", className)}
     >
       {showIcon && <Clock className="mr-1 h-3 w-3" />}
       {formatReadingTime(minutes)}

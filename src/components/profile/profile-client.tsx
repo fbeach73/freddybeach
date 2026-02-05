@@ -221,15 +221,15 @@ export function ProfileClient({ user }: ProfileClientProps) {
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
-        <h1 className="text-3xl font-bold">Your Profile</h1>
+        <h1 className="text-3xl font-bold uppercase tracking-tight">Your Profile</h1>
       </div>
 
       <div className="grid gap-6">
         {/* Profile Overview Card */}
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader>
             <div className="flex items-center space-x-4">
-              <Avatar className="h-20 w-20">
+              <Avatar className="h-20 w-20 border-2 border-nb-border rounded-none">
                 <AvatarImage
                   src={user.image || ""}
                   alt={user.name || "User"}
@@ -249,7 +249,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
                   <Mail className="h-4 w-4" />
                   <span>{user.email}</span>
                   {user.emailVerified && (
-                    <Badge variant="outline" className="text-green-600 border-green-600">
+                    <Badge className="nb-badge bg-nb-green/20 text-foreground">
                       <Shield className="h-3 w-3 mr-1" />
                       Verified
                     </Badge>
@@ -267,9 +267,9 @@ export function ProfileClient({ user }: ProfileClientProps) {
         </Card>
 
         {/* Account Information */}
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader>
-            <CardTitle>Account Information</CardTitle>
+            <CardTitle className="uppercase tracking-tight">Account Information</CardTitle>
             <CardDescription>
               Your account details and settings
             </CardDescription>
@@ -280,7 +280,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
                 <label className="text-sm font-medium text-muted-foreground">
                   Full Name
                 </label>
-                <div className="p-3 border rounded-md bg-muted/10">
+                <div className="p-3 border-2 border-nb-border rounded-none bg-muted/10">
                   {user.name || "Not provided"}
                 </div>
               </div>
@@ -304,7 +304,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Account Status</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center justify-between p-4 border-2 border-nb-border rounded-none">
                   <div className="space-y-1">
                     <p className="font-medium">Email Verification</p>
                     <p className="text-sm text-muted-foreground">
@@ -315,7 +315,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
                     {user.emailVerified ? "Verified" : "Unverified"}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center justify-between p-4 border-2 border-nb-border rounded-none">
                   <div className="space-y-1">
                     <p className="font-medium">Account Type</p>
                     <p className="text-sm text-muted-foreground">
@@ -330,9 +330,9 @@ export function ProfileClient({ user }: ProfileClientProps) {
         </Card>
 
         {/* Quick Actions */}
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle className="uppercase tracking-tight">Quick Actions</CardTitle>
             <CardDescription>
               Manage your account settings and preferences
             </CardDescription>
@@ -342,7 +342,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
               {/* Edit Profile Dialog */}
               <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="justify-start h-auto p-4">
+                  <Button variant="outline" className="justify-start h-auto p-4 normal-case">
                     <User className="h-4 w-4 mr-2" />
                     <div className="text-left">
                       <div className="font-medium">Edit Profile</div>
@@ -398,7 +398,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
                 if (open) handleLoadSessions();
               }}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="justify-start h-auto p-4">
+                  <Button variant="outline" className="justify-start h-auto p-4 normal-case">
                     <Shield className="h-4 w-4 mr-2" />
                     <div className="text-left">
                       <div className="font-medium">Security Settings</div>
@@ -443,7 +443,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
                           return (
                             <div
                               key={session.id}
-                              className="flex items-center justify-between p-3 border rounded-lg"
+                              className="flex items-center justify-between p-3 border-2 border-nb-border rounded-none"
                             >
                               <div className="flex items-center gap-3">
                                 {device.type === "mobile" ? (
@@ -497,7 +497,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
               {/* Email Preferences Dialog */}
               <Dialog open={isEmailOpen} onOpenChange={setIsEmailOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="justify-start h-auto p-4">
+                  <Button variant="outline" className="justify-start h-auto p-4 normal-case">
                     <Mail className="h-4 w-4 mr-2" />
                     <div className="text-left">
                       <div className="font-medium">Email Preferences</div>
@@ -568,15 +568,15 @@ export function ProfileClient({ user }: ProfileClientProps) {
         </Card>
 
         {/* Danger Zone */}
-        <Card className="border-destructive/50">
+        <Card className="nb-card bg-card border-2 border-nb-pink">
           <CardHeader>
-            <CardTitle className="text-destructive">Danger Zone</CardTitle>
+            <CardTitle className="text-destructive uppercase tracking-tight">Danger Zone</CardTitle>
             <CardDescription>
               Irreversible actions for your account
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between p-4 border border-destructive/30 rounded-lg bg-destructive/5">
+            <div className="flex items-center justify-between p-4 border-2 border-nb-pink rounded-none bg-nb-pink/5">
               <div className="space-y-1">
                 <p className="font-medium">Delete Account</p>
                 <p className="text-sm text-muted-foreground">

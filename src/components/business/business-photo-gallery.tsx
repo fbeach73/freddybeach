@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BusinessPhotoGalleryProps {
@@ -43,34 +43,43 @@ export function BusinessPhotoGallery({
   };
 
   return (
-    <div className={cn("", className)}>
-      <h2 className="text-xl font-semibold mb-4">Photos</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((image, index) => (
-          <button
-            key={index}
-            onClick={() => openLightbox(index)}
-            className="relative aspect-square rounded-lg overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          >
-            <Image
-              src={image}
-              alt={`${businessName} photo ${index + 1}`}
-              fill
-              className="object-cover transition-transform group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-          </button>
-        ))}
+    <div className={cn("nb-card bg-card", className)}>
+      <div className="h-2 bg-nb-pink border-b-2 border-nb-border" />
+      <div className="p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex h-9 w-9 items-center justify-center bg-nb-pink border-2 border-nb-border">
+            <Camera className="h-4 w-4 text-black" />
+          </div>
+          <h2 className="text-xl font-bold uppercase tracking-tight">Photos</h2>
+        </div>
+        <div className="border-b-2 border-nb-border/10 mb-4" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {images.map((image, index) => (
+            <button
+              key={index}
+              onClick={() => openLightbox(index)}
+              className="relative aspect-square overflow-hidden group cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-nb-yellow focus-visible:ring-offset-2 border-4 border-nb-border shadow-nb-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150"
+            >
+              <Image
+                src={image}
+                alt={`${businessName} photo ${index + 1}`}
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+            </button>
+          ))}
+        </div>
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-4xl p-0 bg-black/95 border-none">
+        <DialogContent className="max-w-4xl p-0 border-4 border-nb-border rounded-none bg-black/95">
           <DialogTitle className="sr-only">{businessName} photo gallery</DialogTitle>
           <div className="relative">
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-4 right-4 z-10 text-white hover:bg-white/20"
+              className="absolute top-4 right-4 z-10 text-white hover:bg-white/20 rounded-none border-2 border-white/30"
               onClick={() => setIsOpen(false)}
             >
               <X className="h-6 w-6" />
@@ -91,7 +100,7 @@ export function BusinessPhotoGallery({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-none border-2 border-white/30"
                   onClick={handlePrevious}
                 >
                   <ChevronLeft className="h-8 w-8" />
@@ -101,7 +110,7 @@ export function BusinessPhotoGallery({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-none border-2 border-white/30"
                   onClick={handleNext}
                 >
                   <ChevronRight className="h-8 w-8" />
@@ -114,10 +123,10 @@ export function BusinessPhotoGallery({
                       key={index}
                       onClick={() => setCurrentIndex(index)}
                       className={cn(
-                        "w-2 h-2 rounded-full transition-colors",
+                        "w-3 h-3 border-2 border-white transition-colors",
                         index === currentIndex
                           ? "bg-white"
-                          : "bg-white/40 hover:bg-white/60"
+                          : "bg-white/20 hover:bg-white/50"
                       )}
                     >
                       <span className="sr-only">Go to image {index + 1}</span>

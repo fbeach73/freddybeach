@@ -68,7 +68,8 @@ export default function SuccessStoriesPage() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl">
+            <div className="h-2 bg-nb-green border-2 border-nb-border mb-6 mx-auto max-w-xs" />
+            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl uppercase">
               Featured Success Stories
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground">

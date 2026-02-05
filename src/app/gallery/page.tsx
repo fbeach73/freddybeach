@@ -17,10 +17,11 @@ export default function GalleryPage() {
   return (
     <div className="flex-1">
       {/* Hero Section */}
-      <section className="border-b bg-gradient-to-b from-primary/5 to-background py-12 md:py-16">
+      <section className="border-b-2 border-nb-border py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
-            <h1 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+            <div className="h-2 bg-nb-pink border-2 border-nb-border mb-6 mx-auto max-w-xs" />
+            <h1 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl uppercase">
               Community Gallery
             </h1>
             <p className="text-muted-foreground md:text-lg">

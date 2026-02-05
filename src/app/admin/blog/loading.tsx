@@ -40,7 +40,7 @@ export default function AdminBlogLoading() {
         </CardHeader>
         <CardContent>
           {/* Table Header */}
-          <div className="border rounded-md">
+          <div className="border-2 border-nb-border rounded-none">
             <div className="border-b px-4 py-3 flex gap-4">
               <Skeleton className="h-4 w-32 flex-1" />
               <Skeleton className="h-4 w-20" />
@@ -55,8 +55,8 @@ export default function AdminBlogLoading() {
                   <Skeleton className="h-4 w-64" />
                   <Skeleton className="h-3 w-32" />
                 </div>
-                <Skeleton className="h-6 w-20 rounded-full" />
-                <Skeleton className="h-6 w-16 rounded-full" />
+                <Skeleton className="h-6 w-20 rounded-none" />
+                <Skeleton className="h-6 w-16 rounded-none" />
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-8 w-8" />
               </div>

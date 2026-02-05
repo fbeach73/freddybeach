@@ -25,7 +25,7 @@ export function StatsCard({
         <div className="flex items-center gap-4">
           <div
             className={cn(
-              "flex h-12 w-12 items-center justify-center rounded-full",
+              "flex h-12 w-12 items-center justify-center rounded-none border-2 border-nb-border",
               iconBgColor
             )}
           >

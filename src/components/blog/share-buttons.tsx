@@ -43,12 +43,12 @@ export function ShareButtons({ title, url, className }: ShareButtonsProps) {
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <span className="text-sm text-muted-foreground mr-2">Share:</span>
+      <span className="text-sm font-bold uppercase tracking-wide text-muted-foreground mr-2">Share:</span>
 
       <Button
         variant="outline"
         size="icon"
-        className="h-9 w-9"
+        className="h-9 w-9 rounded-none border-2 border-nb-border shadow-nb-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150"
         asChild
       >
         <a
@@ -64,7 +64,7 @@ export function ShareButtons({ title, url, className }: ShareButtonsProps) {
       <Button
         variant="outline"
         size="icon"
-        className="h-9 w-9"
+        className="h-9 w-9 rounded-none border-2 border-nb-border shadow-nb-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150"
         asChild
       >
         <a
@@ -80,7 +80,7 @@ export function ShareButtons({ title, url, className }: ShareButtonsProps) {
       <Button
         variant="outline"
         size="icon"
-        className="h-9 w-9"
+        className="h-9 w-9 rounded-none border-2 border-nb-border shadow-nb-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150"
         asChild
       >
         <a
@@ -96,12 +96,12 @@ export function ShareButtons({ title, url, className }: ShareButtonsProps) {
       <Button
         variant="outline"
         size="icon"
-        className="h-9 w-9"
+        className="h-9 w-9 rounded-none border-2 border-nb-border shadow-nb-sm hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150"
         onClick={copyToClipboard}
         aria-label={copied ? "Link copied" : "Copy link"}
       >
         {copied ? (
-          <Check className="h-4 w-4 text-green-500" />
+          <Check className="h-4 w-4 text-nb-green" />
         ) : (
           <Link2 className="h-4 w-4" />
         )}

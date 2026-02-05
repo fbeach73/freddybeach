@@ -12,9 +12,11 @@ export function BusinessDescription({
   className,
 }: BusinessDescriptionProps) {
   return (
-    <div className={cn("", className)}>
-      <h2 className="text-xl font-semibold mb-4">About {name}</h2>
-      <div className="prose prose-neutral dark:prose-invert max-w-none">
+    <div className={cn("nb-card bg-card", className)}>
+      <div className="h-2 bg-nb-green border-b-2 border-nb-border" />
+      <div className="p-5">
+        <h2 className="text-xl font-bold uppercase tracking-tight mb-4">About {name}</h2>
+        <div className="border-b-2 border-nb-border/10 mb-4" />
         <p className="text-muted-foreground leading-relaxed">{description}</p>
       </div>
     </div>

@@ -211,7 +211,7 @@ export function PostForm({ post, mode }: PostFormProps) {
       {/* Header Actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold uppercase tracking-tight">
             {mode === "create" ? "Create New Post" : "Edit Post"}
           </h1>
           <p className="text-muted-foreground">
@@ -256,7 +256,7 @@ export function PostForm({ post, mode }: PostFormProps) {
           {/* Title */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Title</CardTitle>
+              <CardTitle className="text-base uppercase tracking-tight">Title</CardTitle>
             </CardHeader>
             <CardContent>
               <Input
@@ -271,7 +271,7 @@ export function PostForm({ post, mode }: PostFormProps) {
           {/* Content Editor */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Content</CardTitle>
+              <CardTitle className="text-base uppercase tracking-tight">Content</CardTitle>
               <CardDescription>
                 Write your post using the rich text editor below
               </CardDescription>
@@ -293,7 +293,7 @@ export function PostForm({ post, mode }: PostFormProps) {
           {mode === "edit" && post && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Status</CardTitle>
+                <CardTitle className="text-base uppercase tracking-tight">Status</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
@@ -322,7 +322,7 @@ export function PostForm({ post, mode }: PostFormProps) {
           {/* URL Slug */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">URL Slug</CardTitle>
+              <CardTitle className="text-base uppercase tracking-tight">URL Slug</CardTitle>
               <CardDescription>
                 The URL path for this post: /blog/{slug || "..."}
               </CardDescription>
@@ -339,7 +339,7 @@ export function PostForm({ post, mode }: PostFormProps) {
           {/* Category */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Category</CardTitle>
+              <CardTitle className="text-base uppercase tracking-tight">Category</CardTitle>
             </CardHeader>
             <CardContent>
               <Select value={categoryId} onValueChange={setCategoryId}>
@@ -360,7 +360,7 @@ export function PostForm({ post, mode }: PostFormProps) {
           {/* Featured Image */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Featured Image</CardTitle>
+              <CardTitle className="text-base uppercase tracking-tight">Featured Image</CardTitle>
               <CardDescription>
                 The main image shown in listings and social shares
               </CardDescription>
@@ -394,7 +394,7 @@ export function PostForm({ post, mode }: PostFormProps) {
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="w-full border-t-2 border-nb-border/20" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-background px-2 text-muted-foreground">
@@ -424,7 +424,7 @@ export function PostForm({ post, mode }: PostFormProps) {
                 />
               </div>
               {featuredImageUrl && (
-                <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
+                <div className="relative aspect-video w-full overflow-hidden rounded-none border-2 border-nb-border bg-muted">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={featuredImageUrl}
@@ -439,7 +439,7 @@ export function PostForm({ post, mode }: PostFormProps) {
           {/* SEO */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">SEO</CardTitle>
+              <CardTitle className="text-base uppercase tracking-tight">SEO</CardTitle>
               <CardDescription>
                 Customize how this post appears in search results
               </CardDescription>

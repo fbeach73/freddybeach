@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getToolById } from "@/lib/data/ai-tools";
 import type { CaseStudy } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -26,7 +25,7 @@ export function CaseStudyCard({
     .filter(Boolean);
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <div className={cn("nb-card bg-card overflow-hidden", className)}>
       {/* Hero Image and Header */}
       <div className="relative">
         <div className="relative aspect-[16/9] md:aspect-[21/9]">
@@ -40,7 +39,7 @@ export function CaseStudyCard({
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
-          <Badge variant="secondary" className="mb-2">
+          <Badge className="nb-badge bg-nb-yellow text-black mb-2">
             {caseStudy.category}
           </Badge>
           <h3 className="text-xl font-bold text-white md:text-2xl">
@@ -52,7 +51,7 @@ export function CaseStudyCard({
         </div>
       </div>
 
-      <CardHeader className={cn(isCompact ? "pb-2" : "pb-4")}>
+      <div className={cn("p-4 md:p-6", isCompact ? "pb-2" : "pb-4")}>
         {/* Results Section - Highlighted at top */}
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {caseStudy.results.map((result) => (
@@ -63,14 +62,14 @@ export function CaseStudyCard({
             />
           ))}
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-6">
+      <div className="px-4 pb-4 md:px-6 md:pb-6 space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
           {/* The Challenge */}
           <div>
-            <h4 className="mb-3 flex items-center gap-2 font-semibold text-foreground">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-destructive/10 text-xs text-destructive">
+            <h4 className="mb-3 flex items-center gap-2 font-bold uppercase tracking-wide text-foreground">
+              <span className="flex h-6 w-6 items-center justify-center bg-nb-pink border-2 border-nb-border text-xs text-black font-bold">
                 !
               </span>
               The Challenge
@@ -81,7 +80,7 @@ export function CaseStudyCard({
                   key={index}
                   className="flex items-start gap-2 text-sm text-muted-foreground"
                 >
-                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-destructive/60" />
+                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 bg-nb-pink" />
                   {item}
                 </li>
               ))}
@@ -90,8 +89,8 @@ export function CaseStudyCard({
 
           {/* The Solution */}
           <div>
-            <h4 className="mb-3 flex items-center gap-2 font-semibold text-foreground">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
+            <h4 className="mb-3 flex items-center gap-2 font-bold uppercase tracking-wide text-foreground">
+              <CheckCircle2 className="h-5 w-5 text-nb-green" />
               The Solution
             </h4>
             <ul className="space-y-2">
@@ -100,7 +99,7 @@ export function CaseStudyCard({
                   key={index}
                   className="flex items-start gap-2 text-sm text-muted-foreground"
                 >
-                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-600/60" />
+                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 bg-nb-green" />
                   {item}
                 </li>
               ))}
@@ -110,12 +109,12 @@ export function CaseStudyCard({
 
         {/* Tools Used */}
         <div>
-          <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+          <h4 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">
             Tools Used:
           </h4>
           <div className="flex flex-wrap gap-2">
             {tools.map((tool) => (
-              <Badge key={tool!.id} variant="outline" className="text-xs">
+              <Badge key={tool!.id} className="nb-badge bg-nb-blue text-black text-xs">
                 {tool!.name}
               </Badge>
             ))}
@@ -123,16 +122,16 @@ export function CaseStudyCard({
         </div>
 
         {/* Testimonial */}
-        <div className="rounded-lg bg-muted/50 p-4">
-          <Quote className="mb-2 h-6 w-6 text-primary/40" />
-          <blockquote className="mb-3 text-sm italic text-foreground/90 md:text-base">
+        <div className="border-2 border-nb-border bg-muted/50 p-4">
+          <Quote className="mb-2 h-6 w-6 text-nb-yellow" />
+          <blockquote className="mb-3 text-sm italic text-foreground/90 md:text-base font-bold">
             &ldquo;{caseStudy.testimonial}&rdquo;
           </blockquote>
-          <p className="text-sm font-medium text-muted-foreground">
+          <p className="text-sm font-bold text-muted-foreground">
             — {caseStudy.ownerName}, {caseStudy.ownerTitle}
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

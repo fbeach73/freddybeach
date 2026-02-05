@@ -9,7 +9,6 @@ import {
   CarouselNext,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { SectionHeader } from "@/components/shared/page-header";
 import { TestimonialCard } from "@/components/home/testimonial-card";
 import { testimonials } from "@/lib/data/testimonials";
 import { cn } from "@/lib/utils";
@@ -44,10 +43,15 @@ export function TestimonialsSlider() {
 
   return (
     <section className="py-16">
-      <SectionHeader
-        title="What Local Businesses Are Saying"
-        description="Real results from Fredericton businesses using our AI tools"
-      />
+      <div className="mb-8">
+        <div className="w-16 h-2 bg-nb-pink mb-4" />
+        <h2 className="text-2xl md:text-3xl font-black uppercase">
+          What Local Businesses Are Saying
+        </h2>
+        <p className="mt-2 text-muted-foreground">
+          Real results from Fredericton businesses using our AI tools
+        </p>
+      </div>
 
       <div className="mt-8">
         <Carousel
@@ -68,8 +72,8 @@ export function TestimonialsSlider() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex left-0 -translate-x-1/2" />
-          <CarouselNext className="hidden sm:flex right-0 translate-x-1/2" />
+          <CarouselPrevious className="hidden sm:flex left-0 -translate-x-1/2 rounded-none border-2 border-nb-border shadow-nb-sm hover:translate-x-[calc(-50%+2px)] hover:translate-y-[2px] hover:shadow-none transition-all duration-150" />
+          <CarouselNext className="hidden sm:flex right-0 translate-x-1/2 rounded-none border-2 border-nb-border shadow-nb-sm hover:translate-x-[calc(50%+2px)] hover:translate-y-[2px] hover:shadow-none transition-all duration-150" />
         </Carousel>
 
         {/* Dot Navigation */}
@@ -81,9 +85,9 @@ export function TestimonialsSlider() {
               aria-label={`Go to slide ${index + 1}`}
               onClick={() => scrollTo(index)}
               className={cn(
-                "h-2 w-2 rounded-full transition-all duration-200",
+                "h-3 w-3 rounded-none border-2 border-nb-border transition-all duration-200",
                 index === current
-                  ? "bg-primary w-6"
+                  ? "bg-nb-pink w-8 shadow-nb-sm"
                   : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
               )}
             />

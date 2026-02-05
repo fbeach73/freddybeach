@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Separator } from "@/components/ui/separator";
 import { getPostBySlug, getAllPostSlugs, getRelatedPosts } from "@/lib/blog/get-posts";
 import { extractTableOfContents } from "@/lib/blog/mdx";
 import { getBusinessesBySlugs, getFeaturedBusinessesFromDb } from "@/lib/data/businesses-db";
@@ -118,7 +117,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <BlogContent content={post.content} />
 
             {/* Share Section */}
-            <Separator className="my-8" />
+            <div className="border-b-2 border-nb-border/10 my-8" />
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <ShareButtons title={post.title} url={postUrl} />
             </div>
@@ -126,7 +125,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {/* Related Posts */}
             {relatedPosts.length > 0 && (
               <>
-                <Separator className="my-8" />
+                <div className="border-b-2 border-nb-border/10 my-8" />
                 <RelatedPosts posts={relatedPosts} />
               </>
             )}

@@ -21,21 +21,21 @@ export function BusinessBreadcrumb({
 }: BusinessBreadcrumbProps) {
   return (
     <Breadcrumb>
-      <BreadcrumbList>
+      <BreadcrumbList className="font-bold">
         <BreadcrumbItem>
-          <BreadcrumbLink asChild>
+          <BreadcrumbLink asChild className="hover:text-nb-yellow transition-colors">
             <Link href="/">Home</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
-        <BreadcrumbSeparator />
+        <BreadcrumbSeparator className="text-nb-border font-black [&>svg]:size-4" />
         <BreadcrumbItem>
-          <BreadcrumbLink asChild>
+          <BreadcrumbLink asChild className="hover:text-nb-yellow transition-colors">
             <Link href={`/${categorySlug}`}>{categoryName}</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
-        <BreadcrumbSeparator />
+        <BreadcrumbSeparator className="text-nb-border font-black [&>svg]:size-4" />
         <BreadcrumbItem>
-          <BreadcrumbPage>{businessName}</BreadcrumbPage>
+          <BreadcrumbPage className="font-black text-nb-yellow">{businessName}</BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>

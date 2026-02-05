@@ -14,7 +14,7 @@ interface BusinessHeroProps {
 
 export function BusinessHero({ business, className }: BusinessHeroProps) {
   return (
-    <div className={cn("relative w-full overflow-hidden rounded-lg", className)}>
+    <div className={cn("relative w-full overflow-hidden border-4 border-nb-border shadow-nb-lg", className)}>
       <div className="relative aspect-[21/9] w-full">
         {business.heroImage ? (
           <Image
@@ -42,7 +42,7 @@ export function BusinessHero({ business, className }: BusinessHeroProps) {
           <TierBadge tier={business.tier} size="md" />
           <OpenStatus hours={business.hours} showNextOpen={false} size="sm" />
         </div>
-        <h1 className="text-3xl font-bold mb-2 md:text-4xl lg:text-5xl [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
+        <h1 className="text-3xl font-black uppercase mb-2 md:text-4xl lg:text-5xl [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
           {business.name}
         </h1>
         <div className="flex items-center gap-4">

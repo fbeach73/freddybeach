@@ -77,7 +77,7 @@ export function BlogOptimizerClient() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-bold uppercase tracking-tight flex items-center gap-2">
           <Sparkles className="h-6 w-6" />
           Blog Optimizer
         </h1>
@@ -152,7 +152,7 @@ export function BlogOptimizerClient() {
               </div>
 
               {error && (
-                <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                <div className="nb-error-box">
                   {error}
                 </div>
               )}
@@ -186,7 +186,7 @@ export function BlogOptimizerClient() {
             <Card>
               <CardContent className="py-12 text-center text-muted-foreground">
                 <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="font-medium">No analysis yet</p>
+                <p className="font-bold">No analysis yet</p>
                 <p className="text-sm mt-1">
                   Enter content and click &quot;Analyze&quot; to see SEO insights
                 </p>
@@ -208,7 +208,7 @@ export function BlogOptimizerClient() {
             <Card>
               <CardContent className="py-12 text-center text-muted-foreground">
                 <Wand2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="font-medium">No content to rewrite</p>
+                <p className="font-bold">No content to rewrite</p>
                 <p className="text-sm mt-1">
                   Enter content in the Content tab first
                 </p>

@@ -5,6 +5,7 @@ interface PageHeaderProps {
   description?: string;
   children?: React.ReactNode;
   className?: string;
+  accentColor?: string;
 }
 
 export function PageHeader({
@@ -12,12 +13,14 @@ export function PageHeader({
   description,
   children,
   className,
+  accentColor = "bg-nb-yellow",
 }: PageHeaderProps) {
   return (
     <div className={cn("space-y-2", className)}>
+      <div className={`h-2 ${accentColor} border-2 border-nb-border mb-6`} />
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl uppercase">
             {title}
           </h1>
           {description && (
@@ -35,6 +38,7 @@ interface SectionHeaderProps {
   description?: string;
   action?: React.ReactNode;
   className?: string;
+  accentColor?: string;
 }
 
 export function SectionHeader({
@@ -42,16 +46,22 @@ export function SectionHeader({
   description,
   action,
   className,
+  accentColor,
 }: SectionHeaderProps) {
   return (
-    <div className={cn("flex items-start justify-between", className)}>
-      <div className="space-y-1">
-        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-        {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        )}
+    <div className={cn("flex flex-col gap-4", className)}>
+      {accentColor && (
+        <div className={`h-2 ${accentColor} border-2 border-nb-border`} />
+      )}
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <h2 className="text-xl font-bold tracking-tight uppercase">{title}</h2>
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
+        </div>
+        {action}
       </div>
-      {action}
     </div>
   );
 }

@@ -7,7 +7,7 @@ export function BusinessCardSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border bg-card",
+        "overflow-hidden rounded-none border-2 border-nb-border bg-card",
         className
       )}
     >
@@ -66,11 +66,11 @@ export function CategoryCardSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-lg border bg-card p-6 text-center",
+        "flex flex-col items-center justify-center rounded-none border-2 border-nb-border bg-card p-6 text-center",
         className
       )}
     >
-      <Skeleton className="h-12 w-12 rounded-full" />
+      <Skeleton className="h-12 w-12 rounded-none" />
       <Skeleton className="mt-3 h-5 w-24" />
       <Skeleton className="mt-2 h-4 w-16" />
     </div>
@@ -102,7 +102,7 @@ export function BusinessDetailSkeleton() {
   return (
     <div className="space-y-8">
       {/* Hero */}
-      <Skeleton className="h-64 w-full rounded-lg md:h-80" />
+      <Skeleton className="h-64 w-full rounded-none md:h-80" />
 
       <div className="grid gap-8 md:grid-cols-3">
         {/* Main content */}
@@ -127,21 +127,21 @@ export function BusinessDetailSkeleton() {
           {/* Gallery */}
           <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full rounded-lg" />
+              <Skeleton key={i} className="h-32 w-full rounded-none" />
             ))}
           </div>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-4">
-          <div className="rounded-lg border p-4 space-y-4">
+          <div className="rounded-none border-2 border-nb-border p-4 space-y-4">
             <Skeleton className="h-5 w-32" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-10 w-full" />
           </div>
 
-          <div className="rounded-lg border p-4 space-y-3">
+          <div className="rounded-none border-2 border-nb-border p-4 space-y-3">
             <Skeleton className="h-5 w-24" />
             {Array.from({ length: 7 }).map((_, i) => (
               <div key={i} className="flex justify-between">
@@ -162,7 +162,7 @@ export function DashboardSkeleton() {
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-lg border bg-card p-6">
+          <div key={i} className="rounded-none border-2 border-nb-border bg-card p-6">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-2 h-8 w-16" />
           </div>
@@ -171,12 +171,12 @@ export function DashboardSkeleton() {
 
       {/* Content cards */}
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border bg-card p-6 space-y-4">
+        <div className="rounded-none border-2 border-nb-border bg-card p-6 space-y-4">
           <Skeleton className="h-5 w-32" />
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="flex items-center gap-4">
-                <Skeleton className="h-12 w-12 rounded-lg" />
+                <Skeleton className="h-12 w-12 rounded-none" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
@@ -186,7 +186,7 @@ export function DashboardSkeleton() {
           </div>
         </div>
 
-        <div className="rounded-lg border bg-card p-6 space-y-4">
+        <div className="rounded-none border-2 border-nb-border bg-card p-6 space-y-4">
           <Skeleton className="h-5 w-28" />
           <Skeleton className="h-48 w-full" />
         </div>
@@ -213,9 +213,9 @@ export function SearchResultsSkeleton({
 
 export function TestimonialCardSkeleton() {
   return (
-    <div className="rounded-lg border bg-card p-6 space-y-4">
+    <div className="rounded-none border-2 border-nb-border bg-card p-6 space-y-4">
       <div className="flex items-center gap-3">
-        <Skeleton className="h-12 w-12 rounded-full" />
+        <Skeleton className="h-12 w-12 rounded-none" />
         <div className="space-y-2">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-3 w-32" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatHours } from "@/lib/utils/business";
 import type { BusinessHours, DayOfWeek } from "@/lib/types";
@@ -50,27 +50,32 @@ export function BusinessHoursTable({ hours, className }: BusinessHoursTableProps
   ).filter((h): h is BusinessHours => h !== undefined);
 
   return (
-    <Card className={cn("", className)}>
-      <CardHeader>
-        <CardTitle className="text-lg">Business Hours</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
+    <div className={cn("nb-card bg-card", className)}>
+      <div className="h-2 bg-nb-yellow border-b-2 border-nb-border" />
+      <div className="p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex h-9 w-9 items-center justify-center bg-nb-yellow border-2 border-nb-border">
+            <Clock className="h-4 w-4 text-black" />
+          </div>
+          <h3 className="text-lg font-bold uppercase tracking-tight">Business Hours</h3>
+        </div>
+        <div className="border-b-2 border-nb-border/10 mb-3" />
+        <div className="space-y-1">
           {sortedHours.map((dayHours) => {
             const isToday = dayHours.day === currentDay;
             return (
               <div
                 key={dayHours.day}
                 className={cn(
-                  "flex justify-between items-center py-2 px-3 rounded-md",
-                  isToday && "bg-primary/10 font-medium"
+                  "flex justify-between items-center py-2 px-3",
+                  isToday && "bg-nb-yellow/20 border-2 border-nb-border font-bold"
                 )}
               >
-                <span className={cn(isToday && "text-primary")}>
+                <span className={cn("text-sm", isToday && "font-bold")}>
                   {dayLabels[dayHours.day]}
                   {isToday && (
-                    <span className="ml-2 text-xs font-normal text-muted-foreground">
-                      (Today)
+                    <span className="ml-2 text-xs font-bold uppercase text-nb-border/60">
+                      Today
                     </span>
                   )}
                 </span>
@@ -80,7 +85,7 @@ export function BusinessHoursTable({ hours, className }: BusinessHoursTableProps
                     dayHours.closed
                       ? "text-muted-foreground"
                       : isToday
-                      ? "text-primary"
+                      ? "font-bold"
                       : "text-foreground"
                   )}
                 >
@@ -90,7 +95,7 @@ export function BusinessHoursTable({ hours, className }: BusinessHoursTableProps
             );
           })}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

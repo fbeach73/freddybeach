@@ -1,6 +1,6 @@
 "use client";
 
-import { X, ChevronDown, Check } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -80,13 +80,13 @@ export function SearchFilters({
       {/* Category Filter */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Categories</Label>
+          <Label className="text-sm font-bold uppercase tracking-wide">Categories</Label>
           {filters.categories.length > 0 && (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClearCategories}
-              className="h-auto px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
+              className="h-auto px-2 py-1 text-xs font-bold text-muted-foreground hover:text-foreground"
             >
               Clear
             </Button>
@@ -96,7 +96,7 @@ export function SearchFilters({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="w-full justify-between"
+              className="w-full justify-between border-2 border-nb-border rounded-none font-bold"
               role="combobox"
             >
               <span className="truncate">
@@ -110,7 +110,7 @@ export function SearchFilters({
               <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[280px] p-0" align="start">
+          <PopoverContent className="w-[280px] p-0 border-2 border-nb-border rounded-none" align="start">
             <Command>
               <CommandInput placeholder="Search categories..." />
               <CommandList>
@@ -127,7 +127,7 @@ export function SearchFilters({
                         className="mr-2"
                       />
                       <span>{category.name}</span>
-                      <Badge variant="secondary" className="ml-auto text-xs">
+                      <Badge className="nb-badge bg-nb-yellow text-black ml-auto text-xs">
                         {category.businessCount}
                       </Badge>
                     </CommandItem>
@@ -144,13 +144,12 @@ export function SearchFilters({
               return category ? (
                 <Badge
                   key={slug}
-                  variant="secondary"
-                  className="gap-1 pr-1"
+                  className="nb-badge bg-nb-blue text-black gap-1 pr-1"
                 >
                   {category.name}
                   <button
                     onClick={() => handleCategoryToggle(slug)}
-                    className="ml-1 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                    className="ml-1 p-0.5 hover:bg-black/10"
                   >
                     <X className="h-3 w-3" />
                     <span className="sr-only">Remove {category.name}</span>
@@ -164,17 +163,19 @@ export function SearchFilters({
 
       {/* Rating Filter */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">Minimum Rating</Label>
+        <Label className="text-sm font-bold uppercase tracking-wide">Minimum Rating</Label>
         <div className="flex flex-wrap gap-2">
           {ratingOptions.map((option) => (
             <Button
               key={option.label}
-              variant={
-                filters.minRating === option.value ? "default" : "outline"
-              }
               size="sm"
               onClick={() => onRatingChange(option.value)}
-              className="min-w-[48px]"
+              className={cn(
+                "min-w-[48px] border-2 border-nb-border rounded-none font-bold transition-all duration-150",
+                filters.minRating === option.value
+                  ? "bg-nb-yellow text-black shadow-none translate-x-[2px] translate-y-[2px]"
+                  : "bg-card text-foreground shadow-nb-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              )}
             >
               {option.label}
             </Button>
@@ -183,8 +184,8 @@ export function SearchFilters({
       </div>
 
       {/* Open Now Toggle */}
-      <div className="flex items-center justify-between">
-        <Label htmlFor="open-now" className="text-sm font-medium">
+      <div className="flex items-center justify-between border-2 border-nb-border px-3 py-2 bg-card">
+        <Label htmlFor="open-now" className="text-sm font-bold">
           Open Now
         </Label>
         <Switch
@@ -195,8 +196,8 @@ export function SearchFilters({
       </div>
 
       {/* Featured Toggle */}
-      <div className="flex items-center justify-between">
-        <Label htmlFor="featured" className="text-sm font-medium">
+      <div className="flex items-center justify-between border-2 border-nb-border px-3 py-2 bg-card">
+        <Label htmlFor="featured" className="text-sm font-bold">
           Featured Only
         </Label>
         <Switch
@@ -209,9 +210,8 @@ export function SearchFilters({
       {/* Clear All Button */}
       {hasActiveFilters && (
         <Button
-          variant="ghost"
           onClick={onClearAll}
-          className="w-full text-muted-foreground hover:text-foreground"
+          className="nb-btn w-full bg-nb-pink text-black hover:bg-nb-pink"
         >
           <X className="mr-2 h-4 w-4" />
           Clear All Filters

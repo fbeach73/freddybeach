@@ -1,6 +1,7 @@
 import { BlogCard } from "./blog-card";
 import { cn } from "@/lib/utils";
 import type { BlogPostCard } from "@/types/blog";
+import { FileText } from "lucide-react";
 
 interface BlogGridProps {
   posts: BlogPostCard[];
@@ -10,9 +11,13 @@ interface BlogGridProps {
 export function BlogGrid({ posts, className }: BlogGridProps) {
   if (posts.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground text-lg">
-          No blog posts yet. Check back soon!
+      <div className="nb-card bg-card p-12 flex flex-col items-center justify-center text-center">
+        <div className="flex h-16 w-16 items-center justify-center bg-nb-blue border-2 border-nb-border">
+          <FileText className="h-8 w-8 text-black" />
+        </div>
+        <h3 className="mt-4 text-lg font-bold uppercase">No blog posts yet</h3>
+        <p className="mt-2 text-muted-foreground">
+          Check back soon for local insights and community stories!
         </p>
       </div>
     );
@@ -25,8 +30,8 @@ export function BlogGrid({ posts, className }: BlogGridProps) {
         className
       )}
     >
-      {posts.map((post) => (
-        <BlogCard key={post.slug} post={post} />
+      {posts.map((post, index) => (
+        <BlogCard key={post.slug} post={post} index={index} />
       ))}
     </div>
   );

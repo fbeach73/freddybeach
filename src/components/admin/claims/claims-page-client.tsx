@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -135,9 +135,9 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
   const [rejectionReason, setRejectionReason] = useState("");
 
   // Filter claims by status
-  const pendingClaims = claims.filter((c) => c.status === "pending");
-  const approvedClaims = claims.filter((c) => c.status === "approved");
-  const rejectedClaims = claims.filter((c) => c.status === "rejected");
+  const pendingClaims = useMemo(() => claims.filter((c) => c.status === "pending"), [claims]);
+  const approvedClaims = useMemo(() => claims.filter((c) => c.status === "approved"), [claims]);
+  const rejectedClaims = useMemo(() => claims.filter((c) => c.status === "rejected"), [claims]);
 
   const getBusinessUrl = (claim: Claim) => {
     const category = claim.businessCategoryId
@@ -255,7 +255,7 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Business Claims</h1>
+        <h1 className="text-2xl font-bold uppercase tracking-tight">Business Claims</h1>
         <p className="text-muted-foreground">
           Review and approve business claim requests. Approving a claim upgrades
           the user to Client role.
@@ -264,32 +264,32 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight">Pending</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">
+            <div className="text-2xl font-bold text-nb-orange">
               {pendingClaims.length}
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Approved</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight">Approved</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-nb-green">
               {approvedClaims.length}
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Rejected</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight">Rejected</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">
+            <div className="text-2xl font-bold text-nb-pink">
               {rejectedClaims.length}
             </div>
           </CardContent>
@@ -338,10 +338,10 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
                     return (
                       <div
                         key={claim.id}
-                        className="flex flex-col md:flex-row md:items-start justify-between gap-4 p-4 border rounded-lg"
+                        className="flex flex-col md:flex-row md:items-start justify-between gap-4 p-4 border-2 border-nb-border/20"
                       >
                         <div className="flex items-start gap-4 flex-1">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                          <div className="flex h-10 w-10 items-center justify-center bg-nb-blue/20 border-2 border-nb-border text-nb-blue shrink-0">
                             <Building2 className="h-5 w-5" />
                           </div>
                           <div className="space-y-2 min-w-0">
@@ -367,7 +367,7 @@ export function ClaimsPageClient({ claims }: ClaimsPageClientProps) {
                               <div className="flex items-center gap-2">
                                 <span>
                                   Claimed by{" "}
-                                  <span className="font-medium text-foreground">
+                                  <span className="font-bold text-foreground">
                                     {claim.userName}
                                   </span>
                                 </span>

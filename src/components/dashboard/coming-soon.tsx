@@ -1,5 +1,5 @@
 import { Clock, Bell } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -18,30 +18,31 @@ export function ComingSoon({
 }: ComingSoonProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="rounded-full bg-muted p-4">
-        <Clock className="h-8 w-8 text-muted-foreground" />
+      <div className="flex h-16 w-16 items-center justify-center bg-nb-orange/20 border-2 border-nb-border">
+        <Clock className="h-8 w-8 text-nb-orange" />
       </div>
 
-      <h2 className="mt-6 text-2xl font-bold">{title}</h2>
+      <h2 className="mt-6 text-2xl font-bold uppercase tracking-tight">{title}</h2>
       <p className="mt-2 max-w-md text-muted-foreground">{description}</p>
 
       {features && features.length > 0 && (
-        <Card className="mt-6 w-full max-w-md">
+        <div className="nb-card bg-card mt-6 w-full max-w-md">
+          <div className="h-2 bg-nb-orange border-b-2 border-nb-border" />
           <CardContent className="p-6">
-            <h3 className="font-semibold text-left">Coming Features:</h3>
+            <h3 className="font-bold text-left uppercase tracking-tight">Coming Features:</h3>
             <ul className="mt-3 space-y-2 text-left">
               {features.map((feature, index) => (
                 <li
                   key={index}
                   className="flex items-center gap-2 text-sm text-muted-foreground"
                 >
-                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <div className="h-2 w-2 bg-nb-orange border border-nb-border" />
                   {feature}
                 </li>
               ))}
             </ul>
           </CardContent>
-        </Card>
+        </div>
       )}
 
       {showNotify && (

@@ -92,7 +92,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex min-h-screen flex-col">
+          <div className="flex min-h-screen flex-col bg-nb-bg">
             <SiteHeader />
             <main id="main-content" className="flex-1">
               {children}

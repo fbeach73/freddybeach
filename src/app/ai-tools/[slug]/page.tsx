@@ -89,16 +89,19 @@ export default async function AIToolPage({
   if (!session) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="rounded-full bg-muted p-4">
-            <Lock className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <h1 className="mt-4 text-2xl font-bold">Sign In Required</h1>
-          <p className="mt-2 text-muted-foreground">
-            You need to sign in to access this AI tool
-          </p>
-          <div className="mt-6">
-            <UserProfile />
+        <div className="nb-card bg-card max-w-md mx-auto">
+          <div className="h-2 bg-nb-pink border-b-2 border-nb-border" />
+          <div className="p-8 flex flex-col items-center text-center">
+            <div className="flex h-16 w-16 items-center justify-center bg-nb-pink border-2 border-nb-border">
+              <Lock className="h-8 w-8 text-black" />
+            </div>
+            <h1 className="mt-4 text-2xl font-black uppercase">Sign In Required</h1>
+            <p className="mt-2 text-muted-foreground">
+              You need to sign in to access this AI tool
+            </p>
+            <div className="mt-6">
+              <UserProfile />
+            </div>
           </div>
         </div>
       </div>
@@ -152,7 +155,7 @@ export default async function AIToolPage({
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       {/* Back Navigation */}
-      <Button variant="ghost" size="sm" asChild className="-ml-2">
+      <Button variant="ghost" size="sm" asChild className="nb-btn -ml-2 bg-card text-foreground hover:bg-card">
         <Link href="/ai-tools">
           <ArrowLeft className="mr-1.5 h-4 w-4" />
           Back to AI Tools
@@ -160,35 +163,38 @@ export default async function AIToolPage({
       </Button>
 
       {/* Tool Header */}
-      <header className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-start gap-4">
-            {/* Tool Icon */}
-            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-primary/10">
-              <Icon className="h-7 w-7 text-primary" />
-            </div>
-
-            {/* Tool Info */}
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold">{tool.name}</h1>
-                <TierBadge tier={tool.tier} size="sm" />
+      <header className="nb-card bg-card">
+        <div className="h-2 bg-nb-blue border-b-2 border-nb-border" />
+        <div className="p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-4">
+              {/* Tool Icon */}
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center bg-nb-blue border-2 border-nb-border">
+                <Icon className="h-7 w-7 text-black" />
               </div>
-              <p className="mt-1 text-muted-foreground max-w-2xl">
-                {tool.description}
-              </p>
-            </div>
-          </div>
 
-          {/* Usage Stats */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="text-sm">
-              Used {usageCount} {usageCount === 1 ? "time" : "times"}
-            </Badge>
-            <Badge variant="outline" className="text-sm">
-              <Zap className="mr-1.5 h-3.5 w-3.5" />
-              {isUnlimited ? "Unlimited" : `${usageRemaining} remaining`}
-            </Badge>
+              {/* Tool Info */}
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl font-black uppercase">{tool.name}</h1>
+                  <TierBadge tier={tool.tier} size="sm" />
+                </div>
+                <p className="mt-1 text-muted-foreground max-w-2xl">
+                  {tool.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Usage Stats */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className="nb-badge bg-nb-yellow/20 text-foreground text-sm">
+                Used {usageCount} {usageCount === 1 ? "time" : "times"}
+              </Badge>
+              <Badge className="nb-badge bg-nb-green/20 text-foreground text-sm">
+                <Zap className="mr-1.5 h-3.5 w-3.5" />
+                {isUnlimited ? "Unlimited" : `${usageRemaining} remaining`}
+              </Badge>
+            </div>
           </div>
         </div>
       </header>
@@ -208,13 +214,13 @@ function PremiumToolGate({ tool }: { tool: { name: string; tier: string; example
   return (
     <div className="relative">
       {/* Blurred Preview */}
-      <div className="relative overflow-hidden rounded-xl border bg-card">
+      <div className="relative overflow-hidden border-4 border-nb-border bg-card">
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="mx-auto max-w-md text-center p-6">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <Lock className="h-8 w-8 text-primary" />
+            <div className="mx-auto flex h-16 w-16 items-center justify-center bg-nb-orange border-2 border-nb-border">
+              <Lock className="h-8 w-8 text-black" />
             </div>
-            <h2 className="mt-4 text-xl font-semibold">
+            <h2 className="mt-4 text-xl font-black uppercase">
               Unlock {tool.name}
             </h2>
             <p className="mt-2 text-muted-foreground">
@@ -222,10 +228,10 @@ function PremiumToolGate({ tool }: { tool: { name: string; tier: string; example
               Upgrade to access advanced AI-powered features for your business.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Button asChild>
+              <Button asChild className="nb-btn bg-nb-orange text-black hover:bg-nb-orange">
                 <Link href="/ai-tools#pricing">View Plans</Link>
               </Button>
-              <Button variant="outline" asChild>
+              <Button variant="outline" asChild className="nb-btn bg-card text-foreground hover:bg-card">
                 <Link href="/ai-tools">Browse Free Tools</Link>
               </Button>
             </div>
@@ -236,22 +242,22 @@ function PremiumToolGate({ tool }: { tool: { name: string; tier: string; example
         <div className="p-6 blur-sm pointer-events-none select-none" aria-hidden="true">
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="space-y-4">
-              <div className="h-4 w-24 rounded bg-muted" />
-              <div className="h-32 rounded-lg border bg-muted/50" />
+              <div className="h-4 w-24 bg-muted border-2 border-nb-border/10" />
+              <div className="h-32 border-2 border-nb-border/10 bg-muted/50" />
               <div className="flex gap-2">
-                <div className="h-9 w-24 rounded bg-muted" />
-                <div className="h-9 flex-1 rounded bg-muted" />
+                <div className="h-9 w-24 bg-muted border-2 border-nb-border/10" />
+                <div className="h-9 flex-1 bg-muted border-2 border-nb-border/10" />
               </div>
             </div>
             <div className="space-y-4">
-              <div className="h-4 w-24 rounded bg-muted" />
-              <div className="h-64 rounded-lg border bg-muted/50 p-4">
+              <div className="h-4 w-24 bg-muted border-2 border-nb-border/10" />
+              <div className="h-64 border-2 border-nb-border/10 bg-muted/50 p-4">
                 <div className="space-y-2">
-                  <div className="h-3 w-3/4 rounded bg-muted" />
-                  <div className="h-3 w-full rounded bg-muted" />
-                  <div className="h-3 w-5/6 rounded bg-muted" />
-                  <div className="h-3 w-full rounded bg-muted" />
-                  <div className="h-3 w-2/3 rounded bg-muted" />
+                  <div className="h-3 w-3/4 bg-muted" />
+                  <div className="h-3 w-full bg-muted" />
+                  <div className="h-3 w-5/6 bg-muted" />
+                  <div className="h-3 w-full bg-muted" />
+                  <div className="h-3 w-2/3 bg-muted" />
                 </div>
               </div>
             </div>

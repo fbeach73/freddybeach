@@ -201,17 +201,17 @@ export function BusinessCreateForm() {
   if (submitted) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center space-y-6">
-        <div className="rounded-full bg-green-100 p-4 dark:bg-green-950/40">
+        <div className="bg-nb-green border-2 border-nb-border p-4">
           <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
         </div>
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold">Business Submitted!</h2>
+          <h2 className="text-2xl font-bold uppercase tracking-tight">Business Submitted!</h2>
           <p className="max-w-md text-muted-foreground">
             Your listing for <span className="font-medium text-foreground">{name}</span> has
             been submitted and is now under review by our team.
           </p>
         </div>
-        <Alert className="max-w-lg text-left">
+        <Alert className="max-w-lg text-left border-2 border-nb-border rounded-none">
           <Info className="h-4 w-4" />
           <AlertTitle>What happens next?</AlertTitle>
           <AlertDescription>
@@ -242,7 +242,7 @@ export function BusinessCreateForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Info Banner */}
-      <Alert>
+      <Alert className="border-2 border-nb-border rounded-none">
         <Info className="h-4 w-4" />
         <AlertTitle>Review Process</AlertTitle>
         <AlertDescription>
@@ -254,7 +254,7 @@ export function BusinessCreateForm() {
 
       {/* Basic Information */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Basic Information</h3>
+        <h3 className="nb-form-section">Basic Information</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="name">
@@ -271,7 +271,7 @@ export function BusinessCreateForm() {
               className={errors.name ? "border-destructive" : ""}
             />
             {errors.name && (
-              <p className="text-sm text-destructive">{errors.name}</p>
+              <p className="text-sm font-bold text-nb-pink">{errors.name}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -300,7 +300,7 @@ export function BusinessCreateForm() {
               </SelectContent>
             </Select>
             {errors.categoryId && (
-              <p className="text-sm text-destructive">{errors.categoryId}</p>
+              <p className="text-sm font-bold text-nb-pink">{errors.categoryId}</p>
             )}
           </div>
         </div>
@@ -328,7 +328,7 @@ export function BusinessCreateForm() {
 
       {/* Contact Information */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Contact Information</h3>
+        <h3 className="nb-form-section">Contact Information</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="phone">
@@ -346,7 +346,7 @@ export function BusinessCreateForm() {
               className={errors.phone ? "border-destructive" : ""}
             />
             {errors.phone && (
-              <p className="text-sm text-destructive">{errors.phone}</p>
+              <p className="text-sm font-bold text-nb-pink">{errors.phone}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -374,7 +374,7 @@ export function BusinessCreateForm() {
 
       {/* Address */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Address</h3>
+        <h3 className="nb-form-section">Address</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="address">
@@ -392,7 +392,7 @@ export function BusinessCreateForm() {
               className={errors.address ? "border-destructive" : ""}
             />
             {errors.address && (
-              <p className="text-sm text-destructive">{errors.address}</p>
+              <p className="text-sm font-bold text-nb-pink">{errors.address}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -428,14 +428,14 @@ export function BusinessCreateForm() {
       {/* Featured Image */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-medium">Featured Image</h3>
+          <h3 className="nb-form-section">Featured Image</h3>
           <p className="text-sm text-muted-foreground">
             Upload a photo of your business. Images are auto-optimized to WebP.
           </p>
         </div>
         {imagePreview ? (
           <div className="relative w-full max-w-md">
-            <div className="relative aspect-video overflow-hidden rounded-lg border bg-muted">
+            <div className="relative aspect-video overflow-hidden rounded-none border-2 border-nb-border bg-muted">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imagePreview}
@@ -470,10 +470,10 @@ export function BusinessCreateForm() {
               if (file) handleImageFile(file);
             }}
             onClick={() => fileInputRef.current?.click()}
-            className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+            className={`cursor-pointer rounded-none border-2 border-dashed border-nb-border p-8 text-center transition-colors ${
               isDragging
-                ? "border-primary bg-primary/5"
-                : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
+                ? "border-nb-blue bg-nb-blue/5"
+                : "hover:border-primary/50 hover:bg-muted/50"
             }`}
           >
             <input
@@ -487,7 +487,7 @@ export function BusinessCreateForm() {
               className="hidden"
             />
             <div className="flex flex-col items-center gap-3">
-              <div className="rounded-full bg-muted p-3">
+              <div className="bg-nb-yellow/20 border-2 border-nb-border/20 p-3">
                 <Upload className="h-6 w-6 text-muted-foreground" />
               </div>
               <div>
@@ -506,7 +506,7 @@ export function BusinessCreateForm() {
       {/* Business Hours */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-medium">Business Hours</h3>
+          <h3 className="nb-form-section">Business Hours</h3>
           <p className="text-sm text-muted-foreground">
             Set your regular operating hours for each day of the week
           </p>
@@ -569,7 +569,7 @@ export function BusinessCreateForm() {
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="bg-nb-green text-black hover:bg-nb-green">
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

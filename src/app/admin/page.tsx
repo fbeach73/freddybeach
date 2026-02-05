@@ -87,7 +87,7 @@ export default async function AdminPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Admin Overview</h1>
+        <h1 className="text-2xl font-bold uppercase tracking-tight">Admin Overview</h1>
         <p className="text-muted-foreground">
           Manage users, approve claims, and moderate business listings.
         </p>
@@ -95,15 +95,15 @@ export default async function AdminPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.title}>
+          <Card key={stat.title} className="nb-card bg-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-tight">{stat.title}</CardTitle>
               <stat.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
               <p className="text-xs text-muted-foreground">{stat.description}</p>
-              <Button variant="link" className="px-0 mt-2" asChild>
+              <Button variant="link" className="px-0 mt-2 font-bold" asChild>
                 <Link href={stat.href}>View all</Link>
               </Button>
             </CardContent>
@@ -112,9 +112,9 @@ export default async function AdminPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader>
-            <CardTitle>Recent Claims</CardTitle>
+            <CardTitle className="uppercase tracking-tight">Recent Claims</CardTitle>
             <CardDescription>Pending business claim requests</CardDescription>
           </CardHeader>
           <CardContent>
@@ -123,9 +123,9 @@ export default async function AdminPage() {
             ) : (
               <div className="space-y-4">
                 {recentClaims.map((claimItem) => (
-                  <div key={claimItem.id} className="flex items-center justify-between">
+                  <div key={claimItem.id} className="flex items-center justify-between border-b-2 border-nb-border/10 pb-3 last:border-0">
                     <div>
-                      <p className="font-medium">{claimItem.businessName}</p>
+                      <p className="font-bold">{claimItem.businessName}</p>
                       <p className="text-sm text-muted-foreground">
                         Claimed by {claimItem.userEmail}
                       </p>
@@ -137,15 +137,15 @@ export default async function AdminPage() {
                 ))}
               </div>
             )}
-            <Button variant="link" className="px-0 mt-4" asChild>
+            <Button variant="link" className="px-0 mt-4 font-bold" asChild>
               <Link href="/admin/claims">View all claims</Link>
             </Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="nb-card bg-card">
           <CardHeader>
-            <CardTitle>Recent Users</CardTitle>
+            <CardTitle className="uppercase tracking-tight">Recent Users</CardTitle>
             <CardDescription>Latest user registrations</CardDescription>
           </CardHeader>
           <CardContent>
@@ -154,9 +154,9 @@ export default async function AdminPage() {
             ) : (
               <div className="space-y-4">
                 {recentUsers.map((userItem) => (
-                  <div key={userItem.id} className="flex items-center justify-between">
+                  <div key={userItem.id} className="flex items-center justify-between border-b-2 border-nb-border/10 pb-3 last:border-0">
                     <div>
-                      <p className="font-medium">{userItem.name}</p>
+                      <p className="font-bold">{userItem.name}</p>
                       <p className="text-sm text-muted-foreground">{userItem.role}</p>
                     </div>
                     <span className="text-xs text-muted-foreground">
@@ -166,7 +166,7 @@ export default async function AdminPage() {
                 ))}
               </div>
             )}
-            <Button variant="link" className="px-0 mt-4" asChild>
+            <Button variant="link" className="px-0 mt-4 font-bold" asChild>
               <Link href="/admin/users">View all users</Link>
             </Button>
           </CardContent>

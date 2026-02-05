@@ -186,15 +186,15 @@ export function MediaLibrary({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="space-y-2">
-                <Skeleton className="aspect-square rounded-lg" />
+                <Skeleton className="aspect-square rounded-none" />
                 <Skeleton className="h-4 w-3/4" />
               </div>
             ))}
           </div>
         ) : images.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-12 text-muted-foreground border-2 border-dashed border-nb-border/30">
             <FileImage className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="font-medium">No images found</p>
+            <p className="font-bold">No images found</p>
             <p className="text-sm mt-1">
               {search
                 ? "Try a different search term"
@@ -206,9 +206,9 @@ export function MediaLibrary({
             {images.map((image) => (
               <div
                 key={image.id}
-                className={`group relative rounded-lg overflow-hidden bg-muted border ${
+                className={`group relative overflow-hidden bg-muted border-2 border-nb-border ${
                   selectionMode
-                    ? "cursor-pointer hover:ring-2 hover:ring-primary"
+                    ? "cursor-pointer hover:ring-2 hover:ring-nb-blue"
                     : ""
                 }`}
                 onClick={() => selectionMode && onSelect?.(image)}
@@ -293,7 +293,7 @@ export function MediaLibrary({
 
                   {/* Info */}
                   <div className="text-white text-xs space-y-0.5">
-                    <p className="font-medium truncate">{image.filename}</p>
+                    <p className="font-bold truncate">{image.filename}</p>
                     <p className="text-white/70 truncate">{image.altText}</p>
                     <div className="flex items-center gap-2 text-white/50">
                       <span className="flex items-center gap-1">
@@ -310,7 +310,7 @@ export function MediaLibrary({
                 {/* Selection indicator */}
                 {selectionMode && (
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="bg-primary text-primary-foreground rounded-full p-1">
+                    <div className="bg-nb-blue text-black border-2 border-nb-border p-1">
                       <ImageIcon className="h-4 w-4" />
                     </div>
                   </div>

@@ -74,7 +74,7 @@ export function ImportConfirmationDialog({
             {/* Detailed List */}
             <div className="space-y-2">
               <h4 className="text-sm font-medium">Businesses to Import</h4>
-              <div className="divide-y rounded-md border">
+              <div className="divide-y-2 divide-nb-border/10 rounded-none border-2 border-nb-border">
                 {places.map((place) => {
                   const categoryId = categoryAssignments.get(place.id);
                   const category = categoryId
@@ -117,7 +117,7 @@ export function ImportConfirmationDialog({
           >
             Cancel
           </Button>
-          <Button onClick={onConfirm} disabled={isImporting}>
+          <Button onClick={onConfirm} disabled={isImporting} className="bg-nb-green text-black hover:bg-nb-green">
             {isImporting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

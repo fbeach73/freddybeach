@@ -231,7 +231,7 @@ export function PostForm({ post, mode }: PostFormProps) {
           </Button>
           {mode === "edit" && post?.status === "published" && (
             <Button variant="outline" asChild>
-              <a href={`/blog/${post.slug}`} target="_blank" rel="noopener">
+              <a href={`/${post.slug}`} target="_blank" rel="noopener">
                 <Eye className="mr-2 h-4 w-4" />
                 View
               </a>
@@ -324,7 +324,7 @@ export function PostForm({ post, mode }: PostFormProps) {
             <CardHeader className="pb-3">
               <CardTitle className="text-base uppercase tracking-tight">URL Slug</CardTitle>
               <CardDescription>
-                The URL path for this post: /blog/{slug || "..."}
+                The URL path for this post: /{slug || "..."}
               </CardDescription>
             </CardHeader>
             <CardContent>

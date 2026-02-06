@@ -310,6 +310,12 @@ export async function deleteDraftPost(id: string): Promise<boolean> {
  * Check if a slug is already in use
  */
 export async function isSlugAvailable(slug: string, excludeId?: string): Promise<boolean> {
+  // Check against category slugs (blog posts now live at /{slug}, can't collide)
+  const { categories: allCategories } = await import("@/lib/data/categories");
+  if (allCategories.some((cat: { slug: string }) => cat.slug === slug)) {
+    return false;
+  }
+
   // Check database
   const conditions = excludeId
     ? and(eq(blogPost.slug, slug), sql`${blogPost.id} != ${excludeId}`)

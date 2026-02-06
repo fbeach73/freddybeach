@@ -24,7 +24,7 @@ export function BlogCard({ post, index = 0, className }: BlogCardProps) {
   const accentColor = ACCENT_COLORS[index % ACCENT_COLORS.length];
 
   return (
-    <Link href={`/blog/${post.slug}`} className="group">
+    <Link href={`/${post.slug}`} className="group">
       <div
         className={cn(
           "nb-card bg-card overflow-hidden flex flex-col h-full",

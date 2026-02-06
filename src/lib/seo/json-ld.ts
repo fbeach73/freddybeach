@@ -15,7 +15,7 @@ const PUBLISHER_LOGO = `${SITE_URL}/images/freddybeach-logo.png`;
  */
 export function generateArticleSchema(post: BlogPost) {
   const category = getCategoryById(post.categoryId);
-  const articleUrl = `${SITE_URL}/blog/${post.slug}`;
+  const articleUrl = `${SITE_URL}/${post.slug}`;
 
   return {
     "@context": "https://schema.org",
@@ -95,14 +95,14 @@ export function generateBreadcrumbSchema(post: BlogPost) {
       "@type": "ListItem",
       position: 4,
       name: post.title,
-      item: `${SITE_URL}/blog/${post.slug}`,
+      item: `${SITE_URL}/${post.slug}`,
     });
   } else {
     items.push({
       "@type": "ListItem",
       position: 3,
       name: post.title,
-      item: `${SITE_URL}/blog/${post.slug}`,
+      item: `${SITE_URL}/${post.slug}`,
     });
   }
 

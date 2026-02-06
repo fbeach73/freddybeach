@@ -152,7 +152,7 @@ export function BlogPostActions({ post }: BlogPostActionsProps) {
 
           {post.status === "published" && (
             <DropdownMenuItem asChild>
-              <Link href={`/blog/${post.slug}`} target="_blank">
+              <Link href={`/${post.slug}`} target="_blank">
                 <Eye className="mr-2 h-4 w-4" />
                 View Post
               </Link>

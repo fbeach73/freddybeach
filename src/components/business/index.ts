@@ -1,3 +1,4 @@
+export { BusinessAmenities } from "./business-amenities";
 export { BusinessBreadcrumb } from "./business-breadcrumb";
 export { BusinessHero } from "./business-hero";
 export { BusinessInfoCard } from "./business-info-card";

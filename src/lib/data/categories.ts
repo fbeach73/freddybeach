@@ -180,6 +180,23 @@ export const categories: Category[] = [
     description: "Unique local businesses and services that don't fit other categories",
     businessCount: 0,
   },
+  // Blog-only categories
+  {
+    id: "parody",
+    name: "Parody",
+    slug: "parody",
+    icon: "Laugh",
+    description: "Satirical news and parody content about New Brunswick",
+    businessCount: 0,
+  },
+  {
+    id: "local-news",
+    name: "Local News",
+    slug: "local-news",
+    icon: "Newspaper",
+    description: "Local Fredericton and New Brunswick news and stories",
+    businessCount: 0,
+  },
 ];
 
 export function getCategoryBySlug(slug: string): Category | undefined {

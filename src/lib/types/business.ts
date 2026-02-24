@@ -27,6 +27,51 @@ export interface BusinessHours {
 
 export type BusinessBadge = "new" | "featured" | "favourite" | "popular" | "verified" | "top-rated";
 
+export interface BusinessAmenities {
+  // Dining
+  dineIn?: boolean;
+  delivery?: boolean;
+  takeout?: boolean;
+  reservable?: boolean;
+  curbsidePickup?: boolean;
+  // Food & Drink
+  servesBeer?: boolean;
+  servesWine?: boolean;
+  servesBreakfast?: boolean;
+  servesBrunch?: boolean;
+  servesLunch?: boolean;
+  servesDinner?: boolean;
+  servesCoffee?: boolean;
+  servesVegetarianFood?: boolean;
+  // Atmosphere
+  outdoorSeating?: boolean;
+  liveMusic?: boolean;
+  goodForGroups?: boolean;
+  goodForChildren?: boolean;
+  goodForWatchingSports?: boolean;
+  menuForChildren?: boolean;
+  restroom?: boolean;
+  allowsDogs?: boolean;
+  // Accessibility
+  wheelchairAccessibleEntrance?: boolean;
+  wheelchairAccessibleParking?: boolean;
+  wheelchairAccessibleRestroom?: boolean;
+  wheelchairAccessibleSeating?: boolean;
+  // Parking
+  freeParkingLot?: boolean;
+  paidParkingLot?: boolean;
+  freeStreetParking?: boolean;
+  valetParking?: boolean;
+  // Payment
+  acceptsCreditCards?: boolean;
+  acceptsDebitCards?: boolean;
+  acceptsCashOnly?: boolean;
+  acceptsNfc?: boolean;
+  // Meta
+  priceLevel?: string;
+  types?: string[];
+}
+
 export interface Business {
   id: string;
   name: string;
@@ -54,6 +99,7 @@ export interface Business {
   isFeatured: boolean;
   badges?: BusinessBadge[];
   displayOrder?: number;
+  amenities?: BusinessAmenities;
   tier: "free" | "enhanced" | "featured";
   createdAt: Date;
 }

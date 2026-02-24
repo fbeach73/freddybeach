@@ -9,6 +9,7 @@ import {
 } from "@/lib/data/reviews";
 import { auth } from "@/lib/auth";
 import {
+  BusinessAmenities,
   BusinessBreadcrumb,
   BusinessHero,
   BusinessInfoCard,
@@ -114,6 +115,9 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
             name={business.name}
             description={business.description}
           />
+
+          {/* Features & Amenities */}
+          <BusinessAmenities amenities={business.amenities} />
 
           {/* Photo Gallery */}
           {business.images.length > 0 && (

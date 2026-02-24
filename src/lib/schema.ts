@@ -94,6 +94,49 @@ export interface GooglePlaceData {
   websiteUri?: string;
   nationalPhoneNumber?: string;
   internationalPhoneNumber?: string;
+  // Amenity fields
+  dineIn?: boolean;
+  delivery?: boolean;
+  takeout?: boolean;
+  reservable?: boolean;
+  servesBeer?: boolean;
+  servesWine?: boolean;
+  servesBreakfast?: boolean;
+  servesBrunch?: boolean;
+  servesLunch?: boolean;
+  servesDinner?: boolean;
+  servesCoffee?: boolean;
+  servesVegetarianFood?: boolean;
+  outdoorSeating?: boolean;
+  liveMusic?: boolean;
+  menuForChildren?: boolean;
+  goodForGroups?: boolean;
+  goodForChildren?: boolean;
+  goodForWatchingSports?: boolean;
+  restroom?: boolean;
+  allowsDogs?: boolean;
+  curbsidePickup?: boolean;
+  accessibilityOptions?: {
+    wheelchairAccessibleParking?: boolean;
+    wheelchairAccessibleEntrance?: boolean;
+    wheelchairAccessibleRestroom?: boolean;
+    wheelchairAccessibleSeating?: boolean;
+  };
+  parkingOptions?: {
+    freeParkingLot?: boolean;
+    paidParkingLot?: boolean;
+    freeStreetParking?: boolean;
+    paidStreetParking?: boolean;
+    valetParking?: boolean;
+    freeGarageParking?: boolean;
+    paidGarageParking?: boolean;
+  };
+  paymentOptions?: {
+    acceptsCreditCards?: boolean;
+    acceptsDebitCards?: boolean;
+    acceptsCashOnly?: boolean;
+    acceptsNfc?: boolean;
+  };
   [key: string]: unknown;
 }
 

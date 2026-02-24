@@ -1,6 +1,20 @@
 "use client";
 
-import { MapPin, Phone, Globe, Mail, Clock } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Globe,
+  Mail,
+  Clock,
+  UtensilsCrossed,
+  Truck,
+  TreePine,
+  Accessibility,
+  CreditCard,
+  Coffee,
+  Dog,
+  ParkingCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getFullAddress, getPhoneUrl, getTodayHours, formatHours } from "@/lib/utils/business";
 import type { Business } from "@/lib/types";
@@ -111,6 +125,47 @@ export function BusinessInfoCard({ business, className }: BusinessInfoCardProps)
               </div>
             </>
           )}
+
+          {/* Quick Features Badges */}
+          {(() => {
+            const badges: Array<{ key: string; label: string; icon: typeof UtensilsCrossed }> = [];
+            const a = business.amenities;
+            if (!a) return null;
+
+            if (a.dineIn) badges.push({ key: "dineIn", label: "Dine-In", icon: UtensilsCrossed });
+            if (a.delivery) badges.push({ key: "delivery", label: "Delivery", icon: Truck });
+            if (a.outdoorSeating) badges.push({ key: "outdoor", label: "Outdoor", icon: TreePine });
+            if (a.servesCoffee) badges.push({ key: "coffee", label: "Coffee", icon: Coffee });
+            if (a.allowsDogs) badges.push({ key: "dogs", label: "Dog-Friendly", icon: Dog });
+            if (a.wheelchairAccessibleEntrance) badges.push({ key: "accessible", label: "Accessible", icon: Accessibility });
+            if (a.freeParkingLot || a.freeStreetParking) badges.push({ key: "parking", label: "Free Parking", icon: ParkingCircle });
+            if (a.acceptsCreditCards) badges.push({ key: "cards", label: "Cards", icon: CreditCard });
+
+            if (badges.length === 0) return null;
+
+            return (
+              <>
+                <div className="border-b-2 border-nb-border/10" />
+                <div>
+                  <p className="font-bold text-sm uppercase mb-2">Quick Features</p>
+                  <div className="flex flex-wrap gap-2">
+                    {badges.slice(0, 8).map((badge) => {
+                      const Icon = badge.icon;
+                      return (
+                        <span
+                          key={badge.key}
+                          className="nb-badge inline-flex items-center gap-1 text-xs px-2 py-1"
+                        >
+                          <Icon className="h-3 w-3" />
+                          {badge.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

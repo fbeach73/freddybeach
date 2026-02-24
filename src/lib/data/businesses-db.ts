@@ -2,7 +2,8 @@ import { db } from "@/lib/db";
 import { business } from "@/lib/schema";
 import { eq, and, asc, inArray } from "drizzle-orm";
 import { getCategoryById } from "./categories";
-import type { Business, BusinessHours, DayOfWeek, BusinessBadge } from "@/lib/types";
+import type { Business, BusinessAmenities, BusinessHours, DayOfWeek, BusinessBadge } from "@/lib/types";
+import type { GooglePlaceData } from "@/lib/schema";
 
 /**
  * Convert database business hours (day as number 0-6) to the Business type format
@@ -28,6 +29,70 @@ function convertHours(dbHours: { day: number; open: string; close: string }[] | 
     close: h.close,
     closed: false,
   }));
+}
+
+/**
+ * Extract a flat BusinessAmenities object from the GooglePlaceData JSONB blob
+ */
+function extractAmenities(data: GooglePlaceData | null | undefined): BusinessAmenities | undefined {
+  if (!data) return undefined;
+
+  const amenities: BusinessAmenities = {};
+  let hasAny = false;
+
+  // Direct boolean fields
+  const booleanFields = [
+    "dineIn", "delivery", "takeout", "reservable", "curbsidePickup",
+    "servesBeer", "servesWine", "servesBreakfast", "servesBrunch",
+    "servesLunch", "servesDinner", "servesCoffee", "servesVegetarianFood",
+    "outdoorSeating", "liveMusic", "goodForGroups", "goodForChildren",
+    "goodForWatchingSports", "menuForChildren", "restroom", "allowsDogs",
+  ] as const;
+
+  for (const field of booleanFields) {
+    if (typeof data[field] === "boolean") {
+      (amenities as Record<string, unknown>)[field] = data[field];
+      if (data[field]) hasAny = true;
+    }
+  }
+
+  // Flatten nested accessibility options
+  if (data.accessibilityOptions) {
+    const ao = data.accessibilityOptions;
+    if (ao.wheelchairAccessibleEntrance) { amenities.wheelchairAccessibleEntrance = true; hasAny = true; }
+    if (ao.wheelchairAccessibleParking) { amenities.wheelchairAccessibleParking = true; hasAny = true; }
+    if (ao.wheelchairAccessibleRestroom) { amenities.wheelchairAccessibleRestroom = true; hasAny = true; }
+    if (ao.wheelchairAccessibleSeating) { amenities.wheelchairAccessibleSeating = true; hasAny = true; }
+  }
+
+  // Flatten nested parking options
+  if (data.parkingOptions) {
+    const po = data.parkingOptions;
+    if (po.freeParkingLot) { amenities.freeParkingLot = true; hasAny = true; }
+    if (po.paidParkingLot) { amenities.paidParkingLot = true; hasAny = true; }
+    if (po.freeStreetParking) { amenities.freeStreetParking = true; hasAny = true; }
+    if (po.valetParking) { amenities.valetParking = true; hasAny = true; }
+  }
+
+  // Flatten nested payment options
+  if (data.paymentOptions) {
+    const pay = data.paymentOptions;
+    if (pay.acceptsCreditCards) { amenities.acceptsCreditCards = true; hasAny = true; }
+    if (pay.acceptsDebitCards) { amenities.acceptsDebitCards = true; hasAny = true; }
+    if (pay.acceptsCashOnly) { amenities.acceptsCashOnly = true; hasAny = true; }
+    if (pay.acceptsNfc) { amenities.acceptsNfc = true; hasAny = true; }
+  }
+
+  // Meta fields
+  if (data.priceLevel) {
+    amenities.priceLevel = data.priceLevel;
+    hasAny = true;
+  }
+  if (data.types) {
+    amenities.types = data.types;
+  }
+
+  return hasAny ? amenities : undefined;
 }
 
 /**
@@ -62,6 +127,7 @@ function toBusinessType(dbBusiness: typeof business.$inferSelect): Business {
     isClaimed: dbBusiness.ownerId !== null,
     isVerified: false,
     isFeatured: dbBusiness.isFeatured,
+    amenities: extractAmenities(dbBusiness.googlePlaceData),
     badges: (dbBusiness.badges as BusinessBadge[]) || [],
     displayOrder: dbBusiness.displayOrder,
     tier: "free" as const,

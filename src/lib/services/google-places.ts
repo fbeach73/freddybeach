@@ -112,6 +112,49 @@ export interface GooglePlace {
     | "OPERATIONAL"
     | "CLOSED_TEMPORARILY"
     | "CLOSED_PERMANENTLY";
+  // Amenity fields
+  dineIn?: boolean;
+  delivery?: boolean;
+  takeout?: boolean;
+  reservable?: boolean;
+  servesBeer?: boolean;
+  servesWine?: boolean;
+  servesBreakfast?: boolean;
+  servesBrunch?: boolean;
+  servesLunch?: boolean;
+  servesDinner?: boolean;
+  servesCoffee?: boolean;
+  servesVegetarianFood?: boolean;
+  outdoorSeating?: boolean;
+  liveMusic?: boolean;
+  menuForChildren?: boolean;
+  goodForGroups?: boolean;
+  goodForChildren?: boolean;
+  goodForWatchingSports?: boolean;
+  restroom?: boolean;
+  allowsDogs?: boolean;
+  curbsidePickup?: boolean;
+  accessibilityOptions?: {
+    wheelchairAccessibleParking?: boolean;
+    wheelchairAccessibleEntrance?: boolean;
+    wheelchairAccessibleRestroom?: boolean;
+    wheelchairAccessibleSeating?: boolean;
+  };
+  parkingOptions?: {
+    freeParkingLot?: boolean;
+    paidParkingLot?: boolean;
+    freeStreetParking?: boolean;
+    paidStreetParking?: boolean;
+    valetParking?: boolean;
+    freeGarageParking?: boolean;
+    paidGarageParking?: boolean;
+  };
+  paymentOptions?: {
+    acceptsCreditCards?: boolean;
+    acceptsDebitCards?: boolean;
+    acceptsCashOnly?: boolean;
+    acceptsNfc?: boolean;
+  };
 }
 
 export interface GooglePlacesSearchResponse {
@@ -187,6 +230,30 @@ const SEARCH_FIELDS = [
   "places.nationalPhoneNumber",
   "places.googleMapsUri",
   "places.businessStatus",
+  "places.dineIn",
+  "places.delivery",
+  "places.takeout",
+  "places.reservable",
+  "places.servesBeer",
+  "places.servesWine",
+  "places.servesBreakfast",
+  "places.servesBrunch",
+  "places.servesLunch",
+  "places.servesDinner",
+  "places.servesCoffee",
+  "places.servesVegetarianFood",
+  "places.outdoorSeating",
+  "places.liveMusic",
+  "places.menuForChildren",
+  "places.goodForGroups",
+  "places.goodForChildren",
+  "places.goodForWatchingSports",
+  "places.restroom",
+  "places.allowsDogs",
+  "places.curbsidePickup",
+  "places.accessibilityOptions",
+  "places.parkingOptions",
+  "places.paymentOptions",
   "nextPageToken",
 ].join(",");
 
@@ -209,6 +276,30 @@ const DETAILS_FIELDS = [
   "internationalPhoneNumber",
   "googleMapsUri",
   "businessStatus",
+  "dineIn",
+  "delivery",
+  "takeout",
+  "reservable",
+  "servesBeer",
+  "servesWine",
+  "servesBreakfast",
+  "servesBrunch",
+  "servesLunch",
+  "servesDinner",
+  "servesCoffee",
+  "servesVegetarianFood",
+  "outdoorSeating",
+  "liveMusic",
+  "menuForChildren",
+  "goodForGroups",
+  "goodForChildren",
+  "goodForWatchingSports",
+  "restroom",
+  "allowsDogs",
+  "curbsidePickup",
+  "accessibilityOptions",
+  "parkingOptions",
+  "paymentOptions",
 ].join(",");
 
 // ============================================================================

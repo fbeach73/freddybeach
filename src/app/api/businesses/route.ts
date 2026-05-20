@@ -11,6 +11,8 @@ import {
   sendEmail,
   getBusinessSubmissionAdminEmailHtml,
   getBusinessSubmissionAdminEmailSubject,
+  getBusinessSubmissionConfirmationEmailHtml,
+  getBusinessSubmissionConfirmationEmailSubject,
 } from "@/lib/email";
 
 /**
@@ -175,6 +177,29 @@ export async function POST(request: NextRequest) {
     } else {
       console.warn(
         "ADMIN_EMAIL not configured - skipping admin notification for new business submission"
+      );
+    }
+
+    // Send confirmation email to the submitter
+    try {
+      await sendEmail({
+        to: session.user.email,
+        subject: getBusinessSubmissionConfirmationEmailSubject(newBusiness.name),
+        html: getBusinessSubmissionConfirmationEmailHtml({
+          submitterName: session.user.name || "there",
+          businessName: newBusiness.name,
+          categoryName,
+          address: address.trim(),
+          city: city.trim(),
+          province: province.trim(),
+          manageUrl: `${appUrl}/dashboard/my-businesses`,
+        }),
+      });
+    } catch (emailError) {
+      // Log but don't fail the request if email fails
+      console.error(
+        "Failed to send submitter confirmation email:",
+        emailError
       );
     }
 

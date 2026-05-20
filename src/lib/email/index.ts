@@ -15,3 +15,15 @@ export {
   getBusinessSubmissionAdminEmailHtml,
   getBusinessSubmissionAdminEmailSubject,
 } from "./templates/business-submission-admin";
+export {
+  getBusinessSubmissionConfirmationEmailHtml,
+  getBusinessSubmissionConfirmationEmailSubject,
+} from "./templates/business-submission-confirmation";
+export {
+  getReviewRequestEmailHtml,
+  getReviewRequestEmailSubject,
+} from "./templates/review-request";
+export {
+  getReviewFeedbackEmailHtml,
+  getReviewFeedbackEmailSubject,
+} from "./templates/review-feedback-notification";

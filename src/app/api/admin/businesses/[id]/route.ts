@@ -11,8 +11,9 @@ interface RouteParams {
 }
 
 /**
- * Check if user can access/edit this business
- * Returns true if user is admin OR is the business owner
+ * Check if user can access/edit this business.
+ * Returns true if user is admin, the claimed owner, or the original submitter.
+ * Submissions set submittedById (no owner until claimed); claims set ownerId.
  */
 async function canAccessBusiness(userId: string, userRole: string | undefined | null, businessId: string): Promise<boolean> {
   // Admins can access any business
@@ -20,13 +21,13 @@ async function canAccessBusiness(userId: string, userRole: string | undefined | 
     return true;
   }
 
-  // Check if user is the business owner
   const [biz] = await db
-    .select({ ownerId: business.ownerId })
+    .select({ ownerId: business.ownerId, submittedById: business.submittedById })
     .from(business)
     .where(eq(business.id, businessId));
 
-  return biz?.ownerId === userId;
+  if (!biz) return false;
+  return biz.ownerId === userId || biz.submittedById === userId;
 }
 
 /**

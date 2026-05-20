@@ -41,16 +41,46 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Update the business status
-    const [updated] = await db
-      .update(business)
-      .set({ status: body.status })
-      .where(eq(business.id, id))
-      .returning({ id: business.id, status: business.status });
+    // Look up the current row so we can promote the submitter to owner on
+    // approval. Only stamp ownerId when transitioning to published and the
+    // listing has a submitter but no owner yet.
+    const [current] = await db
+      .select({
+        ownerId: business.ownerId,
+        submittedById: business.submittedById,
+      })
+      .from(business)
+      .where(eq(business.id, id));
 
-    if (!updated) {
+    if (!current) {
       return NextResponse.json({ error: "Business not found" }, { status: 404 });
     }
+
+    const shouldStampOwner =
+      body.status === "published" &&
+      !current.ownerId &&
+      !!current.submittedById;
+
+    const updateData: {
+      status: typeof body.status;
+      ownerId?: string;
+      claimedAt?: Date;
+    } = { status: body.status };
+
+    if (shouldStampOwner) {
+      updateData.ownerId = current.submittedById!;
+      updateData.claimedAt = new Date();
+    }
+
+    const [updated] = await db
+      .update(business)
+      .set(updateData)
+      .where(eq(business.id, id))
+      .returning({
+        id: business.id,
+        status: business.status,
+        ownerId: business.ownerId,
+      });
 
     return NextResponse.json(updated);
   } catch (error) {

@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { business } from "@/lib/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 import { BusinessEditForm } from "@/components/admin/businesses/business-edit-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,14 +24,19 @@ export default async function EditMyBusinessPage({ params }: PageProps) {
 
   const { id } = await params;
 
-  // Fetch the business - must be owned by this user
+  // Fetch the business - must be owned OR submitted by this user.
+  // Submissions set submittedById; claims set ownerId. Both should be editable
+  // by the user that brought the listing into the directory.
   const [biz] = await db
     .select()
     .from(business)
     .where(
       and(
         eq(business.id, id),
-        eq(business.ownerId, session.user.id)
+        or(
+          eq(business.ownerId, session.user.id),
+          eq(business.submittedById, session.user.id)
+        )
       )
     );
 

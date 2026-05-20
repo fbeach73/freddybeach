@@ -20,6 +20,7 @@ import {
   PenLine,
   Share2,
   Sparkles,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -30,6 +31,7 @@ const iconMap: Record<string, LucideIcon> = {
   PenLine,
   Mail,
   Sparkles,
+  Star,
   Image: ImageIcon,
 };
 

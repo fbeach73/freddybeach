@@ -132,6 +132,9 @@ export interface AITool {
   exampleInput: string;
   exampleOutput: string;
   features: string[];
+  // 'credits' = monthly credit/subscription model (existing AI tools)
+  // 'per-business' = gated by business_tool grant (Review Collector, future per-biz tools)
+  accessModel?: "credits" | "per-business";
 }
 
 export interface CreditPackage {

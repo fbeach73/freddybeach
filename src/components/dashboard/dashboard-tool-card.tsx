@@ -4,6 +4,8 @@ import {
   Share2,
   PenLine,
   Mail,
+  Star,
+  Image as ImageIcon,
   LucideIcon,
   Lock,
 } from "lucide-react";
@@ -18,6 +20,8 @@ const iconMap: Record<string, LucideIcon> = {
   Share2,
   PenLine,
   Mail,
+  Star,
+  Image: ImageIcon,
 };
 
 interface DashboardToolCardProps {

@@ -60,6 +60,22 @@ export const generationStatusEnum = pgEnum("generation_status", [
 
 export const avatarTypeEnum = pgEnum("avatar_type", ["human", "object"]);
 
+// Tool access type enum (for business_tool join table)
+export const toolAccessTypeEnum = pgEnum("tool_access_type", [
+  "free",
+  "gifted",
+  "trial",
+  "paid",
+]);
+
+// Review request lifecycle status
+export const reviewRequestStatusEnum = pgEnum("review_request_status", [
+  "sent",
+  "opened",
+  "submitted",
+  "expired",
+]);
+
 // AI Image Generation TypeScript interfaces for JSONB columns
 // Re-export from centralized types file for backwards compatibility
 import type { PresetSettings, GenerationSettings } from "@/lib/types/image-generation";
@@ -698,6 +714,108 @@ export const creditTransaction = pgTable(
     index("credit_transaction_type_idx").on(table.type),
     // Index for ordering by time
     index("credit_transaction_created_idx").on(table.createdAt),
+  ]
+);
+
+// =============================================
+// Tools Framework
+// =============================================
+
+// Business tool access - grants a business access to a specific tool
+export const businessTool = pgTable(
+  "business_tool",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => business.id, { onDelete: "cascade" }),
+    toolSlug: text("tool_slug").notNull(),
+    accessType: toolAccessTypeEnum("access_type").default("free").notNull(),
+    grantedAt: timestamp("granted_at").defaultNow().notNull(),
+    expiresAt: timestamp("expires_at"),
+    grantedBy: text("granted_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Composite index for the primary lookup pattern: does this business have this tool?
+    index("business_tool_business_slug_idx").on(table.businessId, table.toolSlug),
+    // Index for listing all access grants of a tool (admin views)
+    index("business_tool_slug_idx").on(table.toolSlug),
+  ]
+);
+
+// =============================================
+// Review Collector
+// =============================================
+
+// 1:1 sidecar holding per-business settings for the Review Collector tool
+export const businessReviewSettings = pgTable("business_review_settings", {
+  businessId: text("business_id")
+    .primaryKey()
+    .references(() => business.id, { onDelete: "cascade" }),
+  googleReviewUrl: text("google_review_url"),
+  brandColor: text("brand_color"),
+  logoUrl: text("logo_url"),
+  senderName: text("sender_name"),
+  senderSignature: text("sender_signature"),
+  notificationEmail: text("notification_email"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+// One review request per customer email send
+export const reviewRequest = pgTable(
+  "review_request",
+  {
+    id: text("id").primaryKey(),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => business.id, { onDelete: "cascade" }),
+    customerName: text("customer_name").notNull(),
+    customerEmail: text("customer_email").notNull(),
+    token: text("token").notNull().unique(),
+    status: reviewRequestStatusEnum("status").default("sent").notNull(),
+    rating: integer("rating"),
+    sentAt: timestamp("sent_at").defaultNow().notNull(),
+    openedAt: timestamp("opened_at"),
+    submittedAt: timestamp("submitted_at"),
+    googleClickedAt: timestamp("google_clicked_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("review_request_business_idx").on(table.businessId),
+    index("review_request_status_idx").on(table.status),
+    index("review_request_sent_at_idx").on(table.sentAt),
+  ]
+);
+
+// Private feedback captured for ratings 1-3
+export const reviewFeedback = pgTable(
+  "review_feedback",
+  {
+    id: text("id").primaryKey(),
+    requestId: text("request_id")
+      .notNull()
+      .references(() => reviewRequest.id, { onDelete: "cascade" }),
+    businessId: text("business_id")
+      .notNull()
+      .references(() => business.id, { onDelete: "cascade" }),
+    rating: integer("rating").notNull(),
+    message: text("message").notNull(),
+    submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("review_feedback_business_idx").on(table.businessId),
+    index("review_feedback_submitted_idx").on(table.submittedAt),
   ]
 );
 

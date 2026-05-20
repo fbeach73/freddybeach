@@ -14,6 +14,7 @@ import {
   PenSquare,
   Sparkles,
   BarChart3,
+  Wrench,
 } from "lucide-react";
 import {
   Sidebar,
@@ -74,6 +75,11 @@ const navItems = [
     label: "Blog Optimizer",
     icon: Sparkles,
     href: "/admin/blog-optimizer",
+  },
+  {
+    label: "Tool Access",
+    icon: Wrench,
+    href: "/admin/tools",
   },
 ];
 

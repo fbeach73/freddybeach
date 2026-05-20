@@ -85,6 +85,13 @@ export default async function AIToolPage({
     headers: await headers(),
   });
 
+  // Review Collector has its own per-business surface for signed-in users.
+  // Unauthenticated visitors fall through to the standard tool page below
+  // so they see the same "Sign In Required" card as every other tool.
+  if (slug === "review-collector" && session) {
+    redirect("/ai-tools/review-collector");
+  }
+
   // Show sign-in prompt for unauthenticated users
   if (!session) {
     return (

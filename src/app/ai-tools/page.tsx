@@ -11,11 +11,12 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AIToolsShowcase } from "./ai-tools-showcase";
-import { getFreeTools, getPremiumTools } from "@/lib/data/ai-tools";
+import { aiTools, getFreeTools, getPremiumTools } from "@/lib/data/ai-tools";
 import { db } from "@/lib/db";
-import { creditTransaction } from "@/lib/schema";
-import { eq, and, or, count } from "drizzle-orm";
+import { business, businessTool, creditTransaction } from "@/lib/schema";
+import { eq, and, or, count, sql } from "drizzle-orm";
 import { getSubscriptionInfo, hasOwnApiKey, checkSoftCap } from "@/lib/services/token-system";
+import type { AITool } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "AI Tools for Local Businesses | FreddyBeach Directory",
@@ -86,6 +87,43 @@ export default async function AIToolsPage() {
   const isAuthenticated = !!session?.user;
   const freeTools = getFreeTools();
   const premiumTools = getPremiumTools();
+
+  // Surface per-business tools the user has been granted (e.g. Review Collector)
+  // ahead of generic free tools, so a freshly-granted tool isn't buried.
+  let unlockedPerBusinessSlugs: Set<string> = new Set();
+  if (session?.user?.id) {
+    const grantedRows = await db
+      .select({ toolSlug: businessTool.toolSlug })
+      .from(businessTool)
+      .innerJoin(business, eq(businessTool.businessId, business.id))
+      .where(
+        and(
+          or(
+            eq(business.ownerId, session.user.id),
+            eq(business.submittedById, session.user.id)
+          ),
+          sql`${businessTool.expiresAt} is null or ${businessTool.expiresAt} > now()`
+        )
+      );
+    unlockedPerBusinessSlugs = new Set(grantedRows.map((r) => r.toolSlug));
+  }
+
+  const perBusinessAccessSlugs = new Set(
+    aiTools
+      .filter((t) => t.accessModel === "per-business" && unlockedPerBusinessSlugs.has(t.slug))
+      .map((t) => t.slug)
+  );
+
+  // Build Quick Access: granted per-business tools first, then standard free tools.
+  const quickAccessTools: AITool[] = [
+    ...aiTools.filter((t) => perBusinessAccessSlugs.has(t.slug)),
+    ...freeTools.filter(
+      (t) =>
+        // Skip per-business tools here — they're either already at the top
+        // (if granted) or shouldn't tease in Quick Access (if not granted).
+        t.accessModel !== "per-business"
+    ),
+  ].slice(0, 4);
 
   return (
     <div className="flex-1">
@@ -164,7 +202,7 @@ export default async function AIToolsPage() {
             <div className="space-y-4">
               <h2 className="text-lg font-bold uppercase tracking-wide">Quick Access</h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {freeTools.slice(0, 4).map((tool) => (
+                {quickAccessTools.map((tool) => (
                   <DashboardToolCard
                     key={tool.id}
                     tool={tool}

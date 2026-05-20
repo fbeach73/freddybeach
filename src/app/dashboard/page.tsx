@@ -16,8 +16,8 @@ import { Badge } from "@/components/ui/badge";
 
 import { aiTools } from "@/lib/data/ai-tools";
 import { db } from "@/lib/db";
-import { business, claim, creditTransaction } from "@/lib/schema";
-import { eq, and, count, or } from "drizzle-orm";
+import { business, businessTool, claim, creditTransaction } from "@/lib/schema";
+import { eq, and, count, or, sql } from "drizzle-orm";
 import { getSubscriptionInfo, hasOwnApiKey } from "@/lib/services/token-system";
 
 export default async function DashboardPage() {
@@ -113,8 +113,30 @@ export default async function DashboardPage() {
     day: "numeric",
   });
 
-  // Get featured/recent tools (first 4)
-  const featuredTools = aiTools.slice(0, 4);
+  // Surface granted per-business tools (e.g. Review Collector) ahead of
+  // generic tools so unlocked tools aren't buried.
+  const grantedRows = await db
+    .select({ toolSlug: businessTool.toolSlug })
+    .from(businessTool)
+    .innerJoin(business, eq(businessTool.businessId, business.id))
+    .where(
+      and(
+        or(
+          eq(business.ownerId, session.user.id),
+          eq(business.submittedById, session.user.id)
+        ),
+        sql`${businessTool.expiresAt} is null or ${businessTool.expiresAt} > now()`
+      )
+    );
+  const unlockedSlugs = new Set(grantedRows.map((r) => r.toolSlug));
+
+  const grantedTools = aiTools.filter(
+    (t) => t.accessModel === "per-business" && unlockedSlugs.has(t.slug)
+  );
+  const otherTools = aiTools.filter(
+    (t) => t.accessModel !== "per-business"
+  );
+  const featuredTools = [...grantedTools, ...otherTools].slice(0, 4);
 
   // User role for display
   const isAdmin = session.user.role === "admin";

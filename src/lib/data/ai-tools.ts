@@ -153,6 +153,31 @@ The Downtown Family Dental Team
     ],
   },
   {
+    id: "review-collector",
+    name: "Review Collector",
+    slug: "review-collector",
+    description:
+      "Funnel happy customers to your Google reviews and intercept unhappy ones with a private feedback channel. Send branded review requests by email, watch ratings flow in, and respond before complaints become public.",
+    shortDescription: "Send branded review requests and route feedback intelligently",
+    icon: "Star",
+    tier: "free",
+    status: "available",
+    usageCount: 0,
+    accessModel: "per-business",
+    exampleInput:
+      "After a service call, send a customer a branded email asking 'How did we do?' with a 5-star rating button.",
+    exampleOutput:
+      "Customer taps 5 stars → routed to your Google review page. Customer taps 2 stars → routed to a private feedback form. You get an email, they get heard, and your public rating keeps climbing.",
+    features: [
+      "Per-business branding: logo, color, sender name",
+      "Smart routing: 4–5 stars to Google, 1–3 stars to private feedback",
+      "Private feedback inbox in your dashboard",
+      "Stats: sent, opened, average rating, conversion to Google",
+      "Email notifications when private feedback arrives",
+      "Google-compliant: public review link always visible",
+    ],
+  },
+  {
     id: "image-generator",
     name: "AI Image Generator",
     slug: "image-generator",

@@ -281,10 +281,12 @@ export function generateBusinessPageJsonLd(
 }
 
 /**
- * Generate Organization + WebSite schema for the homepage
+ * Generate Organization + WebSite + SoftwareApplication + FAQPage schema for the homepage
  * @see https://developers.google.com/search/docs/appearance/structured-data/organization
  */
-export function generateHomepageSchema() {
+export function generateHomepageSchema(
+  faqEntities?: Array<{ "@type": string; name: string; acceptedAnswer: { "@type": string; text: string } }>
+) {
   return JSON.stringify([
     {
       "@context": "https://schema.org",
@@ -293,12 +295,13 @@ export function generateHomepageSchema() {
       url: SITE_URL,
       logo: PUBLISHER_LOGO,
       description:
-        "Fredericton's local business directory. Discover restaurants, shops, services, and more in Freddy Beach, New Brunswick, Canada.",
-      areaServed: {
-        "@type": "City",
-        name: "Fredericton",
-        "@id": "https://en.wikipedia.org/wiki/Fredericton",
-      },
+        "AI tools and automation for Atlantic Canada small business. Turn happy customers into 5-star Google reviews, generate marketing images and social posts, and reply to reviews — all in one place.",
+      areaServed: [
+        { "@type": "AdministrativeArea", name: "New Brunswick" },
+        { "@type": "AdministrativeArea", name: "Nova Scotia" },
+        { "@type": "AdministrativeArea", name: "Prince Edward Island" },
+        { "@type": "AdministrativeArea", name: "Newfoundland and Labrador" },
+      ],
       address: {
         "@type": "PostalAddress",
         addressLocality: "Fredericton",
@@ -320,5 +323,27 @@ export function generateHomepageSchema() {
         "query-input": "required name=search_term_string",
       },
     },
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "FreddyBeach Review Collector",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      url: `${SITE_URL}/ai-tools/review-collector`,
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "CAD",
+      },
+    },
+    ...(faqEntities && faqEntities.length > 0
+      ? [
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqEntities,
+          },
+        ]
+      : []),
   ]);
 }

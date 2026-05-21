@@ -26,24 +26,24 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "FreddyBeach - Fredericton Business Directory",
+  title: "FreddyBeach — AI tools that grow Atlantic Canada small businesses",
   description:
-    "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach. Support local and explore what makes our community special.",
-  metadataBase: new URL("https://fbeach.vercel.app"),
+    "Turn happy customers into 5-star Google reviews, generate marketing images and social posts, and reply to reviews — all in one place. Free trial. Trusted by Atlantic Canada small businesses.",
+  metadataBase: new URL("https://freddybeach.com"),
   openGraph: {
-    title: "FreddyBeach - Fredericton Business Directory",
+    title: "FreddyBeach — AI tools that grow Atlantic Canada small businesses",
     description:
-      "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach. Support local and explore what makes our community special.",
-    url: "https://fbeach.vercel.app",
+      "Turn happy customers into 5-star Google reviews, generate marketing images and social posts, and reply to reviews — all in one place. Free trial. Trusted by Atlantic Canada small businesses.",
+    url: "https://freddybeach.com",
     siteName: "FreddyBeach",
     locale: "en_CA",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "FreddyBeach - Fredericton Business Directory",
+    title: "FreddyBeach — AI tools that grow Atlantic Canada small businesses",
     description:
-      "Discover local businesses in Fredericton, NB. Find restaurants, shops, services, and more in Freddy Beach.",
+      "Turn happy customers into 5-star Google reviews and grow your Atlantic Canada small business.",
   },
   icons: {
     icon: [

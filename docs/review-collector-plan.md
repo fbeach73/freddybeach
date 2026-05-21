@@ -284,6 +284,14 @@ These are hard constraints for Claude Code to respect when building:
 - Zapier integration
 - Paid tier + Stripe integration
 - Custom domains
+- **Capture written review locally for 4–5 star path**, then copy-to-clipboard
+  and redirect to Google. Customer types once on FreddyBeach, pastes once on
+  Google. Lifts conversion-through to Google reviews and gives us our own
+  copy of the text.
+- **Surface those captured 4–5 star reviews on the business's directory page**
+  as native FreddyBeach reviews. Owner gets a stat boost on FreddyBeach even
+  when customers drop off before submitting to Google. Useful for directory
+  SEO too (more indexable content per listing).
 
 ---
 

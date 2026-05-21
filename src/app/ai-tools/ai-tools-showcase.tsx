@@ -1,5 +1,6 @@
 "use client";
 
+import { ReviewCollectorDemoWidget } from "@/components/home/review-collector-demo-widget";
 import { AIToolDemo } from "@/components/marketing/ai-tool-demo";
 import { CTASection } from "@/components/marketing/cta-section";
 import { ToolPreviewCard } from "@/components/marketing/tool-preview-card";
@@ -12,6 +13,24 @@ export function AIToolsShowcase() {
 
   return (
     <>
+      {/* Review Collector demo — single funnel anchor */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto mb-8 max-w-2xl text-center">
+            <div className="h-2 bg-nb-yellow border-2 border-nb-border mb-6 mx-auto max-w-xs" />
+            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl uppercase">
+              Try the Review Collector
+            </h2>
+            <p className="text-muted-foreground">
+              Tap a star — see what your customers will see. No sign-up required.
+            </p>
+          </div>
+          <div className="mx-auto max-w-md">
+            <ReviewCollectorDemoWidget />
+          </div>
+        </div>
+      </section>
+
       {/* Interactive Demos Section */}
       <section className="bg-muted/30 py-16 md:py-24 border-y-2 border-nb-border">
         <div className="container mx-auto px-4">
@@ -60,7 +79,7 @@ export function AIToolsShowcase() {
       </section>
 
       {/* All Tools Grid Section */}
-      <section className="py-16 md:py-24">
+      <section id="all-tools" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <div className="h-2 bg-nb-green border-2 border-nb-border mb-6 mx-auto max-w-xs" />
@@ -84,21 +103,16 @@ export function AIToolsShowcase() {
 
       {/* Bottom CTA Section */}
       <CTASection
-        headline="Ready to Save Hours Every Week?"
-        subheadline="Join hundreds of Fredericton businesses using AI tools to grow faster and work smarter."
+        headline="Ready to put AI to work?"
+        subheadline="Start free with the Review Collector. Add other tools as you grow."
         primaryCTA={{
-          text: "Get Started Free",
+          text: "Try it free",
           href: "/claim",
         }}
         secondaryCTA={{
           text: "Book a Consultation",
           href: "/consultation",
         }}
-        stats={[
-          { label: "Businesses Helped", value: "500+" },
-          { label: "Hours Saved Weekly", value: "2,000+" },
-          { label: "AI Responses Generated", value: "50,000+" },
-        ]}
       />
     </>
   );

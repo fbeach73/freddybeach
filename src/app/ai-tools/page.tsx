@@ -19,13 +19,13 @@ import { getSubscriptionInfo, hasOwnApiKey, checkSoftCap } from "@/lib/services/
 import type { AITool } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "AI Tools for Local Businesses | FreddyBeach Directory",
+  title: "AI Tools for Atlantic Canada Small Business | FreddyBeach",
   description:
-    "Save hours every week with AI-powered tools designed for Fredericton businesses. Generate review responses, social posts, business descriptions, and more.",
+    "Five AI-powered tools built for Atlantic Canada small businesses. Start with the Review Collector — turn happy customers into 5-star Google reviews. Free to try.",
   openGraph: {
-    title: "AI Tools for Local Businesses | FreddyBeach Directory",
+    title: "AI Tools for Atlantic Canada Small Business | FreddyBeach",
     description:
-      "Save hours every week with AI-powered tools designed for Fredericton businesses.",
+      "Five AI-powered tools built for Atlantic Canada small businesses. Free to try.",
   },
 };
 
@@ -134,9 +134,9 @@ export default async function AIToolsPage() {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold uppercase">AI Tools</h1>
+                <h1 className="text-2xl font-bold uppercase">Your toolkit</h1>
                 <p className="text-muted-foreground">
-                  Powerful AI-powered tools to grow your business
+                  Pick up where you left off, or try something new.
                 </p>
               </div>
               <Badge className="nb-badge bg-nb-yellow text-black w-fit text-sm">
@@ -219,16 +219,23 @@ export default async function AIToolsPage() {
       {/* Hero Section - Only show for non-authenticated users */}
       {!isAuthenticated && (
         <SectionHero
-          title="AI Tools That Work While You Run Your Business"
-          subtitle="Save hours every week with AI-powered tools designed specifically for Fredericton local businesses. Respond to reviews, create social content, and market your business—all in seconds."
+          title="Your AI toolkit for Atlantic Canada small business."
+          subtitle="Start with the Review Collector — turn happy customers into 5★ Google reviews. Then add image generation, social posts, and review replies as you grow."
           badges={["Free Tools Available", "No Credit Card Required"]}
           gradient
+          primaryCTA={{
+            text: "Try Review Collector free",
+            href: "/ai-tools/review-collector",
+          }}
           secondaryCTA={{
-            text: "More Info",
-            href: "#pricing",
+            text: "See all 5 tools",
+            href: "#all-tools",
           }}
         />
       )}
+
+      {/* Interactive Demos & All Tools - Client Component */}
+      <AIToolsShowcase />
 
       {/* Pricing Section */}
       <section id="pricing" className="py-16 md:py-24">
@@ -246,9 +253,6 @@ export default async function AIToolsPage() {
           <AIPricingSection className="mx-auto max-w-5xl" />
         </div>
       </section>
-
-      {/* Interactive Demos & All Tools - Client Component */}
-      <AIToolsShowcase />
     </div>
   );
 }

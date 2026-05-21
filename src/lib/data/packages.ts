@@ -118,10 +118,10 @@ export const pricingTiers: PricingTier[] = [
     features: [
       "Enhanced business listing",
       "Priority placement in search",
-      "All 4 AI tools unlocked",
+      "All current AI tools unlocked",
       "100 AI generations per month",
-      "Business Description Writer",
-      "Email Template Generator",
+      "Business Description Writer (coming soon)",
+      "Email Template Generator (coming soon)",
       "Analytics dashboard",
       "Email support",
     ],

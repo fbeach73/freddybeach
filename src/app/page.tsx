@@ -10,10 +10,8 @@ import { HowItWorks } from "@/components/home/how-it-works";
 import { OutcomeCompliance } from "@/components/home/outcome-compliance";
 import { LighterToolsGrid } from "@/components/home/lighter-tools-grid";
 import { ConsultationCTA } from "@/components/home/consultation-cta";
-import {
-  HomepageFaq,
-  getHomepageFaqEntities,
-} from "@/components/home/homepage-faq";
+import { HomepageFaq } from "@/components/home/homepage-faq";
+import { getHomepageFaqEntities } from "@/components/home/homepage-faq-data";
 
 export const revalidate = 60;
 

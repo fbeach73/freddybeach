@@ -1,0 +1,16 @@
+# FreddyBeach
+
+> AI tools and automation for Atlantic Canada small business. Turn happy customers into 5-star Google reviews, generate marketing images and social posts, and reply to reviews — all in one place. Also home to a Fredericton, NB business directory.
+
+## Primary pages
+
+- [Homepage](https://freddybeach.com/): Product overview, hero tool (Review Collector), and how it works.
+- [Review Collector](https://freddybeach.com/ai-tools/review-collector): The hero tool — sends customers a one-tap review request and branches happy vs. unhappy responses.
+- [AI Tools overview](https://freddybeach.com/ai-tools): Full toolkit listing — review responder, social posts, image generator, business description writer, email templates.
+
+## Directory
+
+- [Fredericton business directory](https://freddybeach.com/businesses): Browse all listed Fredericton, NB businesses.
+- [Restaurants](https://freddybeach.com/restaurants)
+- [Retail & Shopping](https://freddybeach.com/retail-shopping)
+- [Professional Services](https://freddybeach.com/professional-services)

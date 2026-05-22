@@ -27,7 +27,7 @@ export function TrustStrip({ businesses }: TrustStripProps) {
           </Link>
         ))}
         <Link
-          href="/businesses"
+          href="/search"
           className="inline-flex items-center gap-1 border-2 border-nb-border bg-nb-yellow text-black px-3 py-1.5 text-sm font-bold hover:bg-nb-yellow/80"
         >
           See the full directory <ArrowRight className="h-3 w-3" aria-hidden="true" />

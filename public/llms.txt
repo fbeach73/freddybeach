@@ -10,7 +10,7 @@
 
 ## Directory
 
-- [Fredericton business directory](https://freddybeach.com/businesses): Browse all listed Fredericton, NB businesses.
+- [Fredericton business directory](https://freddybeach.com/search): Browse all listed Fredericton, NB businesses.
 - [Restaurants](https://freddybeach.com/restaurants)
 - [Retail & Shopping](https://freddybeach.com/retail-shopping)
 - [Professional Services](https://freddybeach.com/professional-services)

@@ -10,15 +10,15 @@ export function OutcomeCompliance() {
           </p>
           <ul className="space-y-2 text-sm">
             <li className="flex gap-2">
-              <span aria-hidden>→</span>
+              <span aria-hidden="true">→</span>
               <span>More 5★ reviews from your existing customer base — no new marketing.</span>
             </li>
             <li className="flex gap-2">
-              <span aria-hidden>→</span>
+              <span aria-hidden="true">→</span>
               <span>Unhappy customers email you privately instead of posting publicly.</span>
             </li>
             <li className="flex gap-2">
-              <span aria-hidden>→</span>
+              <span aria-hidden="true">→</span>
               <span>Owner sees ratings + feedback in one dashboard.</span>
             </li>
           </ul>

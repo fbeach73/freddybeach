@@ -168,9 +168,12 @@ export const user = pgTable("user", {
   banExpires: timestamp("ban_expires"),
   // Credit and subscription fields
   creditBalance: integer("credit_balance").default(0).notNull(),
-  subscriptionTier: text("subscription_tier"), // "monthly" | "yearly" | null
+  subscriptionTier: text("subscription_tier"), // "starter" | "pro" | "byok" | null (legacy "monthly"/"yearly" normalized to "pro" on read)
   subscriptionExpiresAt: timestamp("subscription_expires_at"),
   subscriptionStartedAt: timestamp("subscription_started_at"),
+  stripeCustomerId: text("stripe_customer_id").unique(),
+  foundingMember: boolean("founding_member").default(false).notNull(),
+  freeCreditsGrantedMonth: text("free_credits_granted_month"), // YYYY-MM of last free monthly top-up
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()

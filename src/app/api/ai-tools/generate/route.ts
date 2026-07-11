@@ -6,6 +6,8 @@ import {
   canGenerateWithDetails,
   consumeCredit,
   getUserCredits,
+  incrementTokenUsage,
+  logSubscriptionUsage,
 } from "@/lib/services/token-system";
 import { getToolBySlug } from "@/lib/data/ai-tools";
 
@@ -168,12 +170,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Consume credit (1 credit for text generation)
-    const newBalance = await consumeCredit(
-      userId,
-      1,
-      `${tool.name} generation`
-    );
+    // Meter based on eligibility reason (mirrors the image generation route):
+    // - credits: consume 1 credit from balance
+    // - subscription: track for soft cap + audit trail (no credit charge)
+    // - byok: audit trail only (text generation uses the app key)
+    let newBalance: number | null = null;
+    let creditsUsed = 0;
+    if (eligibility.reason === "credits") {
+      newBalance = await consumeCredit(userId, 1, `${tool.name} generation`);
+      creditsUsed = newBalance === null ? 0 : 1;
+    } else if (eligibility.reason === "subscription") {
+      await incrementTokenUsage(userId, 1);
+      await logSubscriptionUsage(userId, 1, `${tool.name} generation`);
+    } else {
+      await logSubscriptionUsage(userId, 1, `${tool.name} generation (BYOK)`);
+    }
 
     // Get updated credits for response
     const creditsRemaining = newBalance ?? (await getUserCredits(userId));
@@ -181,7 +192,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       output: generatedText.trim(),
-      creditsUsed: 1,
+      creditsUsed,
       creditsRemaining,
       toolSlug,
     });

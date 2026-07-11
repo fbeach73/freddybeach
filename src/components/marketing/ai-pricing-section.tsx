@@ -13,7 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Check, Coins, Key, AlertCircle, Clock } from "lucide-react";
 import Link from "next/link";
-import { creditPackages, byokOption } from "@/lib/data/packages";
+import { creditPacks, byokOption } from "@/lib/data/plans";
 
 interface AIPricingSectionProps {
   className?: string;
@@ -38,7 +38,7 @@ export function AIPricingSection({ className }: AIPricingSectionProps) {
             </div>
           </div>
 
-          {creditPackages.map((pack) => (
+          {creditPacks.map((pack) => (
             <Card
               key={pack.id}
               className={cn(

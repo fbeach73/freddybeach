@@ -67,8 +67,8 @@ export interface UserTierData {
   hasByok: boolean;
   /** Whether user has an active subscription */
   hasSubscription: boolean;
-  /** Subscription tier if active: monthly, yearly, or byok (BYOK Pro subscription) */
-  subscriptionTier: "monthly" | "yearly" | "byok" | null;
+  /** Subscription tier if active: starter, pro, or byok (BYOK Pro subscription) */
+  subscriptionTier: "starter" | "pro" | "byok" | null;
   /** Days remaining in subscription */
   subscriptionDaysRemaining: number | null;
   /** Available credits balance */
@@ -434,7 +434,7 @@ export function ImageGeneratorPage({
                   )}
                 >
                   <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-                  {subscriptionTier === "byok" ? "BYOK Pro" : subscriptionTier === "yearly" ? "Annual" : "Monthly"} Subscriber
+                  {subscriptionTier === "byok" ? "BYOK Pro" : subscriptionTier === "starter" ? "Starter" : "Pro"} Subscriber
                 </Badge>
                 <Badge variant="outline" className="text-sm">
                   {displayUsage} / {softCapLimit} used

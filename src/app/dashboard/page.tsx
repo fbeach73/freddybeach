@@ -89,9 +89,9 @@ export default async function DashboardPage() {
   const getCurrentPlanText = (): string => {
     if (hasByok) return "BYOK (Unlimited)";
     if (subscriptionInfo.isActive) {
-      return subscriptionInfo.tier === "yearly"
-        ? "Unlimited Yearly"
-        : "Unlimited Monthly";
+      return subscriptionInfo.tier === "starter"
+        ? "Starter"
+        : "Pro (Unlimited)";
     }
     return "Free";
   };

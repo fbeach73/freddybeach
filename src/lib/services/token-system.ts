@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { userTokenUsage, user, creditTransaction, userApiKey } from "@/lib/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, count, isNull, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 // User tier types based on subscription level
@@ -34,6 +34,7 @@ export function getCurrentMonth(): string {
 
 /**
  * Get the token limit for a user tier
+ * @deprecated Legacy role-based tier path. Use canGenerateWithDetails() (payment-based) instead.
  */
 export function getTokenLimit(tier: UserTier): number {
   return TOKEN_LIMITS[tier] || TOKEN_LIMITS.free;
@@ -42,6 +43,7 @@ export function getTokenLimit(tier: UserTier): number {
 /**
  * Get the user's tier based on their role
  * This maps user roles to feature tiers
+ * @deprecated Legacy role-based tier path. Use getUserTierData() (payment-based) instead.
  */
 export async function getUserTier(userId: string): Promise<UserTier> {
   try {
@@ -101,6 +103,7 @@ export async function getTokenUsage(
 
 /**
  * Check if a user can generate images (has tokens remaining)
+ * @deprecated Legacy role-based tier path. Use canGenerateWithDetails() (payment-based) instead.
  */
 export async function canGenerate(userId: string): Promise<boolean> {
   const tier = await getUserTier(userId);
@@ -113,6 +116,7 @@ export async function canGenerate(userId: string): Promise<boolean> {
 
 /**
  * Check if a user can generate a specific number of images
+ * @deprecated Legacy role-based tier path. Use canGenerateWithDetails() (payment-based) instead.
  */
 export async function canGenerateCount(
   userId: string,
@@ -174,6 +178,7 @@ export async function incrementTokenUsage(
 
 /**
  * Get comprehensive usage statistics for a user
+ * @deprecated Legacy role-based tier path. Use getUserTierData() (payment-based) instead.
  */
 export async function getUsageStats(userId: string): Promise<UsageStats> {
   const tier = await getUserTier(userId);
@@ -280,9 +285,30 @@ export function getCreditsForDimensions(width: number, height: number): number {
 }
 
 // Subscription tier types
-// - "monthly" and "yearly" are unlimited AI generation subscriptions
+// - "starter" grants 100 credits/month (metered through the credit ledger)
+// - "pro" is the unlimited (soft-capped) AI generation subscription
 // - "byok" is BYOK Pro - allows users to use their own API key with priority processing
-export type SubscriptionTier = "monthly" | "yearly" | "byok";
+export type SubscriptionTier = "starter" | "pro" | "byok";
+
+// Legacy DB values still written by the Polar webhook during sunset.
+// Normalized to the new tiers on read via LEGACY_TIER_MAP.
+export type LegacySubscriptionTier = "monthly" | "yearly";
+
+const LEGACY_TIER_MAP: Record<LegacySubscriptionTier, SubscriptionTier> = {
+  monthly: "pro",
+  yearly: "pro",
+};
+
+/**
+ * Normalize a raw subscription_tier DB value to the current tier model
+ */
+function normalizeTier(raw: string | null): SubscriptionTier | null {
+  if (!raw) return null;
+  if (raw in LEGACY_TIER_MAP) {
+    return LEGACY_TIER_MAP[raw as LegacySubscriptionTier];
+  }
+  return raw as SubscriptionTier;
+}
 
 // Credit transaction types
 // Note: "subscription_usage" logs generations made by subscribers (amount=0) for audit trail
@@ -418,7 +444,7 @@ export async function getSubscriptionInfo(userId: string): Promise<SubscriptionI
     }
 
     return {
-      tier: subscriptionTier as SubscriptionTier | null,
+      tier: normalizeTier(subscriptionTier),
       isActive,
       expiresAt: subscriptionExpiresAt,
       startedAt: subscriptionStartedAt,
@@ -453,6 +479,131 @@ export async function checkSoftCap(userId: string): Promise<{
     exceeded: usage >= SUBSCRIPTION_SOFT_CAP,
     remaining: Math.max(0, SUBSCRIPTION_SOFT_CAP - usage),
   };
+}
+
+// Free tier: monthly credit top-up target (lazy grant, no cron)
+const FREE_MONTHLY_CREDITS = 10;
+
+/**
+ * Lazily top a free user's balance up to FREE_MONTHLY_CREDITS once per calendar month.
+ * No-op when the month is already stamped, or the user has an active subscription or BYOK key.
+ * Called from canGenerateWithDetails() before the credits check — no scheduler needed.
+ */
+export async function ensureMonthlyFreeCredits(userId: string): Promise<void> {
+  try {
+    const currentMonth = getCurrentMonth();
+
+    const result = await db
+      .select({ freeCreditsGrantedMonth: user.freeCreditsGrantedMonth })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+
+    if (result.length === 0) return;
+    if (result[0].freeCreditsGrantedMonth === currentMonth) return;
+
+    // Only free users get the monthly top-up
+    const [hasApiKey, isSubscribed] = await Promise.all([
+      hasOwnApiKey(userId),
+      hasActiveSubscription(userId),
+    ]);
+    if (hasApiKey || isSubscribed) return;
+
+    // Atomically claim this month's grant: the conditional UPDATE only matches
+    // while the stamp is stale, so concurrent requests can't double-grant.
+    const claimed = await db
+      .update(user)
+      .set({ freeCreditsGrantedMonth: currentMonth, updatedAt: new Date() })
+      .where(
+        and(
+          eq(user.id, userId),
+          or(
+            isNull(user.freeCreditsGrantedMonth),
+            ne(user.freeCreditsGrantedMonth, currentMonth)
+          )
+        )
+      )
+      .returning({ creditBalance: user.creditBalance });
+
+    if (claimed.length === 0) return; // another request already granted this month
+
+    const { creditBalance } = claimed[0];
+    if (creditBalance < FREE_MONTHLY_CREDITS) {
+      await addCredits(
+        userId,
+        FREE_MONTHLY_CREDITS - creditBalance,
+        "admin_grant",
+        "Monthly free credits"
+      );
+    }
+  } catch (error) {
+    // Never block an eligibility check on the top-up
+    console.error("Failed to ensure monthly free credits:", error);
+  }
+}
+
+// =============================================
+// Founding Member Primitives
+// =============================================
+
+const FOUNDING_MEMBER_CAP = 100;
+
+/**
+ * Count users flagged as founding members
+ */
+export async function getFoundingMemberCount(): Promise<number> {
+  try {
+    const result = await db
+      .select({ value: count() })
+      .from(user)
+      .where(eq(user.foundingMember, true));
+
+    return result[0]?.value ?? 0;
+  } catch (error) {
+    console.error("Failed to get founding member count:", error);
+    return 0;
+  }
+}
+
+/**
+ * Flag a user as a founding member. Idempotent; no-op once the cap
+ * (first 100 paying customers) is reached.
+ * @returns true if the user is a founding member after this call
+ */
+export async function markFoundingMember(userId: string): Promise<boolean> {
+  try {
+    return await db.transaction(async (tx) => {
+      // Serialize cap checks so concurrent checkouts can't overshoot 100
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(hashtext('founding_member_cap'))`
+      );
+
+      const result = await tx
+        .select({ foundingMember: user.foundingMember })
+        .from(user)
+        .where(eq(user.id, userId))
+        .limit(1);
+
+      if (result.length === 0) return false;
+      if (result[0].foundingMember) return true;
+
+      const countResult = await tx
+        .select({ value: count() })
+        .from(user)
+        .where(eq(user.foundingMember, true));
+      if ((countResult[0]?.value ?? 0) >= FOUNDING_MEMBER_CAP) return false;
+
+      await tx
+        .update(user)
+        .set({ foundingMember: true, updatedAt: new Date() })
+        .where(eq(user.id, userId));
+
+      return true;
+    });
+  } catch (error) {
+    console.error("Failed to mark founding member:", error);
+    return false;
+  }
 }
 
 // Check if soft cap enforcement is enabled via environment variable
@@ -494,9 +645,11 @@ export async function canGenerateWithDetails(
       };
     }
 
-    // Priority 2: Check for active subscription
-    const isSubscribed = await hasActiveSubscription(userId);
-    if (isSubscribed) {
+    // Priority 2: Check for active Pro subscription (soft-capped unlimited).
+    // Starter subscribers land in the credits path below — their allowance is
+    // granted as monthly credits, not unlimited access (spec R4).
+    const subscriptionInfo = await getSubscriptionInfo(userId);
+    if (subscriptionInfo.isActive && subscriptionInfo.tier === "pro") {
       const softCapStatus = await checkSoftCap(userId);
       const softCapWarning = softCapStatus.usage >= SUBSCRIPTION_SOFT_CAP * 0.8; // Warn at 80%
 
@@ -525,6 +678,8 @@ export async function canGenerateWithDetails(
     }
 
     // Priority 3: Check for credits
+    // Free users get a lazy monthly top-up to 10 credits before the balance check
+    await ensureMonthlyFreeCredits(userId);
     const credits = await getUserCredits(userId);
     if (credits >= creditsNeeded) {
       return {
@@ -673,25 +828,26 @@ export async function addCredits(
 /**
  * Activate a subscription for a user
  * @param userId - The user's ID
- * @param tier - Subscription tier (monthly or yearly)
+ * @param tier - Subscription tier (legacy monthly/yearly still accepted from the Polar webhook)
+ * @param expiresAt - Exact expiration (e.g. Stripe's current_period_end); computed from tier when omitted
  * @returns Success status
  */
 export async function activateSubscription(
   userId: string,
-  tier: SubscriptionTier
+  tier: SubscriptionTier | LegacySubscriptionTier,
+  expiresAt?: Date
 ): Promise<boolean> {
   try {
     const now = new Date();
-    let expiresAt: Date;
 
-    // Calculate expiration based on tier
-    if (tier === "monthly") {
+    if (!expiresAt) {
+      // Calculate expiration based on tier (Polar path)
       expiresAt = new Date(now);
-      expiresAt.setMonth(expiresAt.getMonth() + 1);
-    } else {
-      // yearly
-      expiresAt = new Date(now);
-      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+      if (tier === "yearly") {
+        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+      } else {
+        expiresAt.setMonth(expiresAt.getMonth() + 1);
+      }
     }
 
     await db
@@ -776,12 +932,14 @@ export async function endSubscriptionImmediately(userId: string): Promise<boolea
 /**
  * Extend a subscription (for renewals or manual extensions)
  * @param userId - The user's ID
- * @param tier - The tier to extend (defaults to current tier)
+ * @param tier - The tier to extend (defaults to current tier; legacy monthly/yearly still accepted)
+ * @param expiresAt - Exact new expiration (e.g. Stripe's current_period_end); computed when omitted
  * @returns Success status
  */
 export async function extendSubscription(
   userId: string,
-  tier?: SubscriptionTier
+  tier?: SubscriptionTier | LegacySubscriptionTier,
+  expiresAt?: Date
 ): Promise<boolean> {
   try {
     // Get current subscription info
@@ -793,18 +951,21 @@ export async function extendSubscription(
       return false;
     }
 
-    // Calculate new expiration from current expiration (or now if expired)
-    const baseDate = info.expiresAt && info.expiresAt > new Date()
-      ? info.expiresAt
-      : new Date();
-
     let newExpiresAt: Date;
-    if (subscriptionTier === "monthly") {
-      newExpiresAt = new Date(baseDate);
-      newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+    if (expiresAt) {
+      newExpiresAt = expiresAt;
     } else {
+      // Calculate new expiration from current expiration (or now if expired)
+      const baseDate = info.expiresAt && info.expiresAt > new Date()
+        ? info.expiresAt
+        : new Date();
+
       newExpiresAt = new Date(baseDate);
-      newExpiresAt.setFullYear(newExpiresAt.getFullYear() + 1);
+      if (subscriptionTier === "yearly") {
+        newExpiresAt.setFullYear(newExpiresAt.getFullYear() + 1);
+      } else {
+        newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+      }
     }
 
     await db

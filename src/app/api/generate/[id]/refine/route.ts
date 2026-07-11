@@ -12,9 +12,12 @@ import { nanoid } from "nanoid";
 import { refineGeneration } from "@/lib/gemini";
 import { uploadGeneratedImage } from "@/lib/services/blob-storage";
 import {
-  canGenerateCount,
+  canGenerateWithDetails,
+  consumeCredit,
+  getCreditsForResolution,
   incrementTokenUsage,
-  hasOwnApiKey,
+  logSubscriptionUsage,
+  type Resolution,
 } from "@/lib/services/token-system";
 import type { RefineRequestBody, GenerationSettings } from "@/lib/types/image-generation";
 
@@ -105,7 +108,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       }
     }
 
-    // Check token availability (skip if user has their own API key)
+    // Check generation eligibility (payment-based: BYOK → subscription → credits)
     const settings = gen.settings as GenerationSettings | null;
     if (!settings) {
       return NextResponse.json(
@@ -114,19 +117,43 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
     const imageCount = settings.imageCount || 1;
-    const userHasOwnKey = await hasOwnApiKey(session.user.id);
+    const creditsPerImage = getCreditsForResolution(
+      (settings.resolution as Resolution) || "1K"
+    );
+    const totalCreditsNeeded = creditsPerImage * imageCount;
 
-    if (!userHasOwnKey) {
-      const canProceed = await canGenerateCount(session.user.id, imageCount);
-      if (!canProceed) {
-        return NextResponse.json(
-          {
-            error:
-              "Token limit reached. Upgrade your plan or add your own API key.",
-          },
-          { status: 403 }
-        );
+    const eligibility = await canGenerateWithDetails(
+      session.user.id,
+      totalCreditsNeeded
+    );
+
+    if (!eligibility.allowed) {
+      let errorMessage: string;
+      switch (eligibility.reason) {
+        case "no_credits":
+          errorMessage =
+            "No credits remaining. Purchase credits or subscribe to continue.";
+          break;
+        case "insufficient_credits":
+          errorMessage = `Not enough credits. You have ${eligibility.creditsRemaining} credit(s), but need ${totalCreditsNeeded} for ${imageCount} ${settings.resolution} image(s).`;
+          break;
+        case "soft_cap_exceeded":
+          errorMessage =
+            "Monthly fair use limit (500 generations) reached. Your limit resets next month.";
+          break;
+        default:
+          errorMessage = "Unable to refine images. Please sign in.";
       }
+
+      return NextResponse.json(
+        {
+          error: errorMessage,
+          reason: eligibility.reason,
+          creditsRemaining: eligibility.creditsRemaining,
+          creditsNeeded: totalCreditsNeeded,
+        },
+        { status: 403 }
+      );
     }
 
     // Update generation status to processing
@@ -247,9 +274,26 @@ export async function POST(request: Request, { params }: RouteParams) {
       imageUrls: savedImages.map((img) => img.imageUrl),
     });
 
-    // Increment token usage if using app key
+    // Meter based on eligibility reason (mirrors the main generate route):
+    // - BYOK: no consumption (user's own key)
+    // - Subscription: track for soft cap + audit trail
+    // - Credits: consume from balance (resolution-based pricing)
     if (result.usedAppKey) {
-      await incrementTokenUsage(session.user.id, savedImages.length);
+      if (eligibility.reason === "subscription") {
+        await incrementTokenUsage(session.user.id, savedImages.length);
+        await logSubscriptionUsage(
+          session.user.id,
+          savedImages.length,
+          `Refined ${savedImages.length} image(s)`
+        );
+      } else if (eligibility.reason === "credits") {
+        const actualCreditsUsed = creditsPerImage * savedImages.length;
+        await consumeCredit(
+          session.user.id,
+          actualCreditsUsed,
+          `Refined ${savedImages.length} image(s) (${actualCreditsUsed} credits)`
+        );
+      }
     }
 
     return NextResponse.json({

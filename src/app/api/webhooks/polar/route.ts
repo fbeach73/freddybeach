@@ -31,7 +31,7 @@ import {
   activateSubscription,
   cancelSubscription,
   extendSubscription,
-  type SubscriptionTier,
+  type LegacySubscriptionTier,
 } from "@/lib/services/token-system";
 import {
   sendPurchaseConfirmationEmail,
@@ -39,7 +39,18 @@ import {
   sendSubscriptionRenewedEmail,
   sendSubscriptionCancelledEmail,
 } from "@/lib/services/email";
-import { subscriptionPlans, creditPackages, byokProPlan } from "@/lib/data/packages";
+import { PLANS, creditPacks } from "@/lib/data/plans";
+
+// Polar sells the legacy monthly/yearly plans plus BYOK Pro. Legacy tiers are
+// normalized to "pro" on read by token-system; this handler keeps writing the
+// values Polar knows about during the sunset period.
+type PolarTier = LegacySubscriptionTier | "byok";
+
+// Display info for legacy plans no longer defined in plans.ts (email copy only)
+const LEGACY_PLAN_DISPLAY: Record<LegacySubscriptionTier, { name: string; price: number }> = {
+  monthly: { name: "Unlimited Monthly", price: 29 },
+  yearly: { name: "Unlimited Yearly", price: 199 },
+};
 
 /**
  * Validate that required metadata fields are present
@@ -96,7 +107,7 @@ async function getUserById(userId: string) {
 /**
  * Calculate next billing date based on subscription tier
  */
-function getNextBillingDate(tier: SubscriptionTier): string {
+function getNextBillingDate(tier: PolarTier): string {
   const nextDate = new Date();
   if (tier === "yearly") {
     nextDate.setFullYear(nextDate.getFullYear() + 1);
@@ -271,7 +282,7 @@ async function handleOrderPaid(event: WebhookEvent) {
       try {
         const userData = await getUserById(userId);
         if (userData) {
-          const creditPackage = creditPackages[0]; // Default to first package
+          const creditPackage = creditPacks[0]; // Default to first pack
           const total = creditPackage.price;
           await sendPurchaseConfirmationEmail({
             email: userData.email,
@@ -328,11 +339,11 @@ async function handleSubscriptionCreated(event: WebhookEvent) {
 
   const userId = validation.userId;
   const metadata = event.data.metadata || {};
-  const plan = metadata.plan as SubscriptionTier | string | undefined;
+  const plan = metadata.plan as PolarTier | string | undefined;
   const type = metadata.type;
 
   // Determine tier from metadata, product name, or type
-  let tier: SubscriptionTier;
+  let tier: PolarTier;
 
   // Check if this is a BYOK subscription
   if (type === "byok" || plan === "byok-pro" || plan === "byok") {
@@ -375,7 +386,7 @@ async function handleSubscriptionCreated(event: WebhookEvent) {
 
           if (tier === "byok") {
             tierName = "BYOK Pro";
-            billingAmount = byokProPlan.price;
+            billingAmount = PLANS.byokPro.price;
             features = [
               { name: "Unlimited AI generations" },
               { name: "Use your own API key" },
@@ -383,9 +394,9 @@ async function handleSubscriptionCreated(event: WebhookEvent) {
               { name: "Cancel anytime" },
             ];
           } else {
-            const subscriptionPlan = subscriptionPlans.find((p) => p.period === tier);
-            tierName = tier === "yearly" ? "Unlimited Yearly" : "Unlimited Monthly";
-            billingAmount = subscriptionPlan?.price || (tier === "yearly" ? 199 : 29);
+            const legacyPlan = LEGACY_PLAN_DISPLAY[tier];
+            tierName = legacyPlan.name;
+            billingAmount = legacyPlan.price;
             features = [
               { name: "Unlimited AI generations" },
               { name: "All available AI tools" },
@@ -447,8 +458,8 @@ async function handleSubscriptionUpdated(event: WebhookEvent) {
 
   // If subscription is active, extend it
   if (status === "active") {
-    const plan = metadata.plan as SubscriptionTier | string | undefined;
-    let tier: SubscriptionTier | undefined;
+    const plan = metadata.plan as PolarTier | string | undefined;
+    let tier: PolarTier | undefined;
 
     // Determine tier from metadata or product name
     if (type === "byok" || plan === "byok-pro" || plan === "byok") {
@@ -490,11 +501,11 @@ async function handleSubscriptionUpdated(event: WebhookEvent) {
 
             if (effectiveTier === "byok") {
               tierName = "BYOK Pro";
-              billingAmount = byokProPlan.price;
+              billingAmount = PLANS.byokPro.price;
             } else {
-              const subscriptionPlan = subscriptionPlans.find((p) => p.period === effectiveTier);
-              tierName = effectiveTier === "yearly" ? "Unlimited Yearly" : "Unlimited Monthly";
-              billingAmount = subscriptionPlan?.price || (effectiveTier === "yearly" ? 199 : 29);
+              const legacyPlan = LEGACY_PLAN_DISPLAY[effectiveTier];
+              tierName = legacyPlan.name;
+              billingAmount = legacyPlan.price;
             }
 
             await sendSubscriptionRenewedEmail({
@@ -545,11 +556,11 @@ async function handleSubscriptionCanceled(event: WebhookEvent) {
 
   const userId = validation.userId;
   const metadata = event.data.metadata || {};
-  const plan = metadata.plan as SubscriptionTier | string | undefined;
+  const plan = metadata.plan as PolarTier | string | undefined;
   const type = metadata.type;
 
   // Determine tier from metadata or product name
-  let tier: SubscriptionTier;
+  let tier: PolarTier;
 
   if (type === "byok" || plan === "byok-pro" || plan === "byok") {
     tier = "byok";

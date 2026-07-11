@@ -30,7 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { creditPackages, byokOption } from "@/lib/data/packages";
+import { creditPacks, byokOption } from "@/lib/data/plans";
 import {
   getUserCredits,
   getSubscriptionInfo,
@@ -203,7 +203,9 @@ export default async function BillingPage() {
                       {subscriptionInfo.isActive
                         ? subscriptionInfo.tier === "byok"
                           ? "BYOK Pro"
-                          : `Unlimited ${subscriptionInfo.tier === "yearly" ? "Yearly" : "Monthly"}`
+                          : subscriptionInfo.tier === "starter"
+                            ? "Starter"
+                            : "Pro (Unlimited)"
                         : "No Active Plan"}
                     </p>
                   </div>
@@ -327,7 +329,7 @@ export default async function BillingPage() {
           description="Purchase credit packs for pay-as-you-go AI generation"
         />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {creditPackages.map((pack) => (
+          {creditPacks.map((pack) => (
             <Card
               key={pack.id}
               className={`nb-card bg-card ${pack.isPopular ? "border-nb-yellow ring-2 ring-nb-yellow" : ""}`}

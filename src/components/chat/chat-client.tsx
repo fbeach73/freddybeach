@@ -1,6 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
@@ -168,7 +169,23 @@ interface ChatClientProps {
 }
 
 export function ChatClient({ user }: ChatClientProps) {
-  const { messages, sendMessage, status } = useChat();
+  const [outOfCredits, setOutOfCredits] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const { messages, sendMessage, status } = useChat({
+    onError: (error) => {
+      // The default transport rethrows the response body as the error message
+      try {
+        const body = JSON.parse(error.message);
+        if (body?.error === "Insufficient credits") {
+          setOutOfCredits(true);
+          return;
+        }
+      } catch {
+        // not JSON, fall through to generic handling
+      }
+      setChatError("Something went wrong. Please try again.");
+    },
+  });
   const [input, setInput] = useState("");
 
   return (
@@ -204,11 +221,30 @@ export function ChatClient({ user }: ChatClientProps) {
           ))}
         </div>
 
+        {outOfCredits && (
+          <div className="mb-4 border-2 border-nb-border bg-nb-yellow p-4 text-black">
+            <p className="font-bold">You&apos;re out of credits.</p>
+            <p className="text-sm">
+              Free credits top back up every month, or{" "}
+              <Link href="/pricing" className="underline underline-offset-2 hover:no-underline">
+                see plans and credit packs
+              </Link>{" "}
+              to keep chatting today.
+            </p>
+          </div>
+        )}
+        {chatError && !outOfCredits && (
+          <div className="mb-4 border-2 border-nb-border bg-destructive/10 p-4 text-sm">
+            {chatError}
+          </div>
+        )}
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
             const text = input.trim();
             if (!text) return;
+            setChatError(null);
             sendMessage({ role: "user", parts: [{ type: "text", text }] });
             setInput("");
           }}

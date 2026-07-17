@@ -1,20 +1,21 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+
+const platformLinks = [
+  { title: "AI Tools", href: "/ai-tools" },
+  { title: "Pricing", href: "/pricing" },
+  { title: "Consultation", href: "/consultation" },
+];
 
 const directoryLinks = [
   { title: "Browse", href: "/search" },
   { title: "Categories", href: "/#categories" },
-  { title: "Add Business", href: "/add-business" },
+  { title: "Add Your Business", href: "/add-business" },
 ];
 
 const companyLinks = [
-  { title: "About", href: "/about" },
-  { title: "Contact", href: "/contact" },
-  { title: "Advertise", href: "/advertise" },
-];
-
-const legalLinks = [
+  { title: "Blog", href: "/blog" },
+  { title: "Contact", href: "/consultation" },
   { title: "Privacy Policy", href: "/privacy" },
   { title: "Terms of Service", href: "/terms" },
   { title: "Refund Policy", href: "/refund" },
@@ -35,12 +36,29 @@ export function SiteFooter() {
               <span className="text-lg font-black uppercase">FreddyBeach</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Discover and support local businesses in Fredericton, New
-              Brunswick. Your guide to the best of Freddy Beach.
+              AI tools + local business directory for Fredericton, New
+              Brunswick. Write posts, reply to reviews, and get found — all in
+              one place.
             </p>
           </div>
 
-          {/* Column 2: Directory Links */}
+          {/* Column 2: Platform Links */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-black uppercase tracking-wide">Platform</h3>
+            <nav className="flex flex-col gap-2">
+              {platformLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-muted-foreground font-bold transition-all duration-150 hover:text-nb-yellow hover:translate-x-1"
+                >
+                  {link.title}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Column 3: Directory Links */}
           <div className="space-y-4">
             <h3 className="text-sm font-black uppercase tracking-wide">Directory</h3>
             <nav className="flex flex-col gap-2">
@@ -56,29 +74,13 @@ export function SiteFooter() {
             </nav>
           </div>
 
-          {/* Column 3: Company Links */}
+          {/* Column 4: Company & Legal Links */}
           <div className="space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-wide">Company</h3>
+            <h3 className="text-sm font-black uppercase tracking-wide">Company &amp; Legal</h3>
             <nav className="flex flex-col gap-2">
               {companyLinks.map((link) => (
                 <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm text-muted-foreground font-bold transition-all duration-150 hover:text-nb-yellow hover:translate-x-1"
-                >
-                  {link.title}
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          {/* Column 4: Legal Links */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-wide">Legal</h3>
-            <nav className="flex flex-col gap-2">
-              {legalLinks.map((link) => (
-                <Link
-                  key={link.href}
+                  key={link.title}
                   href={link.href}
                   className="text-sm text-muted-foreground font-bold transition-all duration-150 hover:text-nb-yellow hover:translate-x-1"
                 >

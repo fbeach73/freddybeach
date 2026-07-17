@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { polar, CREDIT_PACK_CONFIG, getAppUrl } from "@/lib/polar";
+import {
+  getStripe,
+  STRIPE_CREDIT_PACK_CONFIG,
+  getOrCreateStripeCustomer,
+  getAppUrl,
+} from "@/lib/stripe";
 
 /**
  * POST /api/checkout/credits
- * Create a Polar checkout session for credit purchase
+ * Create a Stripe checkout session for credit purchase
  *
  * Body: { packId: "credits-10" | "credits-50" | "credits-100" }
  */
@@ -29,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate pack ID and get configuration
-    const packConfig = CREDIT_PACK_CONFIG[packId];
+    const packConfig = STRIPE_CREDIT_PACK_CONFIG[packId];
     if (!packConfig) {
       return NextResponse.json(
         { error: `Invalid pack ID: ${packId}. Valid options: credits-10, credits-50, credits-100` },
@@ -37,20 +42,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const appUrl = getAppUrl();
-    const successUrl = `${appUrl}/dashboard/billing?success=credits`;
+    if (!packConfig.priceId) {
+      return NextResponse.json(
+        { error: "Credit pack is not configured. Please contact support." },
+        { status: 500 }
+      );
+    }
 
-    // Create Polar checkout session for credits
-    const checkout = await polar.checkouts.create({
-      products: [packConfig.productId],
-      successUrl,
-      customerEmail: session.user.email,
-      customerName: session.user.name || undefined,
+    const customerId = await getOrCreateStripeCustomer(
+      session.user.id,
+      session.user.email,
+      session.user.name
+    );
+
+    const appUrl = getAppUrl();
+
+    const checkout = await getStripe().checkout.sessions.create({
+      mode: "payment",
+      customer: customerId,
+      line_items: [{ price: packConfig.priceId, quantity: 1 }],
+      success_url: `${appUrl}/dashboard/billing?success=credits`,
+      cancel_url: `${appUrl}/dashboard/billing?canceled=credits`,
       metadata: {
         userId: session.user.id,
         type: "credits",
-        packId: packId,
-        amount: String(packConfig.credits),
+        packId,
+        credits: String(packConfig.credits),
       },
     });
 

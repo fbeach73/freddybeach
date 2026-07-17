@@ -49,7 +49,7 @@ export function PurchaseCreditsButton({
       }
 
       if (data.checkoutUrl) {
-        // Redirect to Polar checkout
+        // Redirect to Stripe checkout
         window.location.href = data.checkoutUrl;
       } else {
         throw new Error("No checkout URL returned");

@@ -1,4 +1,4 @@
-import type { AITool } from "@/lib/types";
+import type { AITool, AIToolCategory } from "@/lib/types";
 
 export const aiTools: AITool[] = [
   {
@@ -7,9 +7,10 @@ export const aiTools: AITool[] = [
     slug: "review-responder",
     description:
       "Generate professional, personalized responses to customer reviews in seconds. Our AI understands context, sentiment, and your brand voice to craft responses that build customer relationships and improve your online reputation.",
-    shortDescription: "AI-powered review response generator",
+    shortDescription: "Reply to any Google review in 10 seconds — kind, professional, done.",
     icon: "MessageSquareText",
-    tier: "free",
+    category: "reviews",
+    costLabel: "1 credit",
     status: "available",
     usageCount: 587,
     exampleInput:
@@ -36,9 +37,10 @@ The Isaac's Way Team`,
     slug: "social-post-generator",
     description:
       "Create engaging social media content tailored to your business. Generate posts for Instagram, Facebook, Twitter/X, and LinkedIn that capture your brand personality and drive engagement with your local audience.",
-    shortDescription: "Create engaging social media content instantly",
+    shortDescription: "Tell it what\u2019s new — get a ready-to-post update for Instagram or Facebook.",
     icon: "Share2",
-    tier: "free",
+    category: "marketing",
+    costLabel: "1 credit",
     status: "available",
     usageCount: 412,
     exampleInput:
@@ -73,10 +75,11 @@ Stop by this weekend and taste what everyone's talking about. Your new favorite 
     slug: "business-description-writer",
     description:
       "Craft compelling business descriptions that convert visitors into customers. Perfect for your website, Google Business Profile, directory listings, and marketing materials. SEO-optimized and locally relevant.",
-    shortDescription: "Compelling business descriptions that convert",
+    shortDescription: "Describe your business in a sentence — get website-ready copy back.",
     icon: "PenLine",
-    tier: "enhanced",
-    status: "coming-soon",
+    category: "content",
+    costLabel: "1 credit",
+    status: "available",
     usageCount: 0,
     exampleInput:
       "We're a yoga studio in downtown Fredericton. We offer classes for all levels, from beginner to advanced. We have hot yoga, vinyasa, restorative, and prenatal classes. Our studio has been open for 5 years.",
@@ -110,10 +113,11 @@ Drop in anytime or explore our unlimited monthly membership for the full Yoga Lo
     slug: "email-template-generator",
     description:
       "Create professional email templates for every business need. From appointment confirmations to promotional campaigns, generate emails that get opened, read, and acted upon.",
-    shortDescription: "Professional email templates for every occasion",
+    shortDescription: "Appointment reminders, promos, follow-ups — written in seconds.",
     icon: "Mail",
-    tier: "enhanced",
-    status: "coming-soon",
+    category: "marketing",
+    costLabel: "1 credit",
+    status: "available",
     usageCount: 0,
     exampleInput:
       "I need an appointment reminder email for my dental clinic. The appointment is tomorrow and I want to remind them to arrive 10 minutes early.",
@@ -158,9 +162,10 @@ The Downtown Family Dental Team
     slug: "review-collector",
     description:
       "Funnel happy customers to your Google reviews and intercept unhappy ones with a private feedback channel. Send branded review requests by email, watch ratings flow in, and respond before complaints become public.",
-    shortDescription: "Send branded review requests and route feedback intelligently",
+    shortDescription: "Turn happy customers into 5-star Google reviews on autopilot.",
     icon: "Star",
-    tier: "free",
+    category: "reviews",
+    costLabel: "Free",
     status: "available",
     usageCount: 0,
     accessModel: "per-business",
@@ -183,9 +188,10 @@ The Downtown Family Dental Team
     slug: "image-generator",
     description:
       "Create stunning AI-generated images with Google's Gemini. Use avatars for consistent characters across generations, refine your creations with natural language, and share your best work to the community gallery. Perfect for social media graphics, marketing materials, and creative projects.",
-    shortDescription: "Generate professional images with AI",
+    shortDescription: "Type what you want — get a social-ready image in seconds.",
     icon: "Image",
-    tier: "free",
+    category: "images",
+    costLabel: "1–4 credits",
     status: "available",
     usageCount: 653,
     exampleInput:
@@ -211,12 +217,16 @@ export function getToolById(id: string): AITool | undefined {
   return aiTools.find((tool) => tool.id === id);
 }
 
-export function getFreeTools(): AITool[] {
-  return aiTools.filter((tool) => tool.tier === "free");
-}
+// Display metadata for the tool categories, in hub display order
+export const TOOL_CATEGORIES: { id: AIToolCategory; name: string; tagline: string }[] = [
+  { id: "reviews", name: "Reviews", tagline: "Win the review game on Google" },
+  { id: "marketing", name: "Marketing", tagline: "Posts and emails, written for you" },
+  { id: "content", name: "Content", tagline: "Words for your website and listings" },
+  { id: "images", name: "Images", tagline: "Pictures without a photographer" },
+];
 
-export function getPremiumTools(): AITool[] {
-  return aiTools.filter((tool) => tool.tier !== "free");
+export function getToolsByCategory(category: AIToolCategory): AITool[] {
+  return aiTools.filter((tool) => tool.category === category);
 }
 
 export function getAvailableTools(): AITool[] {

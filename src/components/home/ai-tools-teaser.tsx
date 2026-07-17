@@ -3,10 +3,10 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/shared/page-header";
 import { AIToolCard } from "@/components/home/ai-tool-card";
-import { getFreeTools } from "@/lib/data";
+import { getAvailableTools } from "@/lib/data";
 
 export function AIToolsTeaser() {
-  const freeTools = getFreeTools().slice(0, 2);
+  const freeTools = getAvailableTools().slice(0, 2);
 
   return (
     <section className="py-16">

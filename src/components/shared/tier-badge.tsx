@@ -1,9 +1,11 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Crown, Star, Sparkles } from "lucide-react";
+import { Coins, Crown, Star, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// NOTE: TierBadge is for BUSINESS LISTING tiers (free/enhanced/featured) —
+// a directory concept. AI tools use ToolCostBadge below (tool tiers retired).
 interface TierBadgeProps {
   tier: "free" | "enhanced" | "featured";
   size?: "sm" | "md" | "lg";
@@ -58,6 +60,44 @@ export function TierBadge({
     >
       <Icon className={cn(iconSizes[size], showLabel && "mr-1")} />
       {showLabel && label}
+    </Badge>
+  );
+}
+
+interface ToolCostBadgeProps {
+  /** Plain-language cost, e.g. "1 credit", "Free" */
+  costLabel: string;
+  size?: "sm" | "md";
+  className?: string;
+}
+
+/**
+ * Cost badge for AI tools — shows what a generation costs in plain language.
+ */
+export function ToolCostBadge({
+  costLabel,
+  size = "md",
+  className,
+}: ToolCostBadgeProps) {
+  const isFree = costLabel.toLowerCase() === "free";
+
+  return (
+    <Badge
+      variant="secondary"
+      className={cn(
+        size === "sm" ? "text-xs px-1.5 py-0.5" : "text-sm px-2 py-0.5",
+        isFree
+          ? "bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400"
+          : "bg-nb-yellow/20 text-foreground",
+        className
+      )}
+    >
+      {isFree ? (
+        <Star className={cn(size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5", "mr-1")} />
+      ) : (
+        <Coins className={cn(size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5", "mr-1")} />
+      )}
+      {costLabel}
     </Badge>
   );
 }

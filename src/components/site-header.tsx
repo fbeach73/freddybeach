@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MapPin, Sparkles, Search, Calendar } from "lucide-react";
+import { MapPin, Sparkles, Search, Tag, Newspaper } from "lucide-react";
 import { UserProfile } from "@/components/auth/user-profile";
 import { ModeToggle } from "./ui/mode-toggle";
 import { MobileNav } from "./layout/mobile-nav";
@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   {
-    title: "Browse",
+    title: "Browse Directory",
     href: "/search",
     icon: Search,
   },
@@ -21,9 +21,14 @@ const navItems = [
     icon: Sparkles,
   },
   {
-    title: "Consultation",
-    href: "/consultation",
-    icon: Calendar,
+    title: "Pricing",
+    href: "/pricing",
+    icon: Tag,
+  },
+  {
+    title: "Blog",
+    href: "/blog",
+    icon: Newspaper,
   },
 ];
 
@@ -49,7 +54,7 @@ export function SiteHeader() {
                   FreddyBeach
                 </span>
                 <span className="text-[10px] text-muted-foreground leading-none hidden sm:block">
-                  Fredericton Business Directory
+                  AI tools + directory for Fredericton businesses
                 </span>
               </div>
             </Link>

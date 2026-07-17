@@ -27,7 +27,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TierBadge } from "@/components/shared/tier-badge";
 import {
   AvatarManager,
   PresetManager,
@@ -403,7 +402,15 @@ export function ImageGeneratorPage({
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl font-bold">AI Image Generator</h1>
-                <TierBadge tier={effectiveTier === "byok" || effectiveTier === "subscription" ? "featured" : effectiveTier === "credits" ? "enhanced" : "free"} size="sm" />
+                <Badge variant="secondary" className="text-xs">
+                  {effectiveTier === "byok"
+                    ? "Your API key"
+                    : effectiveTier === "subscription"
+                      ? "Subscribed"
+                      : effectiveTier === "credits"
+                        ? "Credits"
+                        : "Free"}
+                </Badge>
               </div>
               <p className="mt-1 max-w-2xl text-muted-foreground">
                 Create stunning AI-generated images with Google&apos;s Gemini. Use

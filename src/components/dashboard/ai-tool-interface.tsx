@@ -2,7 +2,7 @@
 
 import { useState, memo, useCallback } from "react";
 import Link from "next/link";
-import { Copy, RefreshCw, Lock, CheckCircle2, AlertCircle, Coins } from "lucide-react";
+import { Copy, RefreshCw, CheckCircle2, AlertCircle, Coins } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,7 +21,6 @@ import type { AITool } from "@/lib/types";
 
 interface AIToolInterfaceProps {
   tool: AITool;
-  userTier?: "free" | "enhanced" | "featured";
   initialCredits?: number;
   onCreditsUpdate?: (newCredits: number) => void;
 }
@@ -70,7 +69,6 @@ const toolControls: Record<
 
 export const AIToolInterface = memo(function AIToolInterface({
   tool,
-  userTier = "free",
   initialCredits,
   onCreditsUpdate,
 }: AIToolInterfaceProps) {
@@ -85,11 +83,10 @@ export const AIToolInterface = memo(function AIToolInterface({
   const [credits, setCredits] = useState<number | undefined>(initialCredits);
   const [usageCount, setUsageCount] = useState(0);
 
-  const isLocked = tool.tier !== "free" && userTier === "free";
   const controls = toolControls[tool.slug];
 
   const handleGenerate = useCallback(async () => {
-    if (isLocked || !input.trim()) return;
+    if (!input.trim()) return;
 
     setIsGenerating(true);
     setOutput("");
@@ -135,7 +132,7 @@ export const AIToolInterface = memo(function AIToolInterface({
     } finally {
       setIsGenerating(false);
     }
-  }, [isLocked, input, tool.slug, controlValue, onCreditsUpdate]);
+  }, [input, tool.slug, controlValue, onCreditsUpdate]);
 
   const handleRegenerate = () => {
     handleGenerate();
@@ -194,7 +191,6 @@ export const AIToolInterface = memo(function AIToolInterface({
               onChange={(e) => setInput(e.target.value)}
               placeholder="Enter your text here..."
               className="min-h-[200px] resize-none"
-              disabled={isLocked}
             />
             <p className="text-xs text-muted-foreground text-right">
               {input.length} characters
@@ -208,7 +204,6 @@ export const AIToolInterface = memo(function AIToolInterface({
               <Select
                 value={controlValue}
                 onValueChange={setControlValue}
-                disabled={isLocked}
               >
                 <SelectTrigger id="tool-control">
                   <SelectValue placeholder={`Select ${controls.label.toLowerCase()}`} />
@@ -226,7 +221,7 @@ export const AIToolInterface = memo(function AIToolInterface({
 
           <Button
             onClick={handleGenerate}
-            disabled={isGenerating || isLocked || !input.trim() || credits === 0}
+            disabled={isGenerating || !input.trim() || credits === 0}
             className="w-full"
           >
             {isGenerating ? (
@@ -257,27 +252,8 @@ export const AIToolInterface = memo(function AIToolInterface({
           <CardTitle className="text-lg">Output</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Premium Tool Gate Overlay */}
-          {isLocked && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm">
-              <div className="text-center p-6 max-w-sm">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <Lock className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Premium Tool</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Upgrade to Enhanced or Featured to unlock this tool and generate
-                  unlimited content.
-                </p>
-                <Button className="mt-4" asChild>
-                  <Link href="/ai-tools#pricing">Upgrade Now</Link>
-                </Button>
-              </div>
-            </div>
-          )}
-
           {/* Empty state */}
-          {!output && !isGenerating && !isLocked && (
+          {!output && !isGenerating && (
             <div className="flex min-h-[200px] items-center justify-center rounded-lg border-2 border-dashed">
               <p className="text-sm text-muted-foreground">
                 Your generated content will appear here

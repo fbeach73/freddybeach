@@ -237,7 +237,6 @@ export default async function DashboardPage() {
               key={tool.id}
               tool={tool}
               usageCount={aiToolUsageCount}
-              userTier={hasByok || subscriptionInfo.isActive ? "featured" : "free"}
             />
           ))}
         </div>

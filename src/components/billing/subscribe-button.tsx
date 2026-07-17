@@ -5,7 +5,13 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-type SubscriptionPlan = "monthly" | "yearly";
+type SubscriptionPlan = "starter" | "pro" | "pro-yearly";
+
+const PLAN_LABELS: Record<SubscriptionPlan, string> = {
+  starter: "Get Starter",
+  pro: "Get Pro",
+  "pro-yearly": "Get Pro (Yearly)",
+};
 
 interface SubscribeButtonProps {
   plan: SubscriptionPlan;
@@ -43,7 +49,7 @@ export function SubscribeButton({
       }
 
       if (data.checkoutUrl) {
-        // Redirect to Polar checkout
+        // Redirect to Stripe checkout
         window.location.href = data.checkoutUrl;
       } else {
         throw new Error("No checkout URL returned");
@@ -77,7 +83,7 @@ export function SubscribeButton({
       ) : (
         <>
           <Sparkles className="mr-2 h-4 w-4" />
-          Subscribe {plan === "monthly" ? "Monthly" : "Yearly"}
+          {PLAN_LABELS[plan]}
         </>
       )}
     </Button>

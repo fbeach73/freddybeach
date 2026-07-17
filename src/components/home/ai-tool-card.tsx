@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ToolCostBadge } from "@/components/shared/tier-badge";
 import { Check } from "lucide-react";
 import { DynamicIcon } from "@/lib/utils/icons";
 import type { AITool } from "@/lib/types";
@@ -23,14 +23,7 @@ export function AIToolCard({ tool }: AIToolCardProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <h3 className="font-semibold">{tool.name}</h3>
-              {tool.tier === "free" && (
-                <Badge
-                  variant="secondary"
-                  className="bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400"
-                >
-                  Free
-                </Badge>
-              )}
+              <ToolCostBadge costLabel={tool.costLabel} size="sm" />
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
               {tool.shortDescription}

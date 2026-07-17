@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { polar, POLAR_PRODUCTS, getAppUrl } from "@/lib/polar";
+import {
+  getStripe,
+  STRIPE_PRICES,
+  getOrCreateStripeCustomer,
+  getAppUrl,
+} from "@/lib/stripe";
 
 /**
  * POST /api/checkout/byok
- * Create a Polar checkout session for BYOK Pro subscription
+ * Create a Stripe checkout session for BYOK Pro subscription
  *
  * BYOK Pro allows users to use their own API key for unlimited generations
  * at a monthly subscription price of $7.99
@@ -18,20 +23,34 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const appUrl = getAppUrl();
-    const successUrl = `${appUrl}/dashboard/billing?success=byok`;
+    if (!STRIPE_PRICES.BYOK_PRO) {
+      return NextResponse.json(
+        { error: "BYOK Pro is not configured. Please contact support." },
+        { status: 500 }
+      );
+    }
 
-    // Create Polar checkout session for BYOK Pro subscription
-    const checkout = await polar.checkouts.create({
-      products: [POLAR_PRODUCTS.BYOK_PRO],
-      successUrl,
-      customerEmail: session.user.email,
-      customerName: session.user.name || undefined,
-      metadata: {
-        userId: session.user.id,
-        type: "byok",
-        plan: "byok-pro",
-      },
+    const customerId = await getOrCreateStripeCustomer(
+      session.user.id,
+      session.user.email,
+      session.user.name
+    );
+
+    const appUrl = getAppUrl();
+    const metadata = {
+      userId: session.user.id,
+      type: "byok",
+      plan: "byok",
+    };
+
+    const checkout = await getStripe().checkout.sessions.create({
+      mode: "subscription",
+      customer: customerId,
+      line_items: [{ price: STRIPE_PRICES.BYOK_PRO, quantity: 1 }],
+      success_url: `${appUrl}/dashboard/billing?success=byok`,
+      cancel_url: `${appUrl}/dashboard/billing?canceled=byok`,
+      metadata,
+      subscription_data: { metadata },
     });
 
     return NextResponse.json({

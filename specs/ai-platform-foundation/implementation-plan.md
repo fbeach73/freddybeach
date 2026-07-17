@@ -69,21 +69,21 @@
 ## Phase 2: Stripe Foundation
 
 ### Tasks
-- [ ] `pnpm add stripe`
-- [ ] Create `src/lib/stripe.ts` (mirror `src/lib/polar.ts`): pinned-apiVersion client from `STRIPE_SECRET_KEY`; `STRIPE_PRICES` env map (`STRIPE_PRICE_STARTER_MONTHLY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`, `STRIPE_PRICE_BYOK_PRO`, `STRIPE_PRICE_CREDITS_10/50/100`); `getOrCreateStripeCustomer(userId, email, name)` reading/writing `user.stripeCustomerId`; reuse `getAppUrl()` pattern
-- [ ] Rewrite checkout routes **in place, same request/response contracts** (so billing buttons barely change):
+- [x] `pnpm add stripe`
+- [x] Create `src/lib/stripe.ts` (mirror `src/lib/polar.ts`): pinned-apiVersion client from `STRIPE_SECRET_KEY`; `STRIPE_PRICES` env map (`STRIPE_PRICE_STARTER_MONTHLY`, `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`, `STRIPE_PRICE_BYOK_PRO`, `STRIPE_PRICE_CREDITS_10/50/100`); `getOrCreateStripeCustomer(userId, email, name)` reading/writing `user.stripeCustomerId`; reuse `getAppUrl()` pattern
+- [x] Rewrite checkout routes **in place, same request/response contracts** (so billing buttons barely change):
   - `src/app/api/checkout/subscription/route.ts` — `mode: "subscription"`, metadata `{ userId, type, plan }`
   - `src/app/api/checkout/credits/route.ts` — `mode: "payment"`, metadata `{ userId, type: "credits", credits }`
   - `src/app/api/checkout/byok/route.ts` — `mode: "subscription"`, plan `byok`
-- [ ] Create `src/app/api/billing/portal/route.ts` — Stripe billing portal session → return to `/dashboard/billing`
-- [ ] Create `src/app/api/webhooks/stripe/route.ts` (clone Polar webhook structure; reuse token-system fns):
+- [x] Create `src/app/api/billing/portal/route.ts` — Stripe billing portal session → return to `/dashboard/billing`
+- [x] Create `src/app/api/webhooks/stripe/route.ts` (clone Polar webhook structure; reuse token-system fns):
   - `checkout.session.completed`: persist customer id; credits → `addCredits` + confirmation email; `markFoundingMember`
   - `customer.subscription.created/updated` (active/trialing): tier from metadata (fallback: price-ID match) → `activateSubscription(userId, tier, current_period_end)`; Starter gets first 100 credits here; `markFoundingMember`
   - `invoice.paid` (guard `billing_reason !== "subscription_create"` — load-bearing, prevents double grant): `extendSubscription`; Starter → `addCredits(100, "purchase", "Starter monthly credits")`
   - `subscription.updated` with `cancel_at_period_end: true` → `cancelSubscription`; `subscription.deleted` → `endSubscriptionImmediately`
   - userId via metadata, fallback `stripeCustomerId` lookup; 500 on ledger failure (Stripe retries), 200 on email failure — same policy as Polar handler
-- [ ] Polar: add `// SUNSET` header comment to `src/app/api/webhooks/polar/route.ts` + `src/lib/polar.ts`; leave functional
-- [ ] Env (underscores): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, 7 price IDs; update `env.example`
+- [x] Polar: add `// SUNSET` header comment to `src/app/api/webhooks/polar/route.ts` + `src/lib/polar.ts`; leave functional
+- [x] Env (underscores): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, 7 price IDs; update `env.example`
 - [ ] Manual prereq (owner): create products/prices in Stripe dashboard, test mode first, names like "Starter (Founding)"
 
 ### Files
@@ -98,11 +98,11 @@
 ## Phase 3: Billing UI + Founding-Member System
 
 ### Tasks
-- [ ] Create `src/components/marketing/founding-member-banner.tsx` + counter (server component using `getFoundingMemberCount()`); honest copy — "Be one of the first 100" while count is low, real counter once meaningful; nb-* neo-brutalist styling, yellow accent
-- [ ] Modify `src/app/dashboard/billing/page.tsx`: plan display (Free/Starter/Pro/BYOK + Founding badge), credit balance + this-month usage meter, "Manage subscription" → portal route, upgrade CTAs from `plans.ts`; show "billed via Polar (legacy)" when active sub but no `stripeCustomerId`
-- [ ] Modify `src/components/billing/{subscribe-button,purchase-credits-button,subscribe-byok-button}.tsx`: new plan ids, copy from `plans.ts`
-- [ ] Modify `src/components/marketing/ai-pricing-section.tsx` + `pricing-card.tsx`/`pricing-grid.tsx`: 3-tier model + credit packs + BYOK footnote + founding price labels
-- [ ] Create `src/app/pricing/page.tsx` (route doesn't exist today): hero + 3 tiers + credit packs + FAQ + founding banner; metadata + Offer JSON-LD (pattern from `src/lib/seo/json-ld.ts`)
+- [x] Create `src/components/marketing/founding-member-banner.tsx` + counter (server component using `getFoundingMemberCount()`); honest copy — "Be one of the first 100" while count is low, real counter once meaningful; nb-* neo-brutalist styling, yellow accent
+- [x] Modify `src/app/dashboard/billing/page.tsx`: plan display (Free/Starter/Pro/BYOK + Founding badge), credit balance + this-month usage meter, "Manage subscription" → portal route, upgrade CTAs from `plans.ts`; show "billed via Polar (legacy)" when active sub but no `stripeCustomerId`
+- [x] Modify `src/components/billing/{subscribe-button,purchase-credits-button,subscribe-byok-button}.tsx`: new plan ids, copy from `plans.ts`
+- [x] Modify `src/components/marketing/ai-pricing-section.tsx` + `pricing-card.tsx`/`pricing-grid.tsx`: 3-tier model + credit packs + BYOK footnote + founding price labels
+- [x] Create `src/app/pricing/page.tsx` (route doesn't exist today): hero + 3 tiers + credit packs + FAQ + founding banner; metadata + Offer JSON-LD (pattern from `src/lib/seo/json-ld.ts`)
 
 ### Files
 - `src/components/marketing/founding-member-banner.tsx` (new)
@@ -116,11 +116,11 @@
 ## Phase 4: Finish Stub Tools + Tools Hub Redesign
 
 ### Tasks
-- [ ] `src/lib/data/ai-tools.ts`: `business-description-writer` + `email-template-generator` → `status: "available"` (their prompts already exist in `TOOL_PROMPTS`; the generate route never checked `status`); replace `tier` with `category` ("reviews" | "marketing" | "content" | "images") + `costLabel` ("1 credit")
-- [ ] Ripple through `AITool` type (`src/lib/types/business.ts`) and `TierBadge` (`src/components/shared/tier-badge.tsx` → "Free to try"/cost badge)
-- [ ] **Caution:** `featured`/`enhanced` also name BUSINESS listing tiers (business-card, category/search pages) — directory concepts, untouched. Only chase USER-tier hits: `src/app/dashboard/page.tsx`, ai-tools pages, `src/app/generate/generate-client.tsx`, `src/types/dashboard.ts`
-- [ ] Rewrite `src/app/ai-tools/page.tsx` (hub): founding banner; category-grouped tool cards with one-sentence plain-language benefits + example peeks; Review Collector pinned first; signed-in usage meter via `getUserTierData()`; pricing teaser
-- [ ] Modify `src/app/ai-tools/[slug]/page.tsx`: delete `PremiumToolGate` blur path; signed-out → real example I/O + "Create a free account — 10 free credits every month" CTA; signed-in → `AIToolInterface`; keep review-collector/image-generator special pages
+- [x] `src/lib/data/ai-tools.ts`: `business-description-writer` + `email-template-generator` → `status: "available"` (their prompts already exist in `TOOL_PROMPTS`; the generate route never checked `status`); replace `tier` with `category` ("reviews" | "marketing" | "content" | "images") + `costLabel` ("1 credit")
+- [x] Ripple through `AITool` type (`src/lib/types/business.ts`) and `TierBadge` (`src/components/shared/tier-badge.tsx` → "Free to try"/cost badge)
+- [x] **Caution:** `featured`/`enhanced` also name BUSINESS listing tiers (business-card, category/search pages) — directory concepts, untouched. Only chase USER-tier hits: `src/app/dashboard/page.tsx`, ai-tools pages, `src/app/generate/generate-client.tsx`, `src/types/dashboard.ts`
+- [x] Rewrite `src/app/ai-tools/page.tsx` (hub): founding banner; category-grouped tool cards with one-sentence plain-language benefits + example peeks; Review Collector pinned first; signed-in usage meter via `getUserTierData()`; pricing teaser
+- [x] Modify `src/app/ai-tools/[slug]/page.tsx`: delete `PremiumToolGate` blur path; signed-out → real example I/O + "Create a free account — 10 free credits every month" CTA; signed-in → `AIToolInterface`; keep review-collector/image-generator special pages
 
 ### Files
 - `src/lib/data/ai-tools.ts` (edit)
@@ -134,9 +134,9 @@
 ## Phase 5: Homepage Repositioning + Nav/Footer
 
 ### Tasks
-- [ ] Rewrite `src/app/page.tsx`: hero "AI tools for Fredericton businesses — get in early" (AuthDialog CTA + founding banner) → Review Collector flagship card (keep `ReviewCollectorDemoWidget`) → toolbox grid (updated `LighterToolsGrid`, 6 tools) → **directory section** reusing `HeroSection` search + `CategoryGrid` + `FeaturedBusinessesWrapper` from `src/components/home/` (already used by `/home-12-04-25`) → pricing teaser → updated `HomepageFaq` (+ plan/founding entries in `homepage-faq-data.ts`); keep `generateHomepageSchema` JSON-LD + `revalidate = 60`
-- [ ] Modify `src/components/site-header.tsx`: Browse Directory (/search), AI Tools, Pricing, Blog, Dashboard/Sign-in
-- [ ] Modify `src/components/site-footer.tsx`: platform framing; fix dead links (Contact → /consultation; drop or re-point /about /advertise; real routes: /search /ai-tools /pricing /blog /add-business /privacy /terms /refund)
+- [x] Rewrite `src/app/page.tsx`: hero "AI tools for Fredericton businesses — get in early" (AuthDialog CTA + founding banner) → Review Collector flagship card (keep `ReviewCollectorDemoWidget`) → toolbox grid (updated `LighterToolsGrid`, 6 tools) → **directory section** reusing `HeroSection` search + `CategoryGrid` + `FeaturedBusinessesWrapper` from `src/components/home/` (already used by `/home-12-04-25`) → pricing teaser → updated `HomepageFaq` (+ plan/founding entries in `homepage-faq-data.ts`); keep `generateHomepageSchema` JSON-LD + `revalidate = 60`
+- [x] Modify `src/components/site-header.tsx`: Browse Directory (/search), AI Tools, Pricing, Blog, Dashboard/Sign-in (+ `mobile-nav.tsx` kept in sync)
+- [x] Modify `src/components/site-footer.tsx`: platform framing; fix dead links (Contact → /consultation; drop or re-point /about /advertise; real routes: /search /ai-tools /pricing /blog /add-business /privacy /terms /refund)
 
 ### Files
 - `src/app/page.tsx` (rewrite)
@@ -148,8 +148,8 @@
 ## Phase 6: Loose Ends
 
 ### Tasks
-- [ ] `src/app/api/chat/route.ts`: require Better Auth session; `canGenerateWithDetails(userId, 1)`; meter in `streamText` `onFinish` (consume credit vs `incrementTokenUsage` split); `/chat` page gets sign-in gate
-- [ ] Success stories: unlink `src/app/success-stories/` from nav + honest placeholder copy — fabricated "150+ businesses / 340% ROI" stats cannot sit next to an honest founding counter (owner decides on real numbers later)
+- [x] `src/app/api/chat/route.ts`: require Better Auth session; `canGenerateWithDetails(userId, 1)`; meter in `streamText` `onFinish` (consume credit vs `incrementTokenUsage` split); `/chat` page gets sign-in gate (AuthDialog CTA) + out-of-credits banner in `chat-client.tsx`
+- [x] Success stories: unlink `src/app/success-stories/` from nav + honest placeholder copy — fabricated "150+ businesses / 340% ROI" stats cannot sit next to an honest founding counter (owner decides on real numbers later). Fabricated case-study grid also unpublished (data kept in `case-studies.ts` for real stories later)
 
 ### Files
 - `src/app/api/chat/route.ts` (edit)
@@ -160,16 +160,20 @@
 
 ## Phase 7: Verification (gates merge)
 
-- [ ] `pnpm lint && pnpm typecheck` after each phase; `pnpm build` before merge
-- [ ] Stripe test mode with `stripe listen --forward-to localhost:3000/api/webhooks/stripe`:
-  - [ ] Free signup → 10 credits; generate → 9; rewind `freeCreditsGrantedMonth` → topped back to 10
-  - [ ] Starter checkout (4242 card) → sub active + 100 credits + founding flag + email; `stripe trigger invoice.paid` → +100, expiry extended (billing_reason guard explicitly tested)
-  - [ ] Pro checkout → no credit deduction (regression for double-charge bug), soft-cap meter increments
-  - [ ] Credit pack → balance +N, ledger row, confirmation email
-  - [ ] Portal cancel-at-period-end → access retained until expiry; `subscription.deleted` → tier cleared
-  - [ ] Polar regression: replay a Polar `subscription.updated` → still extends, normalized to `pro`
-  - [ ] `/api/chat` unauthenticated → 401
-- [ ] Manual UI pass: `/`, `/pricing`, `/ai-tools`, both new tools generate real output, `/dashboard/billing`, all header/footer links resolve
+> 2026-07-12 automated pass: everything not requiring Stripe dashboard products/keys/CLI is verified.
+> DB-level checks live in `scripts/verify-phase7-credits.ts` (rerunnable: `set -a; source .env.local; set +a; npx tsx scripts/verify-phase7-credits.ts` — 14/14 passing).
+> Runtime checks ran against a production build (`next start` on :3100).
+
+- [x] `pnpm lint && pnpm typecheck` after each phase; `pnpm build` before merge (full build incl. `db:migrate` passes with `.env.local` sourced)
+- [ ] Stripe test mode with `stripe listen --forward-to localhost:3000/api/webhooks/stripe` — **BLOCKED on owner prereq** (Phase 2: create products/prices in Stripe dashboard; no `STRIPE_*` env vars or Stripe CLI on this machine yet):
+  - [x] Free signup → 10 credits; generate → 9; rewind `freeCreditsGrantedMonth` → topped back to 10 (verified at DB level via script; same-month no-re-grant also verified)
+  - [ ] Starter checkout (4242 card) → sub active + 100 credits + founding flag + email; `stripe trigger invoice.paid` → +100, expiry extended (billing_reason guard explicitly tested) — needs Stripe CLI. DB primitives verified: starter eligibility uses credits; `markFoundingMember` idempotent + cap-safe; `activateSubscription` stores exact `expiresAt` (no drift)
+  - [ ] Pro checkout → no credit deduction — needs Stripe CLI. DB-level regression verified: pro eligibility reason `subscription`, balance untouched, soft-cap meter increments
+  - [ ] Credit pack → balance +N, ledger row, confirmation email — needs Stripe CLI
+  - [ ] Portal cancel-at-period-end → access retained until expiry; `subscription.deleted` → tier cleared — needs Stripe CLI. DB primitive verified: `endSubscriptionImmediately` clears tier; legacy `monthly` normalizes to `pro`
+  - [ ] Polar regression: replay a Polar `subscription.updated` → still extends, normalized to `pro` (normalization itself verified at DB level)
+  - [x] `/api/chat` unauthenticated → 401 (verified against production build)
+- [x] Manual UI pass (automated smoke against production build): `/`, `/pricing`, `/ai-tools`, `/dashboard/billing` (unauth → redirects to `/`), all header/footer links resolve 200; homepage emits JSON-LD (2 blocks incl. FAQ w/ founding entries); `/pricing` emits 7 Offer entities; no fabricated stats on `/success-stories`. Still owner-manual: both new tools generate real output signed-in (needs a browser session)
 
 ## Risks
 

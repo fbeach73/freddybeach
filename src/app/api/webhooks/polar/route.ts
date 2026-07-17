@@ -1,3 +1,5 @@
+// SUNSET: legacy Polar billing — existing subscribers only. All new checkouts go through Stripe.
+
 /**
  * Polar Webhook Handler
  *

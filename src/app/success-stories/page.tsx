@@ -1,96 +1,44 @@
-import { CaseStudyCard } from "@/components/marketing/case-study-card";
 import { CTASection } from "@/components/marketing/cta-section";
 import { SectionHero } from "@/components/marketing/section-hero";
-import { TrustSignals } from "@/components/marketing/trust-signals";
-import { getCaseStudies } from "@/lib/data/case-studies";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Success Stories | FreddyBeach Directory",
   description:
-    "See how Fredericton businesses are saving time and growing with AI-powered tools. Real results from real local businesses.",
+    "FreddyBeach is just getting started. Our founding members will be our first success stories — see how Fredericton businesses use our AI tools.",
   openGraph: {
     title: "Success Stories | FreddyBeach Directory",
     description:
-      "See how Fredericton businesses are saving time and growing with AI-powered tools. Real results from real local businesses.",
+      "FreddyBeach is just getting started. Our founding members will be our first success stories — see how Fredericton businesses use our AI tools.",
   },
 };
 
-const heroStats = [
-  {
-    label: "Businesses Helped",
-    value: "150+",
-    icon: "building",
-  },
-  {
-    label: "Hours Saved Weekly",
-    value: "500+",
-    icon: "clock",
-  },
-  {
-    label: "Average ROI",
-    value: "340%",
-    icon: "trending",
-  },
-  {
-    label: "Satisfaction Rate",
-    value: "98%",
-    icon: "star",
-  },
-];
-
+// Honest placeholder page: fabricated stats and example case studies were
+// unpublished pending real numbers from real customers. The case-study data
+// (src/lib/data/case-studies.ts) and card components remain in the repo for
+// the owner to swap in real stories later.
 export default function SuccessStoriesPage() {
-  const caseStudies = getCaseStudies();
-
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <SectionHero
-        title="Real Results from Real Fredericton Businesses"
-        subtitle="Discover how local businesses are transforming their operations, saving hours every week, and growing their customer base with our AI-powered tools."
+        title="We're Just Getting Started"
+        subtitle="FreddyBeach is new, and we won't show you made-up numbers. Our founding members will be our first success stories — real Fredericton businesses, real results, published here as they happen."
         gradient
         primaryCTA={{
-          text: "Start Your Success Story",
-          href: "/consultation",
+          text: "Become a Founding Member",
+          href: "/pricing",
         }}
         secondaryCTA={{
-          text: "Try Free Tools",
+          text: "Try the Tools Free",
           href: "/ai-tools",
         }}
-      >
-        {/* Stats Bar Below Hero */}
-        <div className="mt-12">
-          <TrustSignals stats={heroStats} />
-        </div>
-      </SectionHero>
-
-      {/* Case Studies Grid Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <div className="h-2 bg-nb-green border-2 border-nb-border mb-6 mx-auto max-w-xs" />
-            <h2 className="mb-4 text-2xl font-bold tracking-tight md:text-3xl uppercase">
-              Featured Success Stories
-            </h2>
-            <p className="mx-auto max-w-2xl text-muted-foreground">
-              From barbershops to tech companies, see how businesses across
-              Fredericton are using AI to work smarter, not harder.
-            </p>
-          </div>
-
-          {/* Case Studies - Single column with alternating layout feel */}
-          <div className="mx-auto max-w-4xl space-y-8">
-            {caseStudies.map((caseStudy) => (
-              <CaseStudyCard key={caseStudy.id} caseStudy={caseStudy} />
-            ))}
-          </div>
-        </div>
-      </section>
+      />
 
       {/* Your Story CTA Section */}
       <CTASection
         headline="Your Success Story Starts Here"
-        subheadline="Join the growing community of Fredericton businesses saving time and money with AI-powered tools. Book a free consultation to discover what's possible."
+        subheadline="Be one of the first Fredericton businesses on the platform. Book a free consultation to discover what's possible."
         primaryCTA={{
           text: "Book Free AI Audit",
           href: "/consultation",

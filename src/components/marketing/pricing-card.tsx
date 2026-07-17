@@ -10,23 +10,77 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AuthDialog } from "@/components/auth/auth-dialog";
+import { SubscribeButton } from "@/components/billing";
 import type { PricingTier } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 interface PricingCardProps {
   tier: PricingTier;
   className?: string;
   highlighted?: boolean;
+  /** Signed-in users get direct checkout; signed-out users get the sign-up dialog */
+  isAuthenticated?: boolean;
+}
+
+// Plan ids that map straight to the Stripe subscription checkout
+const SUBSCRIBABLE_PLANS = ["starter", "pro"] as const;
+type SubscribablePlan = (typeof SUBSCRIBABLE_PLANS)[number];
+
+function isSubscribablePlan(id: string): id is SubscribablePlan {
+  return SUBSCRIBABLE_PLANS.includes(id as SubscribablePlan);
 }
 
 export function PricingCard({
   tier,
   className,
   highlighted = false,
+  isAuthenticated = false,
 }: PricingCardProps) {
   const isPopular = tier.isPopular || highlighted;
+
+  const cta = (() => {
+    if (!isAuthenticated) {
+      return (
+        <AuthDialog defaultTab="sign-up">
+          <Button
+            className="w-full"
+            variant={isPopular ? "default" : "outline"}
+            size="lg"
+          >
+            {tier.ctaText}
+          </Button>
+        </AuthDialog>
+      );
+    }
+
+    if (isSubscribablePlan(tier.id)) {
+      return (
+        <SubscribeButton
+          plan={tier.id}
+          className="w-full"
+          variant={isPopular ? "default" : "outline"}
+          size="lg"
+        >
+          {tier.ctaText}
+        </SubscribeButton>
+      );
+    }
+
+    // Free plan for signed-in users: straight to the tools
+    return (
+      <Button
+        asChild
+        className="w-full"
+        variant={isPopular ? "default" : "outline"}
+        size="lg"
+      >
+        <Link href="/ai-tools">{tier.ctaText}</Link>
+      </Button>
+    );
+  })();
 
   return (
     <Card
@@ -50,6 +104,12 @@ export function PricingCard({
             <span className="text-muted-foreground">/{tier.period}</span>
           )}
         </div>
+        {tier.foundingPriceLabel && (
+          <p className="mt-2 inline-flex items-center justify-center gap-1 border-2 border-nb-border bg-nb-yellow px-2 py-1 text-xs font-bold text-black">
+            <Sparkles className="h-3 w-3" aria-hidden="true" />
+            {tier.foundingPriceLabel}
+          </p>
+        )}
         <CardDescription className="mt-2">{tier.description}</CardDescription>
       </CardHeader>
 
@@ -64,18 +124,7 @@ export function PricingCard({
         </ul>
       </CardContent>
 
-      <CardFooter>
-        <Button
-          asChild
-          className="w-full"
-          variant={isPopular ? "default" : "outline"}
-          size="lg"
-        >
-          <Link href={tier.price === 0 ? "/claim" : `/pricing/${tier.id}`}>
-            {tier.ctaText}
-          </Link>
-        </Button>
-      </CardFooter>
+      <CardFooter>{cta}</CardFooter>
     </Card>
   );
 }

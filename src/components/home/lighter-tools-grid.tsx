@@ -1,15 +1,9 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { aiTools } from "@/lib/data/ai-tools";
-
-const HIGHLIGHTED_SLUGS = [
-  "review-responder",
-  "social-post-generator",
-  "image-generator",
-];
+import { getAvailableTools } from "@/lib/data/ai-tools";
 
 export function LighterToolsGrid() {
-  const tools = aiTools.filter((t) => HIGHLIGHTED_SLUGS.includes(t.slug));
+  const tools = getAvailableTools();
   if (tools.length === 0) return null;
 
   return (
@@ -17,20 +11,25 @@ export function LighterToolsGrid() {
       <div className="mb-8">
         <div className="w-16 h-2 bg-nb-green mb-4" />
         <h2 className="text-2xl md:text-3xl font-black uppercase">
-          More tools as you grow
+          The whole toolbox
         </h2>
         <p className="mt-2 text-muted-foreground">
-          Every FreddyBeach account also gets:
+          Six tools, one account. Every one works on the free plan.
         </p>
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {tools.map((t) => (
           <Link
             key={t.id}
             href={`/ai-tools/${t.slug}`}
             className="nb-card bg-card p-5 group hover:bg-muted/50 transition-colors"
           >
-            <h3 className="font-bold mb-1">{t.name}</h3>
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <h3 className="font-bold">{t.name}</h3>
+              <span className="shrink-0 border-2 border-nb-border bg-background px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                {t.costLabel}
+              </span>
+            </div>
             <p className="text-sm text-muted-foreground mb-3">
               {t.shortDescription}
             </p>

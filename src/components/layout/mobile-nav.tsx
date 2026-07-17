@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, MapPin, Sparkles, Search, ChevronDown, Calendar } from "lucide-react";
+import { Menu, MapPin, Sparkles, Search, ChevronDown, Tag, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -26,14 +26,14 @@ const TOP_CATEGORIES_COUNT = 6;
 
 const mainNavItems = [
   {
-    title: "Browse",
+    title: "Browse Directory",
     href: "/search",
     icon: Search,
     description: "Search and explore local businesses",
   },
   {
     title: "Browse Categories",
-    href: "#categories",
+    href: "/#categories",
     icon: MapPin,
     isSection: true,
   },
@@ -41,13 +41,19 @@ const mainNavItems = [
     title: "AI Tools",
     href: "/ai-tools",
     icon: Sparkles,
-    description: "Free AI tools for local businesses",
+    description: "AI tools for local businesses",
   },
   {
-    title: "Consultation",
-    href: "/consultation",
-    icon: Calendar,
-    description: "Book a free AI audit for your business",
+    title: "Pricing",
+    href: "/pricing",
+    icon: Tag,
+    description: "Start free — 10 credits every month",
+  },
+  {
+    title: "Blog",
+    href: "/blog",
+    icon: Newspaper,
+    description: "Local business tips and news",
   },
 ];
 

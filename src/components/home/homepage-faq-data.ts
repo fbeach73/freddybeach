@@ -22,7 +22,17 @@ export const HOMEPAGE_FAQ: FaqEntity[] = [
   {
     question: "What's free vs paid?",
     answer:
-      "The Review Collector is free for pilot businesses we're working with directly. Other AI tools (image generation, social posts, review replies) are available to all signed-up users. Paid tiers add higher generation limits and featured directory placement.",
+      "Every account gets 10 free credits a month, and one credit covers one AI generation — a review reply, a social post, an email. If you need more, Starter is $9/mo for 100 credits and Pro is $29/mo for unlimited use. Every tool works the same on every plan.",
+  },
+  {
+    question: "Do I need a credit card to start?",
+    answer:
+      "No. Sign up free and your 10 monthly credits are ready to use right away. They top back up every month, so you can keep using the tools free for as long as you like.",
+  },
+  {
+    question: "What's a founding member?",
+    answer:
+      "The first 100 businesses to subscribe lock in their founding price for life. If prices go up later, yours never does. No fine print, no fake countdown timers.",
   },
   {
     question: "Can I use my regular Gmail for sending review requests?",

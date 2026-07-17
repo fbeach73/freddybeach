@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Key, Loader2 } from "lucide-react";
+import { Settings, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-interface SubscribeByokButtonProps {
+interface ManageSubscriptionButtonProps {
   className?: string;
   /** Custom button text (optional) */
   children?: React.ReactNode;
@@ -15,43 +15,43 @@ interface SubscribeByokButtonProps {
   size?: "default" | "sm" | "lg" | "icon";
 }
 
-export function SubscribeByokButton({
+/**
+ * Opens the Stripe billing portal where the user can update payment
+ * methods, view invoices, or cancel their subscription.
+ */
+export function ManageSubscriptionButton({
   className,
   children,
-  variant = "default",
+  variant = "outline",
   size = "default",
-}: SubscribeByokButtonProps) {
+}: ManageSubscriptionButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSubscribe() {
+  async function handleOpenPortal() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/checkout/byok", {
+      const response = await fetch("/api/billing/portal", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create checkout session");
+        throw new Error(data.error || "Failed to open billing portal");
       }
 
-      if (data.checkoutUrl) {
-        // Redirect to Stripe checkout
-        window.location.href = data.checkoutUrl;
+      if (data.portalUrl) {
+        window.location.href = data.portalUrl;
       } else {
-        throw new Error("No checkout URL returned");
+        throw new Error("No portal URL returned");
       }
     } catch (error) {
-      console.error("Subscribe error:", error);
+      console.error("Billing portal error:", error);
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to start checkout. Please try again."
+          : "Failed to open billing portal. Please try again."
       );
       setIsLoading(false);
     }
@@ -59,7 +59,7 @@ export function SubscribeByokButton({
 
   return (
     <Button
-      onClick={handleSubscribe}
+      onClick={handleOpenPortal}
       disabled={isLoading}
       className={className}
       variant={variant}
@@ -68,14 +68,14 @@ export function SubscribeByokButton({
       {isLoading ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Processing...
+          Opening...
         </>
       ) : children ? (
         children
       ) : (
         <>
-          <Key className="mr-2 h-4 w-4" />
-          Subscribe to BYOK Pro
+          <Settings className="mr-2 h-4 w-4" />
+          Manage Subscription
         </>
       )}
     </Button>

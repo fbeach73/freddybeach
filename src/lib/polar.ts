@@ -1,3 +1,4 @@
+// SUNSET: legacy Polar billing — existing subscribers only. All new checkouts go through Stripe.
 import { Polar } from "@polar-sh/sdk";
 
 // Initialize Polar client with access token

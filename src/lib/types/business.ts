@@ -119,6 +119,8 @@ export interface Testimonial {
   isFeatured: boolean;
 }
 
+export type AIToolCategory = "reviews" | "marketing" | "content" | "images";
+
 export interface AITool {
   id: string;
   name: string;
@@ -126,7 +128,9 @@ export interface AITool {
   description: string;
   shortDescription: string;
   icon: string; // Lucide icon name
-  tier: "free" | "enhanced" | "featured";
+  category: AIToolCategory;
+  /** Plain-language cost shown on cards, e.g. "1 credit", "Free" */
+  costLabel: string;
   status: "available" | "coming-soon";
   usageCount: number;
   exampleInput: string;
@@ -207,6 +211,8 @@ export interface PricingTier {
   features: string[];
   ctaText: string;
   isPopular: boolean;
+  /** Shown while the founding-member offer is live (e.g. "founding price, locked in") */
+  foundingPriceLabel?: string;
 }
 
 // User Dashboard Types

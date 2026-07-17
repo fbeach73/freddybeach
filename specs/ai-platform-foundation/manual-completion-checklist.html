@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Platform Foundation — Manual Completion Checklist</title>
+<style>
+  :root {
+    --yellow: #facc15;
+    --green: #4ade80;
+    --orange: #fb923c;
+    --red: #f87171;
+    --border: #111;
+    --bg: #fffbeb;
+    --card: #fff;
+    --muted: #555;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: #111;
+    margin: 0;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
+  header.hero {
+    border: 3px solid var(--border);
+    background: var(--yellow);
+    box-shadow: 6px 6px 0 var(--border);
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 1.9rem; text-transform: uppercase; letter-spacing: .5px; }
+  header.hero p { margin: 4px 0; font-weight: 600; }
+  .progress-shell { margin-top: 16px; border: 3px solid var(--border); background: #fff; height: 28px; position: relative; }
+  .progress-fill { background: var(--green); height: 100%; width: 0%; transition: width .2s; }
+  .progress-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .85rem; }
+
+  section.card {
+    border: 3px solid var(--border);
+    background: var(--card);
+    box-shadow: 6px 6px 0 var(--border);
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  section.card > h2 {
+    margin: -24px -24px 18px;
+    padding: 12px 24px;
+    border-bottom: 3px solid var(--border);
+    background: var(--yellow);
+    font-size: 1.15rem;
+    text-transform: uppercase;
+  }
+  section.card.optional > h2 { background: #e5e7eb; }
+  h3 { margin: 22px 0 8px; font-size: 1rem; text-transform: uppercase; border-left: 8px solid var(--yellow); padding-left: 10px; }
+  p.note { color: var(--muted); font-size: .92rem; }
+
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 18px; font-size: .9rem; }
+  th, td { border: 2px solid var(--border); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #111; color: #fff; text-transform: uppercase; font-size: .78rem; letter-spacing: .5px; }
+  .table-scroll { overflow-x: auto; }
+
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: #111; color: #fef08a;
+    font-size: .84rem;
+  }
+  code { padding: 1px 6px; border-radius: 0; white-space: nowrap; }
+  pre { padding: 12px 14px; overflow-x: auto; margin: 8px 0 14px; border: 2px solid var(--border); }
+  pre code { padding: 0; white-space: pre; }
+
+  ul.checklist { list-style: none; padding: 0; margin: 0; }
+  ul.checklist li {
+    display: flex; gap: 12px; align-items: flex-start;
+    border: 2px solid var(--border); background: #fff;
+    padding: 12px 14px; margin-bottom: 10px;
+  }
+  ul.checklist li.done { background: #ecfdf5; }
+  ul.checklist li.done .item-text { text-decoration: line-through; opacity: .65; }
+  ul.checklist input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; accent-color: #111; flex-shrink: 0; cursor: pointer; }
+  .item-text { flex: 1; }
+  .item-text strong { display: block; }
+  .expect { display: block; margin-top: 6px; font-size: .86rem; background: #f0fdf4; border-left: 6px solid var(--green); padding: 6px 10px; }
+  .expect::before { content: "Expected: "; font-weight: 800; }
+
+  .tag { display: inline-block; border: 2px solid var(--border); padding: 1px 8px; font-size: .72rem; font-weight: 800; text-transform: uppercase; margin-left: 6px; vertical-align: middle; }
+  .tag.blocker { background: var(--red); }
+  .tag.decision { background: var(--orange); }
+  .tag.optional { background: #e5e7eb; }
+  .tag.done { background: var(--green); }
+
+  .status-done { background: #ecfdf5; }
+  .callout { border: 3px solid var(--border); border-left: 12px solid var(--orange); background: #fff7ed; padding: 12px 16px; margin: 14px 0; font-size: .93rem; }
+  .callout.warn { border-left-color: var(--red); background: #fef2f2; }
+  footer { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 40px; }
+  @media print {
+    body { background: #fff; }
+    section.card, header.hero { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Finish the AI Platform Foundation</h1>
+  <p>All 7 phases are <strong>code-complete and machine-verified</strong> (lint, typecheck, full build, 14/14 DB-level credit-system checks, runtime smoke tests). What's left is the work only a human with dashboard access can do.</p>
+  <p>Work top to bottom — Parts A → B → C must go in order. Checkbox state saves in this browser automatically.</p>
+  <div class="progress-shell"><div class="progress-fill" id="fill"></div><div class="progress-label" id="label"></div></div>
+</header>
+
+<!-- ============================================================ -->
+<section class="card">
+  <h2>Where the 7 phases stand</h2>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Phase</th><th>What it delivered</th><th>Status</th></tr>
+    <tr class="status-done"><td>1 — Plans + tiers</td><td><code>plans.ts</code> source of truth; Free/Starter/Pro/BYOK tiers; legacy monthly/yearly → pro; double-charge + refine-route bugs fixed; schema columns + migration</td><td>✅ Done &amp; verified</td></tr>
+    <tr class="status-done"><td>2 — Stripe foundation</td><td>Stripe client, checkout routes, billing portal route, webhook handler (with <code>billing_reason</code> guard); Polar marked sunset</td><td>✅ Code done — <strong>needs your Stripe dashboard setup (Part A)</strong></td></tr>
+    <tr class="status-done"><td>3 — Billing UI + founding member</td><td>Founding banner + honest counter, rebuilt billing page, new <code>/pricing</code> page with Offer JSON-LD</td><td>✅ Done &amp; verified</td></tr>
+    <tr class="status-done"><td>4 — Tools hub</td><td>2 stub tools finished (business description, email templates); category-based hub; blur gate removed</td><td>✅ Done — <strong>needs one signed-in smoke test (Part C)</strong></td></tr>
+    <tr class="status-done"><td>5 — Homepage + nav/footer</td><td>Platform-first homepage (hero → flagship → toolbox → directory → pricing → FAQ); header/footer reframed; dead links fixed</td><td>✅ Done &amp; verified</td></tr>
+    <tr class="status-done"><td>6 — Loose ends</td><td><code>/api/chat</code> gated + metered (401 verified live); success-stories honesty pass</td><td>✅ Done &amp; verified</td></tr>
+    <tr class="status-done"><td>7 — Verification</td><td>Everything automatable passed. Rerunnable script: <code>scripts/verify-phase7-credits.ts</code></td><td>✅ Automated portion done — <strong>Stripe live-flow tests below (Part C)</strong></td></tr>
+  </table>
+  </div>
+  <p class="note">Re-run the automated checks anytime:</p>
+<pre><code>pnpm lint && pnpm typecheck
+set -a; source .env.local; set +a; pnpm build
+set -a; source .env.local; set +a; npx tsx scripts/verify-phase7-credits.ts</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<section class="card">
+  <h2>Part A — Stripe dashboard setup <span class="tag blocker">Blocks everything below</span></h2>
+  <p>Do all of this in <strong>Test mode</strong> first (toggle top-right in the Stripe dashboard). You'll repeat it in Live mode in Part D.</p>
+
+  <h3>A1. Create the products &amp; prices</h3>
+  <p>Products → Add product. Use <strong>CAD</strong>. Name the paid plans with "(Founding)" so it's obvious on invoices that these are the locked founding prices — when you raise prices later, you create <em>new</em> prices and existing subscribers keep these (that's Stripe's native price lock, which is the whole founding-member promise).</p>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Product name</th><th>Type</th><th>Amount</th><th>Paste the price ID (price_…) into</th></tr>
+    <tr><td>Starter (Founding)</td><td>Recurring / monthly</td><td>$9.00</td><td><code>STRIPE_PRICE_STARTER_MONTHLY</code></td></tr>
+    <tr><td>Pro (Founding)</td><td>Recurring / monthly</td><td>$29.00</td><td><code>STRIPE_PRICE_PRO_MONTHLY</code></td></tr>
+    <tr><td>Pro (Founding) — yearly</td><td>Recurring / yearly</td><td>Your call — nothing in the UI sells yearly yet; a common move is 2 months free ($290/yr)</td><td><code>STRIPE_PRICE_PRO_YEARLY</code></td></tr>
+    <tr><td>BYOK Pro</td><td>Recurring / monthly</td><td>$7.99</td><td><code>STRIPE_PRICE_BYOK_PRO</code></td></tr>
+    <tr><td>Starter Pack — 10 credits</td><td>One-time</td><td>$1.99</td><td><code>STRIPE_PRICE_CREDITS_10</code></td></tr>
+    <tr><td>Popular Pack — 50 credits</td><td>One-time</td><td>$6.99</td><td><code>STRIPE_PRICE_CREDITS_50</code></td></tr>
+    <tr><td>Value Pack — 100 credits</td><td>One-time</td><td>$9.99</td><td><code>STRIPE_PRICE_CREDITS_100</code></td></tr>
+  </table>
+  </div>
+
+  <ul class="checklist">
+    <li><input type="checkbox" id="a1"><span class="item-text"><strong>Create all 7 products/prices in Test mode</strong> and copy each <code>price_…</code> ID as you go.</span></li>
+    <li><input type="checkbox" id="a2"><span class="item-text"><strong>Get your test API key</strong> — dashboard → Developers → API keys → copy the <code>sk_test_…</code> secret key.</span></li>
+    <li><input type="checkbox" id="a3"><span class="item-text"><strong>Enable the customer billing portal</strong> — Settings → Billing → Customer portal → activate, and allow "Cancel subscription" (the app's "Manage subscription" button opens this portal; cancel is set to at-period-end).</span></li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section class="card">
+  <h2>Part B — Local environment &amp; tooling</h2>
+
+  <h3>B1. Add the Stripe vars to <code>.env.local</code></h3>
+  <p>The exact block already exists as a template in <code>env.example</code> (lines 33–47). Copy it into <code>.env.local</code> and fill in the values from Part A:</p>
+<pre><code>STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...        # comes from `stripe listen` in B2
+STRIPE_PRICE_STARTER_MONTHLY=price_...
+STRIPE_PRICE_PRO_MONTHLY=price_...
+STRIPE_PRICE_PRO_YEARLY=price_...
+STRIPE_PRICE_BYOK_PRO=price_...
+STRIPE_PRICE_CREDITS_10=price_...
+STRIPE_PRICE_CREDITS_50=price_...
+STRIPE_PRICE_CREDITS_100=price_...</code></pre>
+
+  <h3>B2. Install the Stripe CLI and connect the webhook</h3>
+<pre><code>brew install stripe/stripe-cli/stripe
+stripe login                # opens browser, pair with your account
+stripe listen --forward-to localhost:3000/api/webhooks/stripe</code></pre>
+  <p><code>stripe listen</code> prints a signing secret (<code>whsec_…</code>) — that's your local <code>STRIPE_WEBHOOK_SECRET</code>. Keep this terminal running through all of Part C.</p>
+
+  <ul class="checklist">
+    <li><input type="checkbox" id="b1"><span class="item-text"><strong>All 9 Stripe vars filled in <code>.env.local</code></strong> (names use underscores exactly as shown).</span></li>
+    <li><input type="checkbox" id="b2"><span class="item-text"><strong>Stripe CLI installed and logged in</strong>; <code>stripe listen</code> running and its <code>whsec_…</code> pasted into <code>STRIPE_WEBHOOK_SECRET</code>.</span></li>
+    <li><input type="checkbox" id="b3"><span class="item-text"><strong>Start the dev server</strong> (<code>pnpm dev</code>) in another terminal. Restart it whenever you change <code>.env.local</code>.</span></li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section class="card">
+  <h2>Part C — Test-mode verification runbook</h2>
+  <p>These are the unchecked Phase 7 items. Use Stripe's test card <code>4242 4242 4242 4242</code> (any future expiry, any CVC). Watch the <code>stripe listen</code> terminal — every event should show a <code>200</code> response from your app. Check balances at <code>/dashboard/billing</code>.</p>
+
+  <ul class="checklist">
+    <li><input type="checkbox" id="c1"><span class="item-text">
+      <strong>Starter checkout</strong> — sign in with a fresh test account, go to <code>/pricing</code>, subscribe to Starter with the 4242 card.
+      <span class="expect">Subscription active on the billing page, credit balance +100, founding-member badge appears, founding counter on <code>/pricing</code> ticks up by 1, confirmation email arrives.</span>
+    </span></li>
+    <li><input type="checkbox" id="c2"><span class="item-text">
+      <strong>Renewal grant (the load-bearing guard)</strong> — with the Starter account from C1, run:
+      <pre><code>stripe trigger invoice.paid</code></pre>
+      <span class="expect">Balance +100 more and expiry extended. Critically: the checkout in C1 must have granted 100 only ONCE (the webhook skips the first invoice via <code>billing_reason === "subscription_create"</code>). If C1 ended at 200 credits, that guard is broken — stop and investigate <code>src/app/api/webhooks/stripe/route.ts:460</code>.</span>
+    </span></li>
+    <li><input type="checkbox" id="c3"><span class="item-text">
+      <strong>Pro checkout (double-charge regression)</strong> — second test account: buy a small credit pack first, note the balance, then subscribe to Pro. Generate with any text tool a few times.
+      <span class="expect">Credit balance does NOT go down (Pro usage is metered against the soft cap, not credits). The usage meter on the billing page increments instead.</span>
+    </span></li>
+    <li><input type="checkbox" id="c4"><span class="item-text">
+      <strong>Credit pack purchase</strong> — any account: buy the 10-pack from <code>/pricing</code> or the billing page.
+      <span class="expect">Balance +10, a purchase row in the billing history, confirmation email arrives.</span>
+    </span></li>
+    <li><input type="checkbox" id="c5"><span class="item-text">
+      <strong>Cancel at period end</strong> — from <code>/dashboard/billing</code> → "Manage subscription" → cancel in the Stripe portal.
+      <span class="expect">Access/tier retained (billing page shows it ends at period end, not immediately).</span>
+    </span></li>
+    <li><input type="checkbox" id="c6"><span class="item-text">
+      <strong>Immediate deletion clears the tier</strong> — in the Stripe test dashboard, cancel that subscription <em>immediately</em> (or run <code>stripe trigger customer.subscription.deleted</code>).
+      <span class="expect">Tier cleared on the billing page; user falls back to credits/free.</span>
+    </span></li>
+    <li><input type="checkbox" id="c7"><span class="item-text">
+      <strong>Polar regression (legacy subscribers keep working)</strong> — replay a recent <code>subscription.updated</code> delivery from the Polar dashboard's webhook log against <code>/api/webhooks/polar</code> (or just confirm an existing Polar subscriber's expiry/tier on the billing page after their next renewal).
+      <span class="expect">Subscription still extends and shows as tier "pro" with the "billed via Polar (legacy)" label. (The monthly→pro normalization itself is already DB-verified.)</span>
+    </span></li>
+    <li><input type="checkbox" id="c8"><span class="item-text">
+      <strong>New tools produce real output</strong> — signed in, run <code>/ai-tools/business-description-writer</code> and <code>/ai-tools/email-template-generator</code> with real inputs.
+      <span class="expect">Real generated text (not an error), balance −1 per generation for a credits user.</span>
+    </span></li>
+    <li><input type="checkbox" id="c9"><span class="item-text">
+      <strong>Free-tier monthly top-up, end to end</strong> — brand-new account: balance should read 10; generate once → 9. (The rewind-the-month case is already covered by the automated script.)
+      <span class="expect">10 on signup view, 9 after one generation.</span>
+    </span></li>
+    <li><input type="checkbox" id="c10"><span class="item-text">
+      <strong>Visual pass</strong> — click through <code>/</code>, <code>/pricing</code>, <code>/ai-tools</code>, <code>/dashboard/billing</code> in light + dark mode and on a phone-width window. All routes already return 200 (machine-checked); this is a "does it look right" pass.
+    </span></li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section class="card">
+  <h2>Part D — Go live</h2>
+  <ul class="checklist">
+    <li><input type="checkbox" id="d1"><span class="item-text"><strong>Repeat Part A in Live mode</strong> — same 7 products/prices, copy the live <code>price_…</code> IDs and the <code>sk_live_…</code> key.</span></li>
+    <li><input type="checkbox" id="d2"><span class="item-text"><strong>Create the production webhook endpoint</strong> — dashboard → Developers → Webhooks → Add endpoint → <code>https://freddybeach.com/api/webhooks/stripe</code> with exactly these events: <code>checkout.session.completed</code>, <code>customer.subscription.created</code>, <code>customer.subscription.updated</code>, <code>customer.subscription.deleted</code>, <code>invoice.paid</code>. Copy its signing secret.</span></li>
+    <li><input type="checkbox" id="d3"><span class="item-text"><strong>Set all 9 vars in Vercel</strong> (Project → Settings → Environment Variables, Production): live key, endpoint signing secret, 7 live price IDs. Redeploy.</span></li>
+    <li><input type="checkbox" id="d4"><span class="item-text"><strong>Enable the customer portal in Live mode</strong> (same as A3).</span></li>
+    <li><input type="checkbox" id="d5"><span class="item-text"><strong>One real production smoke test</strong> — buy the $1.99 credit pack with a real card on the live site, confirm +10 credits and the email, then refund yourself from the Stripe dashboard.</span></li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section class="card">
+  <h2>Part E — Content decisions only you can make <span class="tag decision">Owner call</span></h2>
+  <ul class="checklist">
+    <li><input type="checkbox" id="e1"><span class="item-text">
+      <strong>Fix <code>/consultation</code>'s unverified stats</strong> — it still shows "150+ Businesses Helped", "98% Satisfaction Rate", and an unattributed testimonial ("Sarah Mitchell, Maritime Tech Solutions"). This is the same credibility problem Phase 6 removed from <code>/success-stories</code>, and the page is one click from the footer. Replace with honest copy or real numbers (<code>src/app/consultation/page.tsx</code>, lines ~19–40).
+    </span></li>
+    <li><input type="checkbox" id="e2"><span class="item-text">
+      <strong>Success stories: add real ones when you have them</strong> — <code>/success-stories</code> currently shows the honest "we're just getting started" placeholder. The old (fabricated) case-study data and card components were kept in the repo (<code>src/lib/data/case-studies.ts</code>) as a template for real stories from founding members.
+    </span></li>
+    <li><input type="checkbox" id="e3"><span class="item-text">
+      <strong>Decide whether yearly Pro is a thing</strong> — the webhook and env support <code>STRIPE_PRICE_PRO_YEARLY</code>, but no UI sells it. Either add a yearly toggle to <code>/pricing</code> later or ignore it.
+    </span></li>
+    <li><input type="checkbox" id="e4"><span class="item-text">
+      <strong>Optional copy polish</strong> — the homepage pricing teaser shows plain prices; the founding "locked for life" label only appears in the banner and on <code>/pricing</code>. Fine as-is; add <code>foundingPriceLabel</code> to the teaser cards if you want the founding pitch repeated there.
+    </span></li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section class="card optional">
+  <h2>Part F — Nice-to-haves (from the roadmap review, not blocking)</h2>
+  <ul class="checklist">
+    <li><input type="checkbox" id="f1"><span class="item-text"><strong>Fix local <code>pnpm build</code> env loading</strong> — <code>drizzle-kit</code> doesn't read <code>.env.local</code>, so the <code>db:migrate</code> step fails unless you source the env first (Vercel is unaffected). One-line fix: add <code>import "dotenv/config"</code> style loading of <code>.env.local</code> in <code>drizzle.config.ts</code>, or change the script to <code>dotenv -e .env.local -- drizzle-kit migrate</code> (dotenv-cli is already installed).</span></li>
+    <li><input type="checkbox" id="f2"><span class="item-text"><strong>Create <code>.claude/product-marketing-context.md</code></strong> — one page: positioning, 3 tiers, founding offer, tone rules. The <code>programmatic-seo</code> skill already looks for this file.</span></li>
+    <li><input type="checkbox" id="f3"><span class="item-text"><strong>Add the <code>new-ai-tool</code> and <code>stripe-billing</code> skills</strong> — scaffolding checklist for slice-2 tools, and a doc of the plans → checkout → webhook → ledger contract (incl. the <code>billing_reason</code> guard) so future billing work doesn't re-derive it.</span></li>
+    <li><input type="checkbox" id="f4"><span class="item-text"><strong>Retire the <code>polar-payments-expert</code> agent</strong> once Stripe is live and the last Polar subscribers have churned or migrated.</span></li>
+    <li><input type="checkbox" id="f5"><span class="item-text"><strong>Slice 2 planning</strong> — roadmap ranks the next tools: ① AEO/LLM visibility score, ② Google Business Profile post generator, ③ review insights summarizer, ④ FAQ + schema generator, ⑤ seasonal promo generator. ②/④/⑤ are mostly new prompt entries — short sessions each.</span></li>
+  </ul>
+</section>
+
+<footer>
+  Generated 2026-07-12 · specs/ai-platform-foundation · checkbox state is stored in this browser (localStorage) only
+</footer>
+</div>
+
+<script>
+(function () {
+  var KEY = "fb-manual-checklist-v1";
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[type="checkbox"]'));
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+
+  function refresh() {
+    var done = 0;
+    boxes.forEach(function (b) {
+      b.closest("li").classList.toggle("done", b.checked);
+      if (b.checked) done++;
+    });
+    var pct = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+    document.getElementById("fill").style.width = pct + "%";
+    document.getElementById("label").textContent = done + " / " + boxes.length + " complete (" + pct + "%)";
+  }
+
+  boxes.forEach(function (b) {
+    if (saved[b.id]) b.checked = true;
+    b.addEventListener("change", function () {
+      saved[b.id] = b.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      refresh();
+    });
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

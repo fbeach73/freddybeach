@@ -15,9 +15,15 @@ import {
   Key,
   ImageIcon,
 } from "lucide-react";
-import { PurchaseCreditsButton, ApiKeySection } from "@/components/billing";
+import {
+  PurchaseCreditsButton,
+  ApiKeySection,
+  ManageSubscriptionButton,
+  SubscribeButton,
+} from "@/components/billing";
 import { UserProfile } from "@/components/auth/user-profile";
 import { PageHeader, SectionHeader } from "@/components/shared/page-header";
+import { FoundingMemberBanner } from "@/components/marketing/founding-member-banner";
 import { ComingSoon } from "@/components/dashboard/coming-soon";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,14 +36,25 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { creditPacks, byokOption } from "@/lib/data/plans";
+import { PLANS, creditPacks, byokOption } from "@/lib/data/plans";
 import {
   getUserCredits,
   getSubscriptionInfo,
   checkSoftCap,
   hasOwnApiKey,
   getCreditsForResolution,
+  type SubscriptionTier,
 } from "@/lib/services/token-system";
+import { db } from "@/lib/db";
+import { user } from "@/lib/schema";
+import { eq } from "drizzle-orm";
+
+// Display names sourced from the canonical plans module
+const TIER_DISPLAY_NAMES: Record<SubscriptionTier, string> = {
+  starter: PLANS.starter.name,
+  pro: `${PLANS.pro.name} (Unlimited)`,
+  byok: PLANS.byokPro.name,
+};
 
 // Check if soft cap enforcement is enabled
 const isSoftCapEnforced = (): boolean => {
@@ -74,14 +91,28 @@ export default async function BillingPage() {
     );
   }
 
-  // Fetch credit balance and subscription info
-  const [creditBalance, subscriptionInfo, softCapStatus, hasByok] =
+  // Fetch credit balance, subscription info, and billing flags
+  const [creditBalance, subscriptionInfo, softCapStatus, hasByok, billingUser] =
     await Promise.all([
       getUserCredits(session.user.id),
       getSubscriptionInfo(session.user.id),
       checkSoftCap(session.user.id),
       hasOwnApiKey(session.user.id),
+      db
+        .select({
+          foundingMember: user.foundingMember,
+          stripeCustomerId: user.stripeCustomerId,
+        })
+        .from(user)
+        .where(eq(user.id, session.user.id))
+        .limit(1)
+        .then((rows) => rows[0] ?? null),
     ]);
+
+  const isFoundingMember = billingUser?.foundingMember ?? false;
+  // Active subscribers with no Stripe customer are legacy Polar subscribers
+  const isLegacyPolarSub =
+    subscriptionInfo.isActive && !billingUser?.stripeCustomerId;
 
   // Get member since date from session
   const memberSince = session.user.createdAt
@@ -114,6 +145,9 @@ export default async function BillingPage() {
           description="Manage your AI credits, subscription, and billing information"
         />
       </section>
+
+      {/* Founding member strip (hidden once claimed or spots are gone) */}
+      {!isFoundingMember && <FoundingMemberBanner variant="compact" />}
 
       {/* Credit Balance & Subscription Status */}
       <section className="space-y-4">
@@ -199,15 +233,19 @@ export default async function BillingPage() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Subscription</p>
-                    <p className="text-xl font-bold">
-                      {subscriptionInfo.isActive
-                        ? subscriptionInfo.tier === "byok"
-                          ? "BYOK Pro"
-                          : subscriptionInfo.tier === "starter"
-                            ? "Starter"
-                            : "Pro (Unlimited)"
-                        : "No Active Plan"}
-                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xl font-bold">
+                        {subscriptionInfo.isActive && subscriptionInfo.tier
+                          ? TIER_DISPLAY_NAMES[subscriptionInfo.tier]
+                          : PLANS.free.name}
+                      </p>
+                      {isFoundingMember && (
+                        <Badge className="bg-nb-yellow text-black border-nb-border">
+                          <Sparkles className="mr-1 h-3 w-3" />
+                          Founding Member
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {subscriptionInfo.isActive && (
@@ -243,8 +281,8 @@ export default async function BillingPage() {
                     </div>
                   </div>
 
-                  {/* Soft Cap Usage (only for non-BYOK subscriptions) */}
-                  {subscriptionInfo.tier !== "byok" && (
+                  {/* Soft Cap Usage (Pro's unlimited-with-fair-use meter) */}
+                  {subscriptionInfo.tier === "pro" && (
                     <div className="mt-4 space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span className="flex items-center gap-1 text-muted-foreground">
@@ -293,25 +331,34 @@ export default async function BillingPage() {
                   )}
 
                   <div className="mt-4">
-                    <Button variant="outline" className="w-full" asChild>
-                      <Link href="/ai-tools#pricing">
-                        Manage Subscription
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
+                    {isLegacyPolarSub ? (
+                      <p className="border-2 border-nb-border/20 bg-muted/50 p-3 text-sm text-muted-foreground">
+                        Billed via Polar (legacy). Your subscription keeps
+                        renewing as usual — nothing to do on your end.
+                      </p>
+                    ) : (
+                      <ManageSubscriptionButton className="w-full" />
+                    )}
                   </div>
                 </>
               ) : (
                 <>
                   <p className="mt-4 text-sm text-muted-foreground">
-                    Use credits for pay-as-you-go generation, or add your own API key for unlimited free access.
+                    {PLANS.free.description}
                   </p>
 
-                  <div className="mt-4">
-                    <Button className="w-full" asChild>
-                      <Link href="/ai-tools#pricing">
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        View Pricing Options
+                  <div className="mt-4 space-y-2">
+                    <SubscribeButton plan="starter" className="w-full">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Get {PLANS.starter.name} — {PLANS.starter.priceLabel}
+                    </SubscribeButton>
+                    <SubscribeButton plan="pro" variant="outline" className="w-full">
+                      Get {PLANS.pro.name} — {PLANS.pro.priceLabel}
+                    </SubscribeButton>
+                    <Button variant="ghost" className="w-full" asChild>
+                      <Link href="/pricing">
+                        Compare all plans
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
                   </div>

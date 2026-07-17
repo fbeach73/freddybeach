@@ -36,15 +36,12 @@ export function AIToolDemo({ tool, className }: AIToolDemoProps) {
     handleGenerate();
   };
 
-  const tierLabel = tool.tier === "free" ? "Free" : "Premium";
-  const tierVariant = tool.tier === "free" ? "secondary" : "default";
-
   return (
     <Card className={cn("overflow-hidden", className)}>
       <CardHeader className="border-b bg-muted/30">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{tool.name}</CardTitle>
-          <Badge variant={tierVariant}>{tierLabel}</Badge>
+          <Badge variant="secondary">Try it free</Badge>
         </div>
         <p className="text-sm text-muted-foreground">{tool.shortDescription}</p>
       </CardHeader>

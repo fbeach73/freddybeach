@@ -290,8 +290,8 @@ export function getCreditsForDimensions(width: number, height: number): number {
 // - "byok" is BYOK Pro - allows users to use their own API key with priority processing
 export type SubscriptionTier = "starter" | "pro" | "byok";
 
-// Legacy DB values still written by the Polar webhook during sunset.
-// Normalized to the new tiers on read via LEGACY_TIER_MAP.
+// Legacy DB values from the pre-Stripe era; kept as a defensive
+// normalizer in case any old rows remain. Normalized on read via LEGACY_TIER_MAP.
 export type LegacySubscriptionTier = "monthly" | "yearly";
 
 const LEGACY_TIER_MAP: Record<LegacySubscriptionTier, SubscriptionTier> = {
@@ -828,7 +828,7 @@ export async function addCredits(
 /**
  * Activate a subscription for a user
  * @param userId - The user's ID
- * @param tier - Subscription tier (legacy monthly/yearly still accepted from the Polar webhook)
+ * @param tier - Subscription tier (legacy monthly/yearly still accepted defensively)
  * @param expiresAt - Exact expiration (e.g. Stripe's current_period_end); computed from tier when omitted
  * @returns Success status
  */
@@ -841,7 +841,7 @@ export async function activateSubscription(
     const now = new Date();
 
     if (!expiresAt) {
-      // Calculate expiration based on tier (Polar path)
+      // Calculate expiration based on tier (fallback when caller passes no date)
       expiresAt = new Date(now);
       if (tier === "yearly") {
         expiresAt.setFullYear(expiresAt.getFullYear() + 1);

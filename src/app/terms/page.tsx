@@ -202,7 +202,7 @@ export default function TermsPage() {
         </p>
         <ul>
           <li>
-            Payments are processed securely through our payment provider (Polar)
+            Payments are processed securely through our payment provider (Stripe)
           </li>
           <li>
             Subscriptions are billed in advance on a monthly or annual basis

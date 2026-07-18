@@ -6,7 +6,7 @@
  * - Subscription lifecycle (customer.subscription.created/updated/deleted)
  * - Renewals (invoice.paid)
  *
- * RETRY LOGIC (same policy as the Polar handler):
+ * RETRY LOGIC:
  * - Stripe automatically retries failed webhooks (5xx responses) for up to 3 days
  * - Critical (ledger) failures throw so we return 500 and Stripe retries
  * - Non-critical failures (email sending) are logged and we return 200

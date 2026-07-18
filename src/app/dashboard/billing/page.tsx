@@ -101,7 +101,6 @@ export default async function BillingPage() {
       db
         .select({
           foundingMember: user.foundingMember,
-          stripeCustomerId: user.stripeCustomerId,
         })
         .from(user)
         .where(eq(user.id, session.user.id))
@@ -110,9 +109,6 @@ export default async function BillingPage() {
     ]);
 
   const isFoundingMember = billingUser?.foundingMember ?? false;
-  // Active subscribers with no Stripe customer are legacy Polar subscribers
-  const isLegacyPolarSub =
-    subscriptionInfo.isActive && !billingUser?.stripeCustomerId;
 
   // Get member since date from session
   const memberSince = session.user.createdAt
@@ -331,14 +327,7 @@ export default async function BillingPage() {
                   )}
 
                   <div className="mt-4">
-                    {isLegacyPolarSub ? (
-                      <p className="border-2 border-nb-border/20 bg-muted/50 p-3 text-sm text-muted-foreground">
-                        Billed via Polar (legacy). Your subscription keeps
-                        renewing as usual — nothing to do on your end.
-                      </p>
-                    ) : (
-                      <ManageSubscriptionButton className="w-full" />
-                    )}
+                    <ManageSubscriptionButton className="w-full" />
                   </div>
                 </>
               ) : (

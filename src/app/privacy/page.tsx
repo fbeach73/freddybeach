@@ -111,7 +111,7 @@ export default function PrivacyPage() {
           <li>
             <strong>Payment Processors:</strong> If you subscribe to a paid
             plan, payment information is handled by our payment processor
-            (Polar)
+            (Stripe)
           </li>
         </ul>
         <p>
